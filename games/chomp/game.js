@@ -623,12 +623,13 @@
     return clawdSprite;
   }
 
-  // Render Clawd at 1.25× the original sprite — slightly bigger, no sub-pixel artefacts.
+  // Render Clawd at 1.25× by default. While powered-up (frightened mode active)
+  // scale up to 1.8× so the power-pellet effect is visually obvious.
   function drawClawd(cx, cy) {
     const src = getClawdSprite();
-    const scale = 1.25;
-    const w = src.width * scale;   // 30
-    const h = src.height * scale;  // 22.5
+    const scale = frightenedTimer > 0 ? 1.8 : 1.25;
+    const w = src.width * scale;
+    const h = src.height * scale;
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(src, Math.round(cx - w / 2), Math.round(cy - h / 2), w, h);
   }
