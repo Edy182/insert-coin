@@ -747,17 +747,17 @@
     osc.stop(t + duration + 0.01);
   }
 
-  // Clawdman music — tense minor descending pattern
-  const MUSIC_NOTES = [440, 523, 622, 587, 523, 466, 415, 392];
+  // Shared arcade music — Runner's upbeat pentatonic loop across all 3 games
+  const MUSIC_NOTES = [523, 587, 659, 784, 880, 784, 659, 587];
   let musicIdx = 0, musicTimer = null;
   function startMusic() {
     if (musicTimer || !soundOn) return;
     getAudioCtx();
     musicTimer = setInterval(() => {
       if (!soundOn) return;
-      beep({ freq: MUSIC_NOTES[musicIdx], type: 'triangle', duration: 0.15, volume: 0.035 });
+      beep({ freq: MUSIC_NOTES[musicIdx], type: 'triangle', duration: 0.12, volume: 0.035 });
       musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
-    }, 230);
+    }, 200);
   }
   function stopMusic() {
     if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
@@ -803,6 +803,30 @@
       if (!gameStarted) { gameStarted = true; startMusic(); }
     }
   });
+
+  // Mobile touch: swipe to set direction
+  let touchStartX = 0, touchStartY = 0;
+  canvas.addEventListener('touchstart', e => {
+    if (gameOver) { reset(); return; }
+    if (e.touches.length > 0) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }
+  }, { passive: false });
+  canvas.addEventListener('touchend', e => {
+    if (e.changedTouches.length === 0) return;
+    const ddx = e.changedTouches[0].clientX - touchStartX;
+    const ddy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(ddx) < 20 && Math.abs(ddy) < 20) return;
+    const queued = Math.abs(ddx) > Math.abs(ddy)
+      ? { dx: ddx > 0 ? 1 : -1, dy: 0 }
+      : { dx: 0, dy: ddy > 0 ? 1 : -1 };
+    if (player) {
+      player.nextDir = queued;
+      if (!gameStarted) { gameStarted = true; startMusic(); }
+    }
+    e.preventDefault();
+  }, { passive: false });
 
   restartBtn.addEventListener('click', reset);
   muteBtn.addEventListener('click', () => {
