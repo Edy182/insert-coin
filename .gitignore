@@ -1,0 +1,63 @@
+# OS / editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Secrets / config
+.env
+.env.local
+*.key
+api_keys.txt
+
+# Node
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Generated assets we can regenerate
+assets/sprites/exports/
+
+# Source files (large): keep PSDs and .aseprite in cloud storage, not git
+*.psd
+*.aseprite
+*.cmo3
+
+# Audio source files (large): keep masters elsewhere
+assets/sounds/raw/
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage/
+
+# Vercel
+.vercel/
+
+# Local dev
+*.local
+
+# Working / reference PNGs at the project root (not in games/ or assets/)
+/*.png
+
+# One-off extraction scripts at root
+/extract*.py
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Playwright MCP cache
+.playwright-mcp/

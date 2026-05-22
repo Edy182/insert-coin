@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Clawd Bytes — retro browser games starring the Claude Code mascot. Independent fan project.">
+  <title>Clawd Bytes 🕹️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #FF8A1F;
+      --navy: #0B1426;
+      --cream: #F5EFE0;
+      --green: #3FCB7A;
+      --red: #E5564B;
+      --gray: #7E8C99;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--navy);
+      color: var(--cream);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 3rem 2rem 2rem;
+      text-align: center;
+      border-bottom: 2px solid var(--orange);
+    }
+    h1 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(1.5rem, 5vw, 3rem);
+      color: var(--orange);
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+    .tagline {
+      font-family: 'VT323', monospace;
+      font-size: 1.5rem;
+      color: var(--gray);
+    }
+    main {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      width: 100%;
+    }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .game-card {
+      background: rgba(255, 138, 31, 0.08);
+      border: 2px solid var(--orange);
+      border-radius: 8px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: transform 0.15s ease, background 0.15s ease;
+      position: relative;
+    }
+    .game-card.available { cursor: pointer; }
+    .game-card.available:hover {
+      transform: translateY(-4px);
+      background: rgba(255, 138, 31, 0.18);
+    }
+    .game-card.coming-soon {
+      border-color: var(--gray);
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .game-card .sprite {
+      width: 64px; height: 64px;
+      margin: 0 auto 1rem;
+      background: var(--orange);
+      border-radius: 4px;
+      image-rendering: pixelated;
+    }
+    .game-card.coming-soon .sprite { background: var(--gray); }
+    .game-card h2 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.85rem;
+      color: var(--cream);
+      margin-bottom: 0.5rem;
+    }
+    .game-card .desc {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+    .game-card .play-btn {
+      display: inline-block;
+      padding: 0.6rem 1.2rem;
+      background: var(--orange);
+      color: var(--navy);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.7rem;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .game-card.coming-soon .play-btn {
+      background: var(--gray);
+      color: var(--navy);
+      pointer-events: none;
+    }
+    footer {
+      padding: 2rem;
+      text-align: center;
+      border-top: 1px solid var(--gray);
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+    footer a {
+      color: var(--orange);
+      text-decoration: none;
+      margin: 0 0.5rem;
+    }
+    .disclaimer {
+      max-width: 600px;
+      margin: 0 auto 1rem;
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>CLAWD BYTES</h1>
+    <p class="tagline">retro games for the AI dev community</p>
+  </header>
+
+  <main>
+    <div class="games-grid">
+
+      <a href="games/runner/" class="game-card available">
+        <div class="sprite"></div>
+        <h2>CLAWD RUNNER</h2>
+        <p class="desc">Endless runner. Jump over bugs and semicolons. How far can you code?</p>
+        <span class="play-btn">▶ PLAY</span>
+      </a>
+
+      <div class="game-card coming-soon">
+        <div class="sprite"></div>
+        <h2>CLAWD CHOMP</h2>
+        <p class="desc">Pac-Man clone. Dodge the errors, eat the tokens.</p>
+        <span class="play-btn">SOON</span>
+      </div>
+
+      <div class="game-card coming-soon">
+        <div class="sprite"></div>
+        <h2>CLAWD SNAKE</h2>
+        <p class="desc">Eat commits. Avoid merge conflicts. Don't bite your own tail.</p>
+        <span class="play-btn">SOON</span>
+      </div>
+
+      <div class="game-card coming-soon">
+        <div class="sprite"></div>
+        <h2>CLAWD TETRIS</h2>
+        <p class="desc">Stack code blocks. Clear lines. Refactor reality.</p>
+        <span class="play-btn">SOON</span>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <p class="disclaimer">
+      Clawd Bytes is an independent fan project.<br>
+      Not affiliated with or endorsed by Anthropic.
+    </p>
+    <p>
+      <a href="https://github.com/[your-handle]/clawd-bytes">GitHub</a> ·
+      <a href="https://discord.gg/[your-invite]">Discord</a> ·
+      <a href="https://twitter.com/clawdbytes">@clawdbytes</a>
+    </p>
+  </footer>
+
+</body>
+</html>
