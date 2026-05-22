@@ -483,13 +483,54 @@
   function endGame() {
     gameOver = true;
     stopMusic();
-    if (score > highScore) {
+    const beatHigh = score > highScore;
+    if (beatHigh) {
       highScore = score;
       localStorage.setItem('clawd-chomp-high', String(highScore));
       highScoreEl.textContent = String(highScore).padStart(5, '0');
     }
+    if (beatHigh || win) burstConfetti();
     restartBtn.classList.remove('hidden');
     if (dailyMode) shareBtn.classList.remove('hidden');
+  }
+
+  // === Confetti (high-score celebration) ===
+  const CONFETTI_COLORS = ['#FF8A1F', '#F5EFE0', '#3FCB7A', '#FFB6E1', '#4ED8E5', '#FFCD3C'];
+  let confetti = [];
+  function burstConfetti() {
+    for (let i = 0; i < 80; i++) {
+      confetti.push({
+        x: Math.random() * W,
+        y: -10 - Math.random() * 30,
+        vx: (Math.random() - 0.5) * 4,
+        vy: 1 + Math.random() * 3,
+        rot: Math.random() * Math.PI,
+        vrot: (Math.random() - 0.5) * 0.25,
+        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+        life: 220,
+      });
+    }
+  }
+  function updateConfetti() {
+    for (let i = confetti.length - 1; i >= 0; i--) {
+      const p = confetti[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.12;
+      p.rot += p.vrot;
+      p.life--;
+      if (p.life <= 0 || p.y > H + 20) confetti.splice(i, 1);
+    }
+  }
+  function drawConfetti() {
+    for (const p of confetti) {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-3, -3, 6, 6);
+      ctx.restore();
+    }
   }
 
   // Caught by a ghost — burn a life, respawn if any left.
@@ -716,9 +757,11 @@
 
   function loop() {
     update();
+    if (confetti.length > 0) updateConfetti();
     draw();
+    if (confetti.length > 0) drawConfetti();
     frameCount++;
-    if (!gameOver) requestAnimationFrame(loop);
+    if (!gameOver || confetti.length > 0) requestAnimationFrame(loop);
   }
 
   // === Audio (chiptune beeps via Web Audio API; original frequencies) ===
