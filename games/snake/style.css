@@ -1,0 +1,101 @@
+:root {
+  --orange: #FF8A1F;
+  --navy: #0B1426;
+  --cream: #F5EFE0;
+  --green: #3FCB7A;
+  --red: #E5564B;
+  --gray: #7E8C99;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--navy);
+  color: var(--cream);
+  font-family: 'VT323', monospace;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.game-shell {
+  width: 100%;
+  max-width: 560px;
+}
+
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(255, 138, 31, 0.08);
+  border: 2px solid var(--orange);
+  border-radius: 8px;
+}
+
+.back-link {
+  color: var(--orange);
+  text-decoration: none;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+}
+
+h1 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.8rem, 3vw, 1.2rem);
+  color: var(--orange);
+  text-align: center;
+  flex: 1;
+}
+
+.score-box {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  color: var(--cream);
+  text-align: right;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+#game {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #000;
+  border: 4px solid var(--orange);
+  border-radius: 8px;
+  image-rendering: pixelated;
+}
+
+.controls {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--gray);
+}
+
+.controls button {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--orange);
+  color: var(--navy);
+  border: none;
+  border-radius: 4px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.controls button:hover { background: #ffa040; }
+
+.hidden { display: none; }
+
+.game-footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--gray);
+}

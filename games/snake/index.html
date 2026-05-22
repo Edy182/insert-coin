@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clawd Snake 🦀 — Clawd Bytes</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="game-shell">
+
+    <header class="game-header">
+      <a href="../../" class="back-link">← Clawd Bytes</a>
+      <h1>CLAWD SNAKE</h1>
+      <div class="score-box">
+        HI <span id="high-score">00000</span>&nbsp;&nbsp;<span id="score">00000</span>
+      </div>
+    </header>
+
+    <canvas id="game" width="504" height="504"></canvas>
+
+    <div class="controls">
+      <p>ARROWS / WASD to steer &nbsp;·&nbsp; SPACE to restart</p>
+      <button id="restart" class="hidden">RESTART</button>
+      <button id="mute">🔊 SOUND</button>
+    </div>
+
+    <footer class="game-footer">
+      <p>Independent fan project. Not affiliated with Anthropic.</p>
+    </footer>
+
+  </div>
+
+  <script src="game.js?v=1"></script>
+</body>
+</html>
