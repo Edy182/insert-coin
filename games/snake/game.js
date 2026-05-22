@@ -78,6 +78,8 @@
     requestAnimationFrame(loop);
   }
 
+  const FOOD_COLORS = ['#FF8A1F', '#F5EFE0', '#3FCB7A', '#FFB6E1', '#4ED8E5', '#FFCD3C'];
+
   function spawnFood() {
     let c, r, tries = 0;
     do {
@@ -86,7 +88,8 @@
       tries++;
       if (tries > 500) break;
     } while (snake.some(s => s.c === c && s.r === r));
-    food = { c, r };
+    const color = FOOD_COLORS[Math.floor(Math.random() * FOOD_COLORS.length)];
+    food = { c, r, color };
   }
 
   // === Update ===
@@ -186,21 +189,14 @@
     }
   }
 
-  // Green "commit" with a tiny check mark — Clawd grows by eating code commits.
+  // Food — solid colored ball, color picked at spawn time.
   function drawFood(c, r) {
     const cx = c * TILE + TILE / 2;
     const cy = r * TILE + TILE / 2;
-    ctx.fillStyle = '#3FCB7A';
+    ctx.fillStyle = food.color;
     ctx.beginPath();
     ctx.arc(cx, cy, 8, 0, Math.PI * 2);
     ctx.fill();
-    // Pixel check mark in dark navy on top
-    ctx.fillStyle = '#0B1426';
-    ctx.fillRect(cx - 4, cy + 0, 2, 2);
-    ctx.fillRect(cx - 2, cy + 2, 2, 2);
-    ctx.fillRect(cx + 0, cy + 0, 2, 2);
-    ctx.fillRect(cx + 2, cy - 2, 2, 2);
-    ctx.fillRect(cx + 4, cy - 4, 2, 2);
   }
 
   // Body segment — plain orange dot that tapers smaller toward the tail tip.

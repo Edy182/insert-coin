@@ -221,19 +221,32 @@
     // Clouds
     for (const c of clouds) drawCloud(c.x, c.y, cld);
 
-    // Ground — clean base line with small bumps sticking up
+    // Ground — base line + irregular raised sections + multi-rect stones on top
     ctx.fillStyle = gnd;
     ctx.fillRect(0, GROUND_Y, W, 2);
-    const bumps = [
-      [  6, 5, 2],  // [offset, width, height-above-line]
-      [ 24, 3, 3],
-      [ 47, 4, 2],
-      [ 65, 6, 2],
-    ];
     for (let x = -groundOffset; x < W; x += 80) {
-      for (const [o, w, h] of bumps) {
-        ctx.fillRect(x + o, GROUND_Y - h + 2, w, h);
-      }
+      // Line irregularities: 1-px raised stretches make the surface look uneven
+      ctx.fillRect(x + 16, GROUND_Y - 1, 7, 1);
+      ctx.fillRect(x + 38, GROUND_Y - 1, 5, 1);
+      ctx.fillRect(x + 56, GROUND_Y - 1, 8, 1);
+
+      // Stone 1 — medium blob (5×3)
+      ctx.fillRect(x + 5,  GROUND_Y - 3, 3, 1);
+      ctx.fillRect(x + 4,  GROUND_Y - 2, 5, 1);
+      ctx.fillRect(x + 4,  GROUND_Y - 1, 4, 1);
+
+      // Stone 2 — small (3×2)
+      ctx.fillRect(x + 27, GROUND_Y - 2, 2, 1);
+      ctx.fillRect(x + 26, GROUND_Y - 1, 3, 1);
+
+      // Stone 3 — larger asymmetric (6×3)
+      ctx.fillRect(x + 49, GROUND_Y - 3, 4, 1);
+      ctx.fillRect(x + 48, GROUND_Y - 2, 6, 1);
+      ctx.fillRect(x + 49, GROUND_Y - 1, 5, 1);
+
+      // Stone 4 — tiny (2×2)
+      ctx.fillRect(x + 70, GROUND_Y - 2, 2, 1);
+      ctx.fillRect(x + 70, GROUND_Y - 1, 3, 1);
     }
 
     // Player
