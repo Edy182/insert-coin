@@ -704,6 +704,7 @@
     const h = src.height * scale;
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(src, Math.round(cx - w / 2), Math.round(cy - h / 2), w, h);
+    if (window.ClawdStats) window.ClawdStats.drawHat(ctx, cx, cy - h / 2, frightenedTimer > 0 ? 4 : 3);
   }
 
   // Tiny Clawd icon for the lives indicator.
@@ -850,7 +851,7 @@
     e.preventDefault();
     if (player) {
       player.nextDir = { dx, dy };
-      if (!gameStarted) { gameStarted = true; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } }
+      if (!gameStarted) { gameStarted = true; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'chomp', dailyMode: dailyMode, dateISO: todayISO }); }
     }
   });
 
@@ -873,7 +874,7 @@
       : { dx: 0, dy: ddy > 0 ? 1 : -1 };
     if (player) {
       player.nextDir = queued;
-      if (!gameStarted) { gameStarted = true; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } }
+      if (!gameStarted) { gameStarted = true; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'chomp', dailyMode: dailyMode, dateISO: todayISO }); }
     }
     e.preventDefault();
   }, { passive: false });

@@ -97,7 +97,12 @@
 
   function jump() {
     if (gameOver) return reset();
-    if (!gameStarted) { gameStarted = true; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } }
+    if (!gameStarted) {
+      gameStarted = true;
+      startMusic();
+      if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; }
+      if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'runner', dailyMode: dailyMode, dateISO: todayISO });
+    }
     if (player.grounded) {
       player.vy = JUMP_VELOCITY;
       player.grounded = false;
@@ -367,6 +372,7 @@
     ].forEach((row, r) => row.forEach((col, c) => {
       if (col) { ctx.fillStyle = col; ctx.fillRect(x + c*P, y + r*P, P, P); }
     }));
+    if (window.ClawdStats) window.ClawdStats.drawHat(ctx, x + 6 * P, y, P);
   }
 
   // Clawd ducking — 12×4 grid at P=3 = 36×12px
