@@ -221,10 +221,9 @@
     // Clouds
     for (const c of clouds) drawCloud(c.x, c.y, cld);
 
-    // Ground — base line + occasional small bumps + varied pebbles below
+    // Ground — clean base line with small bumps sticking up
     ctx.fillStyle = gnd;
     ctx.fillRect(0, GROUND_Y, W, 2);
-    // Small bumps sticking up from the line every ~80px tile
     const bumps = [
       [  6, 5, 2],  // [offset, width, height-above-line]
       [ 24, 3, 3],
@@ -234,23 +233,6 @@
     for (let x = -groundOffset; x < W; x += 80) {
       for (const [o, w, h] of bumps) {
         ctx.fillRect(x + o, GROUND_Y - h + 2, w, h);
-      }
-    }
-    // Pebbles + dust below, two sizes for variety
-    const pebbles = [
-      [  3,  5, 3, 1],
-      [ 11,  8, 2, 1],
-      [ 19,  6, 4, 1],
-      [ 30, 10, 2, 1],
-      [ 38,  7, 3, 1],
-      [ 46, 12, 2, 1],
-      [ 53,  5, 5, 1],
-      [ 62,  9, 3, 1],
-      [ 70,  6, 2, 1],
-    ];
-    for (let x = -groundOffset; x < W; x += 80) {
-      for (const [o, dy, w, h] of pebbles) {
-        ctx.fillRect(x + o, GROUND_Y + dy, w, h);
       }
     }
 

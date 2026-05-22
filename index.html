@@ -73,22 +73,26 @@
       cursor: not-allowed;
     }
     .game-card .sprite {
-      width: 64px; height: 64px;
+      width: 72px; height: 72px;
       margin: 0 auto 1rem;
       background: var(--orange);
       border-radius: 4px;
       image-rendering: pixelated;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .game-card .sprite svg {
+      width: 72%;
+      height: 72%;
+      shape-rendering: crispEdges;
     }
     .game-card.coming-soon .sprite { background: var(--gray); }
+    .game-card.coming-soon .sprite svg { opacity: 0.75; }
     .game-card h2 {
       font-family: 'Press Start 2P', monospace;
       font-size: 0.85rem;
       color: var(--cream);
-      margin-bottom: 0.5rem;
-    }
-    .game-card .desc {
-      font-size: 0.9rem;
-      color: var(--gray);
       margin-bottom: 1rem;
     }
     .game-card .play-btn {
@@ -138,30 +142,86 @@
     <div class="games-grid">
 
       <a href="games/runner/" class="game-card available">
-        <div class="sprite"></div>
+        <div class="sprite">
+          <svg viewBox="0 0 12 9" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#F5EFE0">
+              <rect x="1" y="0" width="10" height="4"/>
+              <rect x="0" y="4" width="12" height="2"/>
+              <rect x="1" y="6" width="10" height="2"/>
+              <rect x="2" y="8" width="1" height="1"/>
+              <rect x="4" y="8" width="1" height="1"/>
+              <rect x="8" y="8" width="1" height="1"/>
+              <rect x="10" y="8" width="1" height="1"/>
+            </g>
+            <g fill="#1A0808">
+              <rect x="3" y="2" width="1" height="2"/>
+              <rect x="9" y="2" width="1" height="2"/>
+            </g>
+          </svg>
+        </div>
         <h2>CLAWD RUNNER</h2>
-        <p class="desc">Endless runner. Leap the cacti, duck the pteros. How far can you go?</p>
         <span class="play-btn">▶ PLAY</span>
       </a>
 
       <a href="games/chomp/" class="game-card available">
-        <div class="sprite"></div>
+        <div class="sprite">
+          <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#E5564B">
+              <rect x="3" y="0" width="6" height="1"/>
+              <rect x="2" y="1" width="8" height="1"/>
+              <rect x="1" y="2" width="10" height="1"/>
+              <rect x="0" y="3" width="12" height="7"/>
+              <rect x="0" y="10" width="2" height="1"/>
+              <rect x="3" y="10" width="2" height="1"/>
+              <rect x="6" y="10" width="2" height="1"/>
+              <rect x="9" y="10" width="2" height="1"/>
+              <rect x="0" y="11" width="1" height="1"/>
+              <rect x="3" y="11" width="1" height="1"/>
+              <rect x="6" y="11" width="1" height="1"/>
+              <rect x="9" y="11" width="1" height="1"/>
+            </g>
+            <g fill="#F5EFE0">
+              <rect x="2" y="4" width="2" height="2"/>
+              <rect x="8" y="4" width="2" height="2"/>
+            </g>
+            <g fill="#0A1F3D">
+              <rect x="3" y="5" width="1" height="1"/>
+              <rect x="9" y="5" width="1" height="1"/>
+            </g>
+          </svg>
+        </div>
         <h2>CLAWMAN</h2>
-        <p class="desc">Maze chase. Dodge the Errors, gobble the pellets, chomp them when they panic.</p>
         <span class="play-btn">▶ PLAY</span>
       </a>
 
       <a href="games/snake/" class="game-card available">
-        <div class="sprite"></div>
+        <div class="sprite">
+          <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="6" cy="6" r="5" fill="#3FCB7A"/>
+            <g fill="#0B1426">
+              <rect x="3" y="6" width="1" height="1"/>
+              <rect x="4" y="7" width="1" height="1"/>
+              <rect x="5" y="6" width="1" height="1"/>
+              <rect x="6" y="5" width="1" height="1"/>
+              <rect x="7" y="4" width="1" height="1"/>
+              <rect x="8" y="3" width="1" height="1"/>
+            </g>
+          </svg>
+        </div>
         <h2>CLAWD SNAKE</h2>
-        <p class="desc">Eat commits. Grow longer. Don't bite your own tail.</p>
         <span class="play-btn">▶ PLAY</span>
       </a>
 
       <div class="game-card coming-soon">
-        <div class="sprite"></div>
+        <div class="sprite">
+          <svg viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#F5EFE0">
+              <rect x="1" y="0" width="2" height="6"/>
+              <rect x="3" y="4" width="2" height="2"/>
+            </g>
+          </svg>
+        </div>
         <h2>CLAWD TETRIS</h2>
-        <p class="desc">Stack code blocks. Clear lines. Refactor reality.</p>
         <span class="play-btn">SOON</span>
       </div>
 
