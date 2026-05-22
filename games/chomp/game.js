@@ -504,10 +504,10 @@
           ctx.fillStyle = '#F5EFE0';
           ctx.fillRect(px + TILE / 2 - 2, py + TILE / 2 - 2, 4, 4);
         } else if (cell === CELL_PELLET) {
-          const pulse = (Math.sin(frameCount * 0.18) + 1) * 0.5;
+          const pulse = (Math.sin(frameCount * 0.15) + 1) * 0.5;
           ctx.fillStyle = '#FF8A1F';
           ctx.beginPath();
-          ctx.arc(px + TILE / 2, py + TILE / 2, 5 + pulse * 3, 0, Math.PI * 2);
+          ctx.arc(px + TILE / 2, py + TILE / 2, 4 + pulse * 6, 0, Math.PI * 2);
           ctx.fill();
         }
       }
