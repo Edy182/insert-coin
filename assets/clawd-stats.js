@@ -90,7 +90,59 @@
     }
   }
 
-  // Convenience: bump totalGames once per page load + bump dailiesDone once per daily page load.
+  // Returns the ids the user has already seen toasts for.
+  const SEEN_KEY = 'clawd-seen-unlocks';
+  function seenIds() {
+    try { return JSON.parse(localStorage.getItem(SEEN_KEY) || '[]'); } catch (_) { return []; }
+  }
+  function markSeen(ids) {
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids)); } catch (_) {}
+  }
+
+  // Returns newly-unlocked skins/hats that haven't been celebrated yet.
+  function findNewUnlocks() {
+    const stats = read();
+    const seen = new Set(seenIds());
+    const out = [];
+    SKINS.forEach((s) => { if (s.id !== 'classic' && s.requires(stats) && !seen.has(s.id)) out.push({ kind: 'skin', id: s.id, name: s.name, color: s.color }); });
+    HATS.forEach((h) => { if (h.requires(stats) && !seen.has(h.id)) out.push({ kind: 'hat', id: h.id, name: h.name, color: h.colors && h.colors[1] }); });
+    return out;
+  }
+
+  function injectToastStyle() {
+    if (document.getElementById('clawd-toast-style')) return;
+    const style = document.createElement('style');
+    style.id = 'clawd-toast-style';
+    style.textContent =
+      '.clawd-toast { position: fixed; top: 1.4rem; left: 50%; transform: translateX(-50%);' +
+      ' background: #FF8A1F; color: #0B1426; font-family: "Press Start 2P", monospace;' +
+      ' font-size: 0.7rem; padding: 0.85rem 1.2rem; border-radius: 6px; z-index: 9999;' +
+      ' box-shadow: 0 6px 24px rgba(0,0,0,.55); display: flex; align-items: center; gap: 0.7rem;' +
+      ' animation: clawd-toast-in .35s ease-out, clawd-toast-out .35s ease-in 3.4s forwards; }' +
+      '.clawd-toast .swatch { width: 16px; height: 16px; border-radius: 3px; background: var(--c, #fff); }' +
+      '@keyframes clawd-toast-in { from { opacity: 0; transform: translate(-50%, -22px); } to { opacity: 1; transform: translate(-50%, 0); } }' +
+      '@keyframes clawd-toast-out { to { opacity: 0; transform: translate(-50%, -22px); } }';
+    document.head.appendChild(style);
+  }
+
+  function showToast(item) {
+    if (typeof document === 'undefined') return;
+    injectToastStyle();
+    const el = document.createElement('div');
+    el.className = 'clawd-toast';
+    if (item.color) el.style.setProperty('--c', item.color);
+    const sw = document.createElement('span');
+    sw.className = 'swatch';
+    el.appendChild(sw);
+    const txt = document.createElement('span');
+    txt.textContent = (item.kind === 'hat' ? 'UNLOCKED CROWN' : 'NEW CLAWD: ' + item.name);
+    el.appendChild(txt);
+    document.body.appendChild(el);
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 4000);
+  }
+
+  // Bumps totalGames once per page load (per game), then fires a toast for any
+  // skin/hat the user just unlocked. Each new tier is acknowledged once, ever.
   function trackSessionStart(opts) {
     const gameId = opts && opts.gameId;
     if (!gameId) return;
@@ -105,6 +157,13 @@
         increment('dailiesDone');
       }
     }
+    const fresh = findNewUnlocks();
+    if (fresh.length === 0) return;
+    // Stagger toasts so a multi-unlock session doesn't pile up.
+    fresh.forEach(function (item, idx) { setTimeout(function () { showToast(item); }, idx * 700); });
+    const seen = new Set(seenIds());
+    fresh.forEach(function (item) { seen.add(item.id); });
+    markSeen(Array.from(seen));
   }
 
   // Optional cloud leaderboard submission. No-ops unless window.CLAWD_LB_URL is set.
