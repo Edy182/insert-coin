@@ -187,44 +187,52 @@
       margin-bottom: 1rem;
     }
     .profile .stats span { color: var(--orange); }
-    .hat-picker {
+    .unlocks {
       display: flex;
       gap: 0.6rem;
       justify-content: center;
       flex-wrap: wrap;
+      margin-bottom: 0.8rem;
     }
-    .hat-btn {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 0.55rem;
-      padding: 0.55rem 0.8rem;
-      background: transparent;
-      color: var(--cream);
-      border: 1px solid var(--gray);
-      border-radius: 4px;
-      cursor: pointer;
+    .unlock {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 0.35rem;
-      min-width: 110px;
+      padding: 0.55rem 0.7rem;
+      border: 1px solid var(--gray);
+      border-radius: 4px;
+      min-width: 86px;
     }
-    .hat-btn .hint {
-      font-family: 'VT323', monospace;
-      font-size: 0.85rem;
-      letter-spacing: 0;
-      color: var(--gray);
-    }
-    .hat-btn.active {
-      background: var(--orange);
-      color: var(--navy);
+    .unlock.active {
+      background: rgba(255, 138, 31, 0.18);
       border-color: var(--orange);
     }
-    .hat-btn.active .hint { color: var(--navy); }
-    .hat-btn.locked {
-      color: var(--gray);
-      cursor: not-allowed;
-      opacity: 0.6;
+    .unlock.locked { opacity: 0.45; }
+    .unlock .swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 3px;
+      image-rendering: pixelated;
     }
+    .unlock .label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.5rem;
+      color: var(--cream);
+      letter-spacing: 0.04em;
+    }
+    .unlock .hint {
+      font-family: 'VT323', monospace;
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+    .unlock.active .label { color: var(--orange); }
+    .next-up {
+      font-family: 'VT323', monospace;
+      font-size: 1rem;
+      color: var(--gray);
+    }
+    .next-up b { color: var(--orange); font-weight: normal; }
     /* Intro splash */
     .splash {
       position: fixed;
@@ -368,8 +376,9 @@
 
     <section class="profile" id="profile" hidden>
       <h3>YOUR ARCADE PROFILE</h3>
-      <p class="stats"><span id="stat-games">0</span> games played · <span id="stat-dailies">0</span> dailies done</p>
-      <div class="hat-picker" id="hat-picker"></div>
+      <p class="stats"><span id="stat-games">0</span> games played</p>
+      <div class="unlocks" id="unlocks"></div>
+      <p class="next-up" id="next-up"></p>
     </section>
   </main>
 
@@ -388,7 +397,7 @@
     </p>
   </footer>
 
-  <script src="assets/clawd-stats.js?v=2"></script>
+  <script src="assets/clawd-stats.js?v=3"></script>
   <script>
     (function () {
       'use strict';
@@ -406,37 +415,82 @@
       if (!window.ClawdStats) return;
       const stats = window.ClawdStats.read();
       const games = stats.totalGames || 0;
-      const dailies = stats.dailiesDone || 0;
+      if (games <= 0) return;
+
       const profile = document.getElementById('profile');
-      if (games > 0 || dailies > 0) {
-        profile.hidden = false;
-        document.getElementById('stat-games').textContent = games;
-        document.getElementById('stat-dailies').textContent = dailies;
-        const active = window.ClawdStats.getActiveHat();
-        const picker = document.getElementById('hat-picker');
-        window.ClawdStats.HATS.forEach((hat) => {
-          const btn = document.createElement('button');
-          btn.className = 'hat-btn';
-          const unlocked = window.ClawdStats.isUnlocked(hat.id);
-          if (hat.id === active) btn.classList.add('active');
-          if (!unlocked) btn.classList.add('locked');
-          const nameSpan = document.createElement('span');
-          nameSpan.textContent = hat.name;
-          btn.appendChild(nameSpan);
-          if (!unlocked) {
-            const hintSpan = document.createElement('span');
-            hintSpan.className = 'hint';
-            hintSpan.textContent = hat.unlockHint;
-            btn.appendChild(hintSpan);
-          }
-          btn.addEventListener('click', () => {
-            if (!unlocked) return;
-            window.ClawdStats.setActiveHat(hat.id);
-            picker.querySelectorAll('.hat-btn').forEach((b) => b.classList.remove('active'));
-            btn.classList.add('active');
-          });
-          picker.appendChild(btn);
+      profile.hidden = false;
+      document.getElementById('stat-games').textContent = games;
+
+      const active = window.ClawdStats.getActiveSkin();
+      const activeHat = window.ClawdStats.getActiveHat();
+      const unlocksEl = document.getElementById('unlocks');
+
+      // All skins, then crown after them.
+      const tiles = [];
+      window.ClawdStats.SKINS.forEach((skin) => {
+        tiles.push({
+          id: skin.id,
+          name: skin.name,
+          color: skin.color,
+          requires: skin.requires,
+          unlockHint: skin.unlockHint,
+          isActive: skin.id === active.id,
+          kind: 'skin',
         });
+      });
+      window.ClawdStats.HATS.forEach((hat) => {
+        tiles.push({
+          id: hat.id,
+          name: hat.name,
+          color: hat.colors && hat.colors[1],
+          requires: hat.requires,
+          unlockHint: hat.unlockHint,
+          isActive: !!activeHat && activeHat.id === hat.id,
+          kind: 'hat',
+        });
+      });
+
+      tiles.forEach((t) => {
+        const tile = document.createElement('div');
+        tile.className = 'unlock';
+        const unlocked = t.requires(stats);
+        if (!unlocked) tile.classList.add('locked');
+        if (t.isActive) tile.classList.add('active');
+
+        const swatch = document.createElement('span');
+        swatch.className = 'swatch';
+        if (t.kind === 'hat') {
+          swatch.style.background = t.color;
+          swatch.style.boxShadow = 'inset 0 -10px 0 #0B1426';
+        } else {
+          swatch.style.background = t.color;
+        }
+        tile.appendChild(swatch);
+
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = t.name;
+        tile.appendChild(label);
+
+        const hint = document.createElement('span');
+        hint.className = 'hint';
+        hint.textContent = unlocked ? (t.isActive ? 'active' : 'unlocked') : t.unlockHint;
+        tile.appendChild(hint);
+
+        unlocksEl.appendChild(tile);
+      });
+
+      // "Next up" — closest locked tier.
+      const nextUp = tiles.find((t) => !t.requires(stats));
+      const nextEl = document.getElementById('next-up');
+      if (nextUp) {
+        const threshold = parseInt(nextUp.unlockHint, 10);
+        const remaining = Number.isFinite(threshold) ? Math.max(0, threshold - games) : null;
+        nextEl.innerHTML = remaining !== null
+          ? 'next up: <b>' + nextUp.name + '</b> in ' + remaining + ' more game' + (remaining === 1 ? '' : 's')
+          : 'next up: <b>' + nextUp.name + '</b>';
+      } else {
+        nextEl.textContent = 'all unlocked. nice.';
       }
     })();
   </script>

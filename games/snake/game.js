@@ -72,9 +72,11 @@
 
   // === Clawd head sprite (pre-rendered for crisp scaling) ===
   let clawdSprite = null;
+  let clawdSpriteColor = null;
   function getClawdSprite() {
-    if (clawdSprite) return clawdSprite;
-    const P = 2, O = '#FF8A00', B = '#1A0808', _ = null;
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
+    if (clawdSprite && clawdSpriteColor === O) return clawdSprite;
+    const P = 2, B = '#1A0808', _ = null;
     clawdSprite = document.createElement('canvas');
     clawdSprite.width  = 12 * P;
     clawdSprite.height = 9  * P;
@@ -92,6 +94,7 @@
     ].forEach((row, r) => row.forEach((col, c) => {
       if (col) { sctx.fillStyle = col; sctx.fillRect(c*P, r*P, P, P); }
     }));
+    clawdSpriteColor = O;
     return clawdSprite;
   }
 
@@ -307,7 +310,7 @@
     // t = 0 right behind head, 1 at the tail tip
     const t = (total <= 1) ? 0 : (idx - 1) / (total - 1);
     const radius = 8 - t * 3.5; // 8px → 4.5px
-    ctx.fillStyle = '#FF8A00';
+    ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.fill();
@@ -441,13 +444,15 @@
       setTimeout(() => { shareBtn.textContent = '📋 COPY SHARE'; }, 1500);
     } catch (e) { /* ignore */ }
   });
-  dailyBtn.addEventListener('click', () => {
-    dailyMode = !dailyMode;
-    dailyBtn.textContent = dailyMode ? '📅 DAILY: ON' : '📅 DAILY';
-    reseedFromToday();
-    reset();
-  });
-  if (dailyMode) dailyBtn.textContent = '📅 DAILY: ON';
+  if (dailyBtn) {
+    dailyBtn.addEventListener('click', () => {
+      dailyMode = !dailyMode;
+      dailyBtn.textContent = dailyMode ? '📅 DAILY: ON' : '📅 DAILY';
+      reseedFromToday();
+      reset();
+    });
+    if (dailyMode) dailyBtn.textContent = '📅 DAILY: ON';
+  }
 
   // === Boot ===
   reset();

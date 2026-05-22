@@ -4,34 +4,25 @@
   'use strict';
 
   const STATS_KEY = 'clawd-stats';
-  const HAT_KEY = 'clawd-active-hat';
   const DEFAULTS = { totalGames: 0, dailiesDone: 0 };
+  const DEFAULT_COLOR = '#FF8A00';
 
+  // Body recolors. Highest-unlocked tier auto-applies. The shape of Clawd stays
+  // identical — only the body color changes.
+  const SKINS = [
+    { id: 'classic', name: 'CLASSIC', color: DEFAULT_COLOR, requires: () => true,                 unlockHint: 'default' },
+    { id: 'cyan',    name: 'CYAN',    color: '#4ED8E5',     requires: (s) => s.totalGames >= 3,   unlockHint: '3 games' },
+    { id: 'pink',    name: 'PINK',    color: '#FFB6E1',     requires: (s) => s.totalGames >= 8,   unlockHint: '8 games' },
+    { id: 'lime',    name: 'LIME',    color: '#3FCB7A',     requires: (s) => s.totalGames >= 15,  unlockHint: '15 games' },
+  ];
+
+  // Hat overlays. Crown is the only one — auto-applies once unlocked.
   const HATS = [
-    {
-      id: 'none',
-      name: 'NO HAT',
-      requires: () => true,
-      unlockHint: 'default',
-      pixels: null,
-    },
-    {
-      id: 'cap',
-      name: 'CAP',
-      requires: (s) => s.totalGames >= 3,
-      unlockHint: 'play 3 games',
-      pixels: [
-        [0, 0, 1, 1, 1, 1, 0, 0],
-        [0, 1, 1, 1, 1, 1, 1, 0],
-        [2, 2, 2, 2, 2, 2, 2, 0],
-      ],
-      colors: { 1: '#3FCB7A', 2: '#F5EFE0' },
-    },
     {
       id: 'crown',
       name: 'CROWN',
-      requires: (s) => s.dailiesDone >= 1,
-      unlockHint: 'finish 1 daily run',
+      requires: (s) => s.totalGames >= 25,
+      unlockHint: '25 games',
       pixels: [
         [1, 0, 1, 0, 1, 0, 1, 0],
         [1, 1, 1, 1, 1, 1, 1, 0],
@@ -59,22 +50,30 @@
     write(s);
     return s;
   }
-  function isUnlocked(id) {
-    const hat = HATS.find((h) => h.id === id);
-    return !!hat && hat.requires(read());
+  function isUnlocked(list, id) {
+    const stats = read();
+    const item = list.find((x) => x.id === id);
+    return !!item && item.requires(stats);
   }
+  // Returns the highest-tier unlocked skin (later items in SKINS are rarer).
+  function getActiveSkin() {
+    const stats = read();
+    let active = SKINS[0];
+    for (const skin of SKINS) if (skin.requires(stats)) active = skin;
+    return active;
+  }
+  function getActiveSkinColor() { return getActiveSkin().color; }
+  // Returns the active hat (or null if none unlocked).
   function getActiveHat() {
-    const id = (function () { try { return localStorage.getItem(HAT_KEY); } catch (_) { return null; } })() || 'none';
-    return isUnlocked(id) ? id : 'none';
-  }
-  function setActiveHat(id) {
-    try { localStorage.setItem(HAT_KEY, id); } catch (_) {}
+    const stats = read();
+    for (let i = HATS.length - 1; i >= 0; i--) if (HATS[i].requires(stats)) return HATS[i];
+    return null;
   }
 
   // Draws the active hat above a sprite.
   // (cx, topY) is the top-center of the sprite; pixelSize scales the hat.
   function drawHat(ctx, cx, topY, pixelSize) {
-    const hat = HATS.find((h) => h.id === getActiveHat());
+    const hat = getActiveHat();
     if (!hat || !hat.pixels) return;
     const rows = hat.pixels.length;
     const cols = hat.pixels[0].length;
@@ -130,12 +129,14 @@
   window.ClawdStats = {
     read: read,
     increment: increment,
-    isUnlocked: isUnlocked,
+    getActiveSkin: getActiveSkin,
+    getActiveSkinColor: getActiveSkinColor,
     getActiveHat: getActiveHat,
-    setActiveHat: setActiveHat,
     drawHat: drawHat,
     trackSessionStart: trackSessionStart,
     submitScore: submitScore,
+    SKINS: SKINS,
     HATS: HATS,
+    DEFAULT_COLOR: DEFAULT_COLOR,
   };
 })();

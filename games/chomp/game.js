@@ -673,9 +673,11 @@
   // Pre-render Clawd sprite once into an offscreen canvas, then blit it scaled.
   // Lets us scale by any factor and stay crisp (imageSmoothingEnabled=false).
   let clawdSprite = null;
+  let clawdSpriteColor = null;
   function getClawdSprite() {
-    if (clawdSprite) return clawdSprite;
-    const P = 2, O = '#FF8A00', B = '#1A0808', _ = null;
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
+    if (clawdSprite && clawdSpriteColor === O) return clawdSprite;
+    const P = 2, B = '#1A0808', _ = null;
     clawdSprite = document.createElement('canvas');
     clawdSprite.width  = 12 * P;
     clawdSprite.height = 9  * P;
@@ -693,6 +695,7 @@
     ].forEach((row, r) => row.forEach((col, c) => {
       if (col) { sctx.fillStyle = col; sctx.fillRect(c*P, r*P, P, P); }
     }));
+    clawdSpriteColor = O;
     return clawdSprite;
   }
 
@@ -710,7 +713,7 @@
 
   // Tiny Clawd icon for the lives indicator.
   function drawMiniClawd(cx, cy) {
-    const O = '#FF8A00';
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
     const B = '#1A0808';
     ctx.fillStyle = O;
     ctx.fillRect(cx - 6, cy - 4, 12, 8);
@@ -894,12 +897,14 @@
       setTimeout(() => { shareBtn.textContent = '📋 COPY SHARE'; }, 1500);
     } catch (e) {}
   });
-  dailyBtn.addEventListener('click', () => {
-    dailyMode = !dailyMode;
-    dailyBtn.textContent = dailyMode ? '📅 DAILY: ON' : '📅 DAILY';
-    reset();
-  });
-  if (dailyMode) dailyBtn.textContent = '📅 DAILY: ON';
+  if (dailyBtn) {
+    dailyBtn.addEventListener('click', () => {
+      dailyMode = !dailyMode;
+      dailyBtn.textContent = dailyMode ? '📅 DAILY: ON' : '📅 DAILY';
+      reset();
+    });
+    if (dailyMode) dailyBtn.textContent = '📅 DAILY: ON';
+  }
 
   // === Boot ===
   reset();

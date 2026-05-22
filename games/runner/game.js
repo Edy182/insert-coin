@@ -359,7 +359,9 @@
 
   // Clawd standing — 12×9 grid at P=3 = 36×27px
   function drawClawd(x, y) {
-    const P = 3, O = '#FF8A00', B = '#1A0808', _ = null;
+    const P = 3;
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
+    const B = '#1A0808', _ = null;
     [
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
@@ -378,7 +380,9 @@
 
   // Clawd ducking — 12×4 grid at P=3 = 36×12px
   function drawClawdDuck(x, y) {
-    const P = 3, O = '#FF8A00', B = '#1A0808', _ = null;
+    const P = 3;
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
+    const B = '#1A0808', _ = null;
     [
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ O,O,O,B,O,O,O,O,O,B,O,O ],
@@ -711,12 +715,14 @@
       setTimeout(() => { shareBtn.textContent = '📋 COPY SHARE'; }, 1500);
     } catch (e) {}
   });
-  dailyBtn.addEventListener('click', () => {
-    dailyMode = !dailyMode;
-    dailyBtn.textContent = dailyMode ? '📅 DAILY: ON' : '📅 DAILY';
-    reset();
-  });
-  if (dailyMode) dailyBtn.textContent = '📅 DAILY: ON';
+  if (dailyBtn) {
+    dailyBtn.addEventListener('click', () => {
+      dailyMode = !dailyMode;
+      dailyBtn.textContent = dailyMode ? '📅 DAILY: ON' : '📅 DAILY';
+      reset();
+    });
+    if (dailyMode) dailyBtn.textContent = '📅 DAILY: ON';
+  }
 
   // === Boot ===
   loadSprites();
