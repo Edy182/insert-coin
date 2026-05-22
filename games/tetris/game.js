@@ -289,18 +289,41 @@
     // Side panel
     drawSidePanel();
 
-    // Game over overlay
+    // Game over overlay — styled as a Claude Code error trace
     if (gameOver) {
-      ctx.fillStyle = 'rgba(11, 20, 38, 0.88)';
+      ctx.fillStyle = 'rgba(11, 20, 38, 0.92)';
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#FF8A1F';
-      ctx.font = '20px "Press Start 2P", monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('STACK OVERFLOW', W / 2, H / 2 - 10);
+
+      // Panel with orange border, like a Claude Code error box
+      const panelW = 340, panelH = 160;
+      const px = (W - panelW) / 2;
+      const py = (H - panelH) / 2;
+      ctx.fillStyle = '#0B1426';
+      ctx.fillRect(px, py, panelW, panelH);
+      ctx.strokeStyle = '#E5564B';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(px + 0.5, py + 0.5, panelW - 1, panelH - 1);
+
+      let ty = py + 30;
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#E5564B';
+      ctx.font = '12px "Press Start 2P", monospace';
+      ctx.fillText('✗ Error: StackOverflow', px + 16, ty);
+      ty += 22;
+      ctx.fillStyle = '#7E8C99';
+      ctx.font = '10px "Press Start 2P", monospace';
+      ctx.fillText(`  at line ${ROWS}`, px + 16, ty);
+      ty += 26;
       ctx.fillStyle = '#F5EFE0';
-      ctx.font = '14px "VT323", monospace';
-      ctx.fillText(`Score: ${score}`, W / 2, H / 2 + 20);
-      ctx.fillText('Press SPACE to retry', W / 2, H / 2 + 40);
+      ctx.font = '10px "Press Start 2P", monospace';
+      ctx.fillText(`  score: ${String(score).padStart(5, '0')}`, px + 16, ty);
+      ty += 18;
+      ctx.fillText(`  lines: ${String(lines).padStart(3, '0')}`, px + 16, ty);
+      ty += 26;
+      ctx.fillStyle = '#FF8A1F';
+      ctx.font = '10px "Press Start 2P", monospace';
+      ctx.fillText('▸ press SPACE /retry', px + 16, ty);
+      ctx.textAlign = 'center';
     }
   }
 
@@ -331,6 +354,30 @@
     ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
     ctx.fillRect(x + TILE - 2, y, 2, TILE);
     ctx.fillRect(x, y + TILE - 2, TILE, 2);
+    // Tiny Clawd eyes — each block is a mini-Clawd
+    ctx.fillStyle = '#1A0808';
+    ctx.fillRect(x + 7,  y + 9, 2, 3);
+    ctx.fillRect(x + 15, y + 9, 2, 3);
+  }
+
+  // Tiny Clawd peeking from a corner — same Runner sprite at small scale
+  function drawTinyClawd(cx, cy) {
+    const P = 1, O = '#FF8A00', B = '#1A0808', _ = null;
+    const sprite = [
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
+      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
+      [ O,O,O,O,O,O,O,O,O,O,O,O ],
+      [ O,O,O,O,O,O,O,O,O,O,O,O ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
+    ];
+    const x0 = cx - 6, y0 = cy - 4;
+    sprite.forEach((row, r) => row.forEach((col, c) => {
+      if (col) { ctx.fillStyle = col; ctx.fillRect(x0 + c*P, y0 + r*P, P, P); }
+    }));
   }
 
   function drawSidePanel() {
@@ -338,16 +385,17 @@
     let y = FIELD_Y;
     const panelW = W - SIDE_X - 16;
 
-    // NEXT label + preview box
-    ctx.fillStyle = '#7E8C99';
+    // ▸ NEXT label — Claude Code prompt style
+    ctx.fillStyle = '#FF8A1F';
     ctx.font = '8px "Press Start 2P", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('NEXT', x, y + 8);
+    ctx.fillText('▸ NEXT', x, y + 8);
     y += 18;
 
+    // Bordered preview box
     ctx.fillStyle = '#0F1F3D';
     ctx.fillRect(x, y, panelW, 96);
-    ctx.strokeStyle = '#1A2D5C';
+    ctx.strokeStyle = '#FF8A1F';
     ctx.lineWidth = 1;
     ctx.strokeRect(x + 0.5, y + 0.5, panelW - 1, 95);
 
@@ -364,26 +412,29 @@
     }
     y += 116;
 
-    // LEVEL
-    ctx.fillStyle = '#7E8C99';
-    ctx.font = '8px "Press Start 2P", monospace';
-    ctx.fillText('LEVEL', x, y);
-    y += 18;
+    // ▸ LEVEL
     ctx.fillStyle = '#FF8A1F';
+    ctx.font = '8px "Press Start 2P", monospace';
+    ctx.fillText('▸ LEVEL', x, y);
+    y += 18;
+    ctx.fillStyle = '#F5EFE0';
     ctx.font = '16px "Press Start 2P", monospace';
     ctx.fillText(String(level).padStart(2, '0'), x, y);
     y += 28;
 
-    // LINES
-    ctx.fillStyle = '#7E8C99';
-    ctx.font = '8px "Press Start 2P", monospace';
-    ctx.fillText('LINES', x, y);
-    y += 18;
+    // ▸ LINES
     ctx.fillStyle = '#FF8A1F';
+    ctx.font = '8px "Press Start 2P", monospace';
+    ctx.fillText('▸ LINES', x, y);
+    y += 18;
+    ctx.fillStyle = '#F5EFE0';
     ctx.font = '16px "Press Start 2P", monospace';
     ctx.fillText(String(lines).padStart(3, '0'), x, y);
 
-    // Live score update
+    // Mini Clawd watching from the bottom of the side panel
+    drawTinyClawd(x + panelW / 2, H - FIELD_Y - 12);
+
+    // Live HUD score update
     scoreEl.textContent = String(score).padStart(5, '0');
   }
 
