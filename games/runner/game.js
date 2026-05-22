@@ -221,14 +221,37 @@
     // Clouds
     for (const c of clouds) drawCloud(c.x, c.y, cld);
 
-    // Ground
+    // Ground — base line + occasional small bumps + varied pebbles below
     ctx.fillStyle = gnd;
     ctx.fillRect(0, GROUND_Y, W, 2);
-    for (let x = -groundOffset; x < W; x += 60) {
-      ctx.fillRect(x,      GROUND_Y + 4, 20, 2);
-      ctx.fillRect(x + 35, GROUND_Y + 5,  8, 1);
-      ctx.fillRect(x + 12, GROUND_Y + 8, 14, 1);
-      ctx.fillRect(x + 48, GROUND_Y + 7,  6, 1);
+    // Small bumps sticking up from the line every ~80px tile
+    const bumps = [
+      [  6, 5, 2],  // [offset, width, height-above-line]
+      [ 24, 3, 3],
+      [ 47, 4, 2],
+      [ 65, 6, 2],
+    ];
+    for (let x = -groundOffset; x < W; x += 80) {
+      for (const [o, w, h] of bumps) {
+        ctx.fillRect(x + o, GROUND_Y - h + 2, w, h);
+      }
+    }
+    // Pebbles + dust below, two sizes for variety
+    const pebbles = [
+      [  3,  5, 3, 1],
+      [ 11,  8, 2, 1],
+      [ 19,  6, 4, 1],
+      [ 30, 10, 2, 1],
+      [ 38,  7, 3, 1],
+      [ 46, 12, 2, 1],
+      [ 53,  5, 5, 1],
+      [ 62,  9, 3, 1],
+      [ 70,  6, 2, 1],
+    ];
+    for (let x = -groundOffset; x < W; x += 80) {
+      for (const [o, dy, w, h] of pebbles) {
+        ctx.fillRect(x + o, GROUND_Y + dy, w, h);
+      }
     }
 
     // Player
@@ -362,66 +385,70 @@
   const SW = 20, SH = 36;
   const LW = 24, LH = 50;
 
-  // Small cactus — 10×18 grid at P=2 = 20×36px (desert)
+  // Small cactus — 10×18 at P=2 = 20×36px. 3-tone shaded with horizontal ridges.
   function drawCactusSm(x, y) {
     const P = 2;
-    const G = nightMode ? '#6DBF72' : '#4A7C4E';
+    const L = nightMode ? '#8FDF94' : '#6DBF72'; // light highlight
+    const M = nightMode ? '#6DBF72' : '#4A7C4E'; // mid body
+    const D = nightMode ? '#4A7C4E' : '#2D5530'; // dark shadow / ridge
     const _ = null;
     [
-      [_,_,_,G,G,G,G,_,_,_],
-      [_,_,_,G,G,G,G,_,_,_],
-      [_,_,_,G,G,G,G,_,_,_],
-      [G,G,_,G,G,G,G,_,G,G],
-      [G,G,_,G,G,G,G,_,G,G],
-      [G,G,_,G,G,G,G,_,G,G],
-      [G,G,G,G,G,G,G,G,G,G],
-      [G,G,G,G,G,G,G,G,G,G],
-      [_,_,_,G,G,G,G,_,_,_],
-      [_,_,_,G,G,G,G,_,_,_],
-      [_,_,_,G,G,G,G,_,_,_],
-      [_,_,_,G,G,G,G,_,_,_],
-      [_,_,_,G,G,G,G,_,_,_],
-      [_,_,_,G,G,G,G,_,_,_],
-      [_,_,_,G,G,G,G,_,_,_],
-      [_,_,_,G,G,G,G,_,_,_],
-      [_,_,_,G,G,G,G,_,_,_],
-      [_,_,_,G,G,G,G,_,_,_],
+      [_,_,_,L,M,M,M,_,_,_],
+      [_,_,_,L,M,M,M,_,_,_],
+      [_,_,_,L,M,M,M,_,_,_],
+      [L,M,_,L,M,M,M,_,L,M],
+      [D,D,_,D,D,D,D,_,D,D],
+      [L,M,_,L,M,M,M,_,L,M],
+      [M,M,M,M,M,M,M,M,M,M],
+      [M,M,M,M,M,M,M,M,M,M],
+      [_,_,_,D,D,D,D,_,_,_],
+      [_,_,_,L,M,M,M,_,_,_],
+      [_,_,_,L,M,M,M,_,_,_],
+      [_,_,_,L,M,M,M,_,_,_],
+      [_,_,_,D,D,D,D,_,_,_],
+      [_,_,_,L,M,M,M,_,_,_],
+      [_,_,_,L,M,M,M,_,_,_],
+      [_,_,_,L,M,M,M,_,_,_],
+      [_,_,_,D,D,D,D,_,_,_],
+      [_,_,_,L,M,M,M,_,_,_],
     ].forEach((row, r) => row.forEach((col, c) => {
       if (col) { ctx.fillStyle = col; ctx.fillRect(x + c*P, y + r*P, P, P); }
     }));
   }
 
-  // Large cactus — 12×25 grid at P=2 = 24×50px (desert)
+  // Large cactus — 12×25 at P=2 = 24×50px. 3-tone shaded with horizontal ridges.
   function drawCactusLg(x, y) {
     const P = 2;
-    const G = nightMode ? '#6DBF72' : '#4A7C4E';
+    const L = nightMode ? '#8FDF94' : '#6DBF72';
+    const M = nightMode ? '#6DBF72' : '#4A7C4E';
+    const D = nightMode ? '#4A7C4E' : '#2D5530';
     const _ = null;
     [
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [G,G,_,_,G,G,G,G,_,_,G,G],
-      [G,G,_,_,G,G,G,G,_,_,G,G],
-      [G,G,_,_,G,G,G,G,_,_,G,G],
-      [G,G,_,_,G,G,G,G,_,_,G,G],
-      [G,G,G,G,G,G,G,G,G,G,G,G],
-      [G,G,G,G,G,G,G,G,G,G,G,G],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
-      [_,_,_,_,G,G,G,G,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [L,M,_,_,L,M,M,M,_,_,L,M],
+      [D,D,_,_,D,D,D,D,_,_,D,D],
+      [L,M,_,_,L,M,M,M,_,_,L,M],
+      [L,M,_,_,L,M,M,M,_,_,L,M],
+      [M,M,M,M,M,M,M,M,M,M,M,M],
+      [M,M,M,M,M,M,M,M,M,M,M,M],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,D,D,D,D,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,D,D,D,D,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
+      [_,_,_,_,D,D,D,D,_,_,_,_],
+      [_,_,_,_,L,M,M,M,_,_,_,_],
     ].forEach((row, r) => row.forEach((col, c) => {
       if (col) { ctx.fillStyle = col; ctx.fillRect(x + c*P, y + r*P, P, P); }
     }));
