@@ -43,12 +43,15 @@
     }
     main {
       flex: 1;
-      max-width: 900px;
-      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 2rem 1rem;
       width: 100%;
     }
     .games-grid {
+      width: 100%;
+      max-width: 900px;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 1rem;
@@ -165,16 +168,13 @@
 
       <a href="games/chomp/" class="game-card available">
         <div class="sprite">
-          <svg viewBox="0 0 12 8" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
             <g fill="#F5EFE0">
-              <rect x="0" y="0" width="3" height="1"/>
-              <rect x="0" y="0" width="1" height="8"/>
-              <rect x="0" y="7" width="3" height="1"/>
-              <rect x="9" y="0" width="3" height="1"/>
-              <rect x="11" y="0" width="1" height="8"/>
-              <rect x="9" y="7" width="3" height="1"/>
+              <circle cx="1.5" cy="6" r="0.9"/>
+              <circle cx="4.5" cy="6" r="0.9"/>
+              <circle cx="7.5" cy="6" r="0.9"/>
             </g>
-            <circle cx="6" cy="4" r="1.4" fill="#FF8A1F"/>
+            <circle cx="10.5" cy="6" r="1.7" fill="#FF8A1F"/>
           </svg>
         </div>
         <h2>CLAWDMAN</h2>
