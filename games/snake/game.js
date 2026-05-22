@@ -189,6 +189,7 @@
       highScoreEl.textContent = String(highScore).padStart(5, '0');
     }
     if (beatHigh || win) burstConfetti();
+    if (window.ClawdStats) window.ClawdStats.submitScore({ game: 'snake', score: score, dailyMode: dailyMode, dateISO: todayISO });
     restartBtn.classList.remove('hidden');
     if (dailyMode) shareBtn.classList.remove('hidden');
   }

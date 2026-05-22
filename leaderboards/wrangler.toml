@@ -1,0 +1,9 @@
+name = "clawd-bytes-leaderboards"
+main = "worker.js"
+compatibility_date = "2026-05-01"
+
+# Replace the id below with the KV namespace you create:
+#   wrangler kv:namespace create LEADERBOARDS
+[[kv_namespaces]]
+binding = "LEADERBOARDS"
+id = "REPLACE_ME_WITH_KV_NAMESPACE_ID"

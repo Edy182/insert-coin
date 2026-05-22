@@ -108,6 +108,25 @@
     }
   }
 
+  // Optional cloud leaderboard submission. No-ops unless window.CLAWD_LB_URL is set.
+  function submitScore(opts) {
+    if (!opts || !window.CLAWD_LB_URL || typeof fetch !== 'function') return;
+    const name = (function () { try { return localStorage.getItem('clawd-player-name') || ''; } catch (_) { return ''; } })();
+    try {
+      fetch(window.CLAWD_LB_URL.replace(/\/$/, '') + '/api/score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          game: opts.game,
+          name: name,
+          score: opts.score,
+          daily: !!opts.dailyMode,
+          dateISO: opts.dateISO || new Date().toISOString().slice(0, 10),
+        }),
+      }).catch(function () {});
+    } catch (_) {}
+  }
+
   window.ClawdStats = {
     read: read,
     increment: increment,
@@ -116,6 +135,7 @@
     setActiveHat: setActiveHat,
     drawHat: drawHat,
     trackSessionStart: trackSessionStart,
+    submitScore: submitScore,
     HATS: HATS,
   };
 })();

@@ -252,6 +252,7 @@
       highScoreEl.textContent = String(highScore).padStart(5, '0');
     }
     if (beatHigh) burstConfetti();
+    if (window.ClawdStats) window.ClawdStats.submitScore({ game: 'runner', score: score, dailyMode: dailyMode, dateISO: todayISO });
     restartBtn.classList.remove('hidden');
     if (dailyMode) shareBtn.classList.remove('hidden');
   }
