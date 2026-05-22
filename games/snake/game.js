@@ -162,9 +162,10 @@
     // Food
     drawFood(food.c, food.r);
 
-    // Body segments (tail first so head ends up on top of overlaps)
+    // Body segments (tail first so head ends up on top of overlaps).
+    // Each segment is an orange dot that tapers smaller toward the tail tip.
     for (let i = snake.length - 1; i > 0; i--) {
-      drawBody(snake[i].c, snake[i].r);
+      drawBody(snake[i].c, snake[i].r, i, snake.length);
     }
 
     // Head: Clawd
@@ -202,21 +203,17 @@
     ctx.fillRect(cx + 4, cy - 4, 2, 2);
   }
 
-  // Body segment — orange rounded block with a small dark stripe and eyes,
-  // so each segment reads as a mini-Clawd following the head.
-  function drawBody(c, r) {
-    const x = c * TILE + 2;
-    const y = r * TILE + 2;
-    const size = TILE - 4;
+  // Body segment — plain orange dot that tapers smaller toward the tail tip.
+  function drawBody(c, r, idx, total) {
+    const cx = c * TILE + TILE / 2;
+    const cy = r * TILE + TILE / 2;
+    // t = 0 right behind head, 1 at the tail tip
+    const t = (total <= 1) ? 0 : (idx - 1) / (total - 1);
+    const radius = 8 - t * 3.5; // 8px → 4.5px
     ctx.fillStyle = '#FF8A00';
-    ctx.fillRect(x, y, size, size);
-    ctx.fillStyle = '#C26500';
-    ctx.fillRect(x + 2, y + 2, size - 4, 2);
-    ctx.fillRect(x + 2, y + size - 4, size - 4, 2);
-    // Two tiny eyes
-    ctx.fillStyle = '#1A0808';
-    ctx.fillRect(x + 6,  y + 9, 2, 2);
-    ctx.fillRect(x + 12, y + 9, 2, 2);
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   // Clawd head — pre-rendered 12×9 sprite scaled 1.25× via drawImage with smoothing off.

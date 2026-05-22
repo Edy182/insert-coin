@@ -11,7 +11,7 @@ Snake but Clawd grows by eating "code commits" (green dots). Each commit makes h
 
 ## Power-ups / events
 
-- **Bug fix** (rare blue dot) → worth 3x commits, no length penalty
+- **Boost token** (rare blue dot) → worth 3x commits, no length penalty
 - **Refactor** (purple dot) → cuts your tail in half (sometimes you want this for tight spaces)
 - **Hot fix** (orange flash) → temporary invincibility for 3 seconds
 

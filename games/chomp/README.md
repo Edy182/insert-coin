@@ -15,7 +15,7 @@ Pac-Man but Clawd is the player character. Maze full of "AI tokens" (small color
 
 ## Power-ups
 
-- **Bug fix** (rare blue dot) → eat to make ghosts vulnerable for 6 seconds
+- **Power pellet** (large orange dot in 4 corners) → eat to make ghosts vulnerable for 6 seconds
 - **Cache hit** (yellow dot) → 2x score for 3 seconds
 - **Linter pass** (very rare) → freezes all ghosts for 2 seconds
 

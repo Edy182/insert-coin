@@ -18,8 +18,8 @@
   const TILE  = 24;
   const COLS  = 19;
   const ROWS  = 21;
-  const SPEED = 4;
-  const GHOST_SPEED = 3;
+  const SPEED = 3;
+  const GHOST_SPEED = 2;
   const LIVES_START = 3;
 
   // Mode timing — chase/scatter rhythm gives the player breathing room.
