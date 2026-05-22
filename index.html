@@ -25,46 +25,46 @@
       flex-direction: column;
     }
     header {
-      padding: 3rem 2rem 2rem;
+      padding: 1.75rem 1rem 1.25rem;
       text-align: center;
       border-bottom: 2px solid var(--orange);
     }
     h1 {
       font-family: 'Press Start 2P', monospace;
-      font-size: clamp(1.5rem, 5vw, 3rem);
+      font-size: clamp(1.1rem, 4vw, 2rem);
       color: var(--orange);
       letter-spacing: 0.05em;
-      margin-bottom: 1rem;
+      margin-bottom: 0.6rem;
     }
     .tagline {
       font-family: 'VT323', monospace;
-      font-size: 1.5rem;
+      font-size: 1.1rem;
       color: var(--gray);
     }
     main {
       flex: 1;
-      max-width: 1200px;
+      max-width: 900px;
       margin: 0 auto;
-      padding: 3rem 2rem;
+      padding: 2rem 1rem;
       width: 100%;
     }
     .games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
     }
     .game-card {
       background: rgba(255, 138, 31, 0.08);
       border: 2px solid var(--orange);
-      border-radius: 8px;
-      padding: 2rem 1.5rem;
+      border-radius: 6px;
+      padding: 1.25rem 1rem;
       text-align: center;
       transition: transform 0.15s ease, background 0.15s ease;
       position: relative;
     }
     .game-card.available { cursor: pointer; }
     .game-card.available:hover {
-      transform: translateY(-4px);
+      transform: translateY(-3px);
       background: rgba(255, 138, 31, 0.18);
     }
     .game-card.coming-soon {
@@ -73,8 +73,8 @@
       cursor: not-allowed;
     }
     .game-card .sprite {
-      width: 72px; height: 72px;
-      margin: 0 auto 1rem;
+      width: 56px; height: 56px;
+      margin: 0 auto 0.75rem;
       background: var(--orange);
       border-radius: 4px;
       image-rendering: pixelated;
@@ -91,17 +91,17 @@
     .game-card.coming-soon .sprite svg { opacity: 0.75; }
     .game-card h2 {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.85rem;
+      font-size: 0.68rem;
       color: var(--cream);
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
     }
     .game-card .play-btn {
       display: inline-block;
-      padding: 0.6rem 1.2rem;
+      padding: 0.45rem 0.9rem;
       background: var(--orange);
       color: var(--navy);
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.7rem;
+      font-size: 0.6rem;
       text-decoration: none;
       border-radius: 4px;
       font-weight: bold;
@@ -166,24 +166,8 @@
       <a href="games/chomp/" class="game-card available">
         <div class="sprite">
           <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-            <g fill="#F5EFE0">
-              <rect x="3" y="0" width="6" height="1"/>
-              <rect x="2" y="1" width="8" height="1"/>
-              <rect x="1" y="2" width="10" height="1"/>
-              <rect x="0" y="3" width="12" height="7"/>
-              <rect x="0" y="10" width="2" height="1"/>
-              <rect x="3" y="10" width="2" height="1"/>
-              <rect x="6" y="10" width="2" height="1"/>
-              <rect x="9" y="10" width="2" height="1"/>
-              <rect x="0" y="11" width="1" height="1"/>
-              <rect x="3" y="11" width="1" height="1"/>
-              <rect x="6" y="11" width="1" height="1"/>
-              <rect x="9" y="11" width="1" height="1"/>
-            </g>
-            <g fill="#0A1F3D">
-              <rect x="3" y="5" width="1" height="1"/>
-              <rect x="9" y="5" width="1" height="1"/>
-            </g>
+            <circle cx="6" cy="6" r="5" fill="#F5EFE0"/>
+            <circle cx="6" cy="6" r="2.5" fill="#FF8A1F"/>
           </svg>
         </div>
         <h2>CLAWDMAN</h2>
@@ -192,22 +176,14 @@
 
       <a href="games/snake/" class="game-card available">
         <div class="sprite">
-          <svg viewBox="0 0 18 9" xmlns="http://www.w3.org/2000/svg">
-            <g fill="#F5EFE0">
-              <circle cx="1.5" cy="4.5" r="1"/>
-              <circle cx="4" cy="4.5" r="1.5"/>
-              <rect x="7" y="0" width="10" height="4"/>
-              <rect x="6" y="4" width="12" height="2"/>
-              <rect x="7" y="6" width="10" height="2"/>
-              <rect x="8" y="8" width="1" height="1"/>
-              <rect x="10" y="8" width="1" height="1"/>
-              <rect x="14" y="8" width="1" height="1"/>
-              <rect x="16" y="8" width="1" height="1"/>
+          <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#3FCB7A">
+              <circle cx="1.5"  cy="6" r="1.4"/>
+              <circle cx="4"    cy="6" r="1.7"/>
+              <circle cx="6.8"  cy="6" r="2"/>
+              <circle cx="9.8"  cy="6" r="2.3"/>
             </g>
-            <g fill="#1A0808">
-              <rect x="9" y="2" width="1" height="2"/>
-              <rect x="15" y="2" width="1" height="2"/>
-            </g>
+            <circle cx="10.4" cy="5" r="0.45" fill="#1A0808"/>
           </svg>
         </div>
         <h2>CLAWD SNAKE</h2>
