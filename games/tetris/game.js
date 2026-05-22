@@ -43,6 +43,7 @@
   let score, level, lines, gameOver, win;
   let lockFlash;
   let clearedRows;
+  let frameCount = 0;
   let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-tetris-high') || '0', 10);
 
@@ -244,23 +245,29 @@
     ctx.fillStyle = '#0B1426';
     ctx.fillRect(0, 0, W, H);
 
-    // Field background + grid
+    // Subtle terminal scanlines across the whole canvas
+    ctx.fillStyle = 'rgba(255, 138, 31, 0.025)';
+    for (let yy = 0; yy < H; yy += 4) ctx.fillRect(0, yy, W, 1);
+
+    // Title bar — Claude Code prompt with blinking cursor
+    ctx.textAlign = 'left';
+    ctx.font = '10px "Press Start 2P", monospace';
+    ctx.fillStyle = '#7E8C99';
+    ctx.fillText('▸', 8, 14);
+    ctx.fillStyle = '#FF8A1F';
+    ctx.fillText('clawd', 22, 14);
+    ctx.fillStyle = '#7E8C99';
+    ctx.fillText(':', 70, 14);
+    ctx.fillStyle = '#F5EFE0';
+    ctx.fillText('tetris', 78, 14);
+    if (Math.floor(frameCount / 30) % 2 === 0) {
+      ctx.fillStyle = '#FF8A1F';
+      ctx.fillRect(140, 6, 6, 10);
+    }
+
+    // Field background (no grid, no border — corner accents below replace it)
     ctx.fillStyle = '#0F1F3D';
     ctx.fillRect(FIELD_X, FIELD_Y, COLS * TILE, ROWS * TILE);
-    ctx.strokeStyle = '#1A2D5C';
-    ctx.lineWidth = 1;
-    for (let c = 0; c <= COLS; c++) {
-      ctx.beginPath();
-      ctx.moveTo(FIELD_X + c * TILE + 0.5, FIELD_Y);
-      ctx.lineTo(FIELD_X + c * TILE + 0.5, FIELD_Y + ROWS * TILE);
-      ctx.stroke();
-    }
-    for (let r = 0; r <= ROWS; r++) {
-      ctx.beginPath();
-      ctx.moveTo(FIELD_X,             FIELD_Y + r * TILE + 0.5);
-      ctx.lineTo(FIELD_X + COLS*TILE, FIELD_Y + r * TILE + 0.5);
-      ctx.stroke();
-    }
 
     // Locked blocks
     for (let r = 0; r < ROWS; r++) {
@@ -281,10 +288,11 @@
       drawPiece(piece, 0, 1);
     }
 
-    // Field border
-    ctx.strokeStyle = '#FF8A1F';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(FIELD_X, FIELD_Y, COLS * TILE, ROWS * TILE);
+    // Terminal-window corner accents instead of a full border
+    drawCorner(FIELD_X, FIELD_Y, 1, 1);
+    drawCorner(FIELD_X + COLS * TILE, FIELD_Y, -1, 1);
+    drawCorner(FIELD_X, FIELD_Y + ROWS * TILE, 1, -1);
+    drawCorner(FIELD_X + COLS * TILE, FIELD_Y + ROWS * TILE, -1, -1);
 
     // Side panel
     drawSidePanel();
@@ -344,6 +352,16 @@
     }
   }
 
+  // Terminal-window corner accent: short orange L at a corner of the playfield.
+  // (sx, sy) ∈ {±1} controls which direction the arms point.
+  function drawCorner(x, y, sx, sy) {
+    ctx.fillStyle = '#FF8A1F';
+    const len = 12;
+    const w = 2;
+    ctx.fillRect(x + (sx < 0 ? -len : 0), y + (sy < 0 ? -w : 0), len, w);
+    ctx.fillRect(x + (sx < 0 ? -w : 0), y + (sy < 0 ? -len : 0), w, len);
+  }
+
   function drawBlock(x, y, color) {
     ctx.fillStyle = color;
     ctx.fillRect(x, y, TILE, TILE);
@@ -354,10 +372,6 @@
     ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
     ctx.fillRect(x + TILE - 2, y, 2, TILE);
     ctx.fillRect(x, y + TILE - 2, TILE, 2);
-    // Tiny Clawd eyes — each block is a mini-Clawd
-    ctx.fillStyle = '#1A0808';
-    ctx.fillRect(x + 7,  y + 9, 2, 3);
-    ctx.fillRect(x + 15, y + 9, 2, 3);
   }
 
   // Tiny Clawd peeking from a corner — same Runner sprite at small scale
@@ -452,6 +466,7 @@
   function loop() {
     update();
     draw();
+    frameCount++;
     if (!gameOver) requestAnimationFrame(loop);
   }
 
