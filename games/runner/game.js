@@ -5,6 +5,7 @@
 
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false; // crisp pixel-art rendering for sprite drawImage
   const W = canvas.width;
   const H = canvas.height;
 
@@ -31,6 +32,7 @@
   let score, scoreFrame, gameOver, gameSpeed, lastSpawn;
   let nightMode, nightTimer, stars, lastNightScore;
   let frameCount;
+  let gameStarted;
 
   function reset() {
     player = { x: 80, y: GROUND_Y - 27, w: 36, h: 27, vy: 0, grounded: true, ducking: false };
@@ -50,12 +52,14 @@
     nightTimer     = 0;
     lastNightScore = -1;
     stars          = [];
+    gameStarted    = false;
     restartBtn.classList.add('hidden');
     requestAnimationFrame(loop);
   }
 
   function jump() {
     if (gameOver) return reset();
+    if (!gameStarted) gameStarted = true;
     if (player.grounded) {
       player.vy = JUMP_VELOCITY;
       player.grounded = false;
@@ -66,6 +70,7 @@
 
   function duck(on) {
     if (gameOver) return;
+    if (on && !gameStarted) gameStarted = true;
     player.ducking = on;
     if (on && !player.grounded) {
       player.vy = Math.max(player.vy, 5); // fast-fall
@@ -123,6 +128,9 @@
       player.vy      = 0;
       player.grounded = true;
     }
+
+    // Until the player jumps/ducks for the first time, the world is frozen
+    if (!gameStarted) return;
 
     // Clouds parallax
     for (let i = clouds.length - 1; i >= 0; i--) {
@@ -255,6 +263,17 @@
 
     // Obstacles
     for (const obs of obstacles) drawObstacle(obs);
+
+    // Ready overlay — wait for the first jump/duck
+    if (!gameStarted && !gameOver) {
+      ctx.fillStyle    = '#FF8A1F';
+      ctx.font         = '20px "Press Start 2P", monospace';
+      ctx.textAlign    = 'center';
+      ctx.fillText('READY!', W / 2, H / 2 - 6);
+      ctx.fillStyle = '#535353';
+      ctx.font      = '14px "VT323", monospace';
+      ctx.fillText('Press SPACE or tap to start', W / 2, H / 2 + 18);
+    }
 
     // Game over overlay
     if (gameOver) {

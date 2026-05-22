@@ -29,6 +29,7 @@
   let food;        // { c, r }
   let score, gameOver, win;
   let frame, tickFrames;
+  let gameStarted; // false until the first arrow key
   let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-snake-high') || '0', 10);
 
@@ -71,6 +72,7 @@
     tickFrames = TICK_START;
     gameOver = false;
     win = false;
+    gameStarted = false;
     spawnFood();
     restartBtn.classList.add('hidden');
     scoreEl.textContent = '00000';
@@ -95,6 +97,7 @@
   // === Update ===
   function update() {
     if (gameOver) return;
+    if (!gameStarted) return; // wait for the first arrow key
     frame++;
     if (frame % Math.floor(tickFrames) !== 0) return;
 
@@ -173,6 +176,17 @@
 
     // Head: Clawd
     drawClawdHead(snake[0].c, snake[0].r);
+
+    // Ready overlay — wait for the first arrow key
+    if (!gameStarted && !gameOver) {
+      ctx.fillStyle = '#FF8A1F';
+      ctx.font = '20px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('READY!', W / 2, H / 2 + 40);
+      ctx.fillStyle = '#F5EFE0';
+      ctx.font = '12px "VT323", monospace';
+      ctx.fillText('Press ARROW to start', W / 2, H / 2 + 64);
+    }
 
     // Game over / win overlay
     if (gameOver) {
@@ -273,10 +287,16 @@
       reset();
       return;
     }
-    if      (e.code === 'ArrowUp'    || e.code === 'KeyW') { nextDir = { dc:  0, dr: -1 }; e.preventDefault(); }
-    else if (e.code === 'ArrowDown'  || e.code === 'KeyS') { nextDir = { dc:  0, dr:  1 }; e.preventDefault(); }
-    else if (e.code === 'ArrowLeft'  || e.code === 'KeyA') { nextDir = { dc: -1, dr:  0 }; e.preventDefault(); }
-    else if (e.code === 'ArrowRight' || e.code === 'KeyD') { nextDir = { dc:  1, dr:  0 }; e.preventDefault(); }
+    let queued = null;
+    if      (e.code === 'ArrowUp'    || e.code === 'KeyW') queued = { dc:  0, dr: -1 };
+    else if (e.code === 'ArrowDown'  || e.code === 'KeyS') queued = { dc:  0, dr:  1 };
+    else if (e.code === 'ArrowLeft'  || e.code === 'KeyA') queued = { dc: -1, dr:  0 };
+    else if (e.code === 'ArrowRight' || e.code === 'KeyD') queued = { dc:  1, dr:  0 };
+    if (queued) {
+      nextDir = queued;
+      if (!gameStarted) { gameStarted = true; dir = queued; }
+      e.preventDefault();
+    }
   });
 
   restartBtn.addEventListener('click', reset);

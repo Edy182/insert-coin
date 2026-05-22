@@ -6,6 +6,7 @@
   // === Canvas ===
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false; // crisp pixel-art rendering for sprite drawImage
   const W = canvas.width;
   const H = canvas.height;
 
