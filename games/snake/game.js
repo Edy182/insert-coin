@@ -67,6 +67,8 @@
   let gameStarted; // false until the first arrow key
   let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-snake-high') || '0', 10);
+  const ONBOARDED_KEY = 'clawd-onboarded-snake';
+  let isFirstPlay = !localStorage.getItem(ONBOARDED_KEY);
 
   // === Clawd head sprite (pre-rendered for crisp scaling) ===
   let clawdSprite = null;
@@ -265,6 +267,11 @@
       ctx.fillStyle = '#F5EFE0';
       ctx.font = '12px "VT323", monospace';
       ctx.fillText('Press ARROW to start', W / 2, H / 2 + 64);
+      if (isFirstPlay) {
+        ctx.fillStyle = '#FF8A1F';
+        ctx.font = '12px "VT323", monospace';
+        ctx.fillText('Eat fruit  ·  don\'t bite yourself', W / 2, H / 2 + 86);
+      }
     }
 
     // Game over / win overlay
@@ -391,7 +398,7 @@
     else if (e.code === 'ArrowRight' || e.code === 'KeyD') queued = { dc:  1, dr:  0 };
     if (queued) {
       nextDir = queued;
-      if (!gameStarted) { gameStarted = true; dir = queued; startMusic(); }
+      if (!gameStarted) { gameStarted = true; dir = queued; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } }
       e.preventDefault();
     }
   });
@@ -414,7 +421,7 @@
       ? { dc: dx > 0 ? 1 : -1, dr: 0 }
       : { dc: 0, dr: dy > 0 ? 1 : -1 };
     nextDir = queued;
-    if (!gameStarted) { gameStarted = true; dir = queued; startMusic(); }
+    if (!gameStarted) { gameStarted = true; dir = queued; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } }
     e.preventDefault();
   }, { passive: false });
 

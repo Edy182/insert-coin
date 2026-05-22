@@ -45,7 +45,7 @@
   function shareCard() {
     const tier = scoreTier(score);
     const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
-    return `🦀 Clawd Runner — ${todayISO}\n${score} pts ${squares}\nclawdbytes.com`;
+    return `🦀 DinoClawd — ${todayISO}\n${score} pts ${squares}\nclawdbytes.com`;
   }
 
   // === Constants ===
@@ -60,6 +60,8 @@
   let highScore = parseInt(localStorage.getItem('clawd-runner-high') || '0', 10);
   highScoreEl.textContent = String(highScore).padStart(5, '0');
   let soundOn = true;
+  const ONBOARDED_KEY = 'clawd-onboarded-runner';
+  let isFirstPlay = !localStorage.getItem(ONBOARDED_KEY);
 
   // === Game state ===
   let player, obstacles, clouds, groundOffset;
@@ -95,7 +97,7 @@
 
   function jump() {
     if (gameOver) return reset();
-    if (!gameStarted) { gameStarted = true; startMusic(); }
+    if (!gameStarted) { gameStarted = true; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } }
     if (player.grounded) {
       player.vy = JUMP_VELOCITY;
       player.grounded = false;
@@ -308,33 +310,8 @@
     // Clouds
     for (const c of clouds) drawCloud(c.x, c.y, cld);
 
-    // Ground — base line + irregular raised sections + multi-rect stones on top
     ctx.fillStyle = gnd;
     ctx.fillRect(0, GROUND_Y, W, 2);
-    for (let x = -groundOffset; x < W; x += 80) {
-      // Line irregularities: 1-px raised stretches make the surface look uneven
-      ctx.fillRect(x + 16, GROUND_Y - 1, 7, 1);
-      ctx.fillRect(x + 38, GROUND_Y - 1, 5, 1);
-      ctx.fillRect(x + 56, GROUND_Y - 1, 8, 1);
-
-      // Stone 1 — medium blob (5×3)
-      ctx.fillRect(x + 5,  GROUND_Y - 3, 3, 1);
-      ctx.fillRect(x + 4,  GROUND_Y - 2, 5, 1);
-      ctx.fillRect(x + 4,  GROUND_Y - 1, 4, 1);
-
-      // Stone 2 — small (3×2)
-      ctx.fillRect(x + 27, GROUND_Y - 2, 2, 1);
-      ctx.fillRect(x + 26, GROUND_Y - 1, 3, 1);
-
-      // Stone 3 — larger asymmetric (6×3)
-      ctx.fillRect(x + 49, GROUND_Y - 3, 4, 1);
-      ctx.fillRect(x + 48, GROUND_Y - 2, 6, 1);
-      ctx.fillRect(x + 49, GROUND_Y - 1, 5, 1);
-
-      // Stone 4 — tiny (2×2)
-      ctx.fillRect(x + 70, GROUND_Y - 2, 2, 1);
-      ctx.fillRect(x + 70, GROUND_Y - 1, 3, 1);
-    }
 
     // Player
     if (player.ducking) drawClawdDuck(player.x, player.y);
@@ -352,6 +329,11 @@
       ctx.fillStyle = '#535353';
       ctx.font      = '14px "VT323", monospace';
       ctx.fillText('Press SPACE or tap to start', W / 2, H / 2 + 18);
+      if (isFirstPlay) {
+        ctx.fillStyle = '#FF8A1F';
+        ctx.font = '12px "VT323", monospace';
+        ctx.fillText('↑/SPACE jump  ·  ↓ duck', W / 2, H / 2 + 40);
+      }
     }
 
     // Game over overlay

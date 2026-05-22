@@ -140,6 +140,8 @@
   let scorePopups; // floating "+200" labels that fade out
   let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-chomp-high') || '0', 10);
+  const ONBOARDED_KEY = 'clawd-onboarded-chomp';
+  let isFirstPlay = !localStorage.getItem(ONBOARDED_KEY);
 
   // Place Clawd + ghosts at their spawn positions. Used at game start and after each death.
   // On respawn, preserves each ghost's `released` flag so already-active ghosts stay active.
@@ -609,6 +611,11 @@
       ctx.fillStyle = '#F5EFE0';
       ctx.font = '12px "VT323", monospace';
       ctx.fillText('Press ARROW to start', W / 2, H / 2 + 72);
+      if (isFirstPlay) {
+        ctx.fillStyle = '#FF8A1F';
+        ctx.font = '12px "VT323", monospace';
+        ctx.fillText('Eat dots  ·  dodge bugs  ·  power pellets fight back', W / 2, H / 2 + 94);
+      }
     }
 
     // Mid-game catch feedback: red flash + panel with "Caught by X" while respawning
@@ -843,7 +850,7 @@
     e.preventDefault();
     if (player) {
       player.nextDir = { dx, dy };
-      if (!gameStarted) { gameStarted = true; startMusic(); }
+      if (!gameStarted) { gameStarted = true; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } }
     }
   });
 
@@ -866,7 +873,7 @@
       : { dx: 0, dy: ddy > 0 ? 1 : -1 };
     if (player) {
       player.nextDir = queued;
-      if (!gameStarted) { gameStarted = true; startMusic(); }
+      if (!gameStarted) { gameStarted = true; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } }
     }
     e.preventDefault();
   }, { passive: false });
