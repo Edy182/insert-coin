@@ -1,7 +1,9 @@
 (() => {
   'use strict';
 
-  const godMode = new URLSearchParams(location.search).has('god');
+  const params = new URLSearchParams(location.search);
+  const godMode = params.has('god');
+  let dailyMode = params.has('daily');
 
   // === Canvas ===
   const canvas = document.getElementById('game');
@@ -13,7 +15,25 @@
   const scoreEl     = document.getElementById('score');
   const highScoreEl = document.getElementById('high-score');
   const restartBtn  = document.getElementById('restart');
+  const shareBtn    = document.getElementById('share');
+  const dailyBtn    = document.getElementById('daily');
   const muteBtn     = document.getElementById('mute');
+
+  // Daily share card
+  const todayISO = new Date().toISOString().slice(0, 10);
+  function scoreTier(s) {
+    if (s >= 5000) return 5;
+    if (s >= 2500) return 4;
+    if (s >= 1000) return 3;
+    if (s >= 400)  return 2;
+    if (s >= 100)  return 1;
+    return 0;
+  }
+  function shareCard() {
+    const tier = scoreTier(score);
+    const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
+    return `🦀 Clawdman — ${todayISO}\n${score} pts ${squares}\nclawdbytes.com`;
+  }
 
   // === Constants ===
   const TILE  = 24;
@@ -170,6 +190,7 @@
     eatFreezeTimer = 0;
     scorePopups = [];
     restartBtn.classList.add('hidden');
+    shareBtn.classList.add('hidden');
     scoreEl.textContent = '00000';
     highScoreEl.textContent = String(highScore).padStart(5, '0');
     requestAnimationFrame(loop);
@@ -461,12 +482,14 @@
 
   function endGame() {
     gameOver = true;
+    stopMusic();
     if (score > highScore) {
       highScore = score;
       localStorage.setItem('clawd-chomp-high', String(highScore));
       highScoreEl.textContent = String(highScore).padStart(5, '0');
     }
     restartBtn.classList.remove('hidden');
+    if (dailyMode) shareBtn.classList.remove('hidden');
   }
 
   // Caught by a ghost — burn a life, respawn if any left.
@@ -724,6 +747,22 @@
     osc.stop(t + duration + 0.01);
   }
 
+  // Clawdman music — tense minor descending pattern
+  const MUSIC_NOTES = [440, 523, 622, 587, 523, 466, 415, 392];
+  let musicIdx = 0, musicTimer = null;
+  function startMusic() {
+    if (musicTimer || !soundOn) return;
+    getAudioCtx();
+    musicTimer = setInterval(() => {
+      if (!soundOn) return;
+      beep({ freq: MUSIC_NOTES[musicIdx], type: 'triangle', duration: 0.15, volume: 0.035 });
+      musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
+    }, 230);
+  }
+  function stopMusic() {
+    if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+  }
+
   function playSound(kind) {
     if (!soundOn) return;
     if (kind === 'dot') {
@@ -761,7 +800,7 @@
     e.preventDefault();
     if (player) {
       player.nextDir = { dx, dy };
-      gameStarted = true;
+      if (!gameStarted) { gameStarted = true; startMusic(); }
     }
   });
 
@@ -769,7 +808,22 @@
   muteBtn.addEventListener('click', () => {
     soundOn = !soundOn;
     muteBtn.textContent = soundOn ? '🔊 SOUND' : '🔇 MUTED';
+    if (!soundOn) stopMusic();
+    else if (gameStarted && !gameOver) startMusic();
   });
+  shareBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(shareCard());
+      shareBtn.textContent = '✓ COPIED!';
+      setTimeout(() => { shareBtn.textContent = '📋 COPY SHARE'; }, 1500);
+    } catch (e) {}
+  });
+  dailyBtn.addEventListener('click', () => {
+    dailyMode = !dailyMode;
+    dailyBtn.textContent = dailyMode ? '📅 DAILY: ON' : '📅 DAILY';
+    reset();
+  });
+  if (dailyMode) dailyBtn.textContent = '📅 DAILY: ON';
 
   // === Boot ===
   reset();

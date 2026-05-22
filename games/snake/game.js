@@ -1,7 +1,9 @@
 (() => {
   'use strict';
 
-  const godMode = new URLSearchParams(location.search).has('god');
+  const params = new URLSearchParams(location.search);
+  const godMode = params.has('god');
+  let dailyMode = params.has('daily');
 
   // === Canvas ===
   const canvas = document.getElementById('game');
@@ -12,7 +14,40 @@
   const scoreEl     = document.getElementById('score');
   const highScoreEl = document.getElementById('high-score');
   const restartBtn  = document.getElementById('restart');
+  const shareBtn    = document.getElementById('share');
+  const dailyBtn    = document.getElementById('daily');
   const muteBtn     = document.getElementById('mute');
+
+  // Daily seed → deterministic randomness (mulberry32, public domain)
+  const todayISO = new Date().toISOString().slice(0, 10);
+  let seedState = 0;
+  function reseedFromToday() {
+    seedState = 0;
+    for (let i = 0; i < todayISO.length; i++) seedState = (seedState * 31 + todayISO.charCodeAt(i)) >>> 0;
+  }
+  reseedFromToday();
+  function rand() {
+    if (!dailyMode) return Math.random();
+    seedState = (seedState + 0x6D2B79F5) | 0;
+    let t = seedState;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+
+  function scoreTier(s) {
+    if (s >= 400) return 5;
+    if (s >= 200) return 4;
+    if (s >= 100) return 3;
+    if (s >= 50)  return 2;
+    if (s >= 10)  return 1;
+    return 0;
+  }
+  function shareCard() {
+    const tier = scoreTier(score);
+    const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
+    return `🦀 Clawd Snake — ${todayISO}\n${score} pts ${squares}\nclawdbytes.com`;
+  }
 
   // === Constants ===
   const COLS = 21;
@@ -75,6 +110,7 @@
     gameStarted = false;
     spawnFood();
     restartBtn.classList.add('hidden');
+    shareBtn.classList.add('hidden');
     scoreEl.textContent = '00000';
     highScoreEl.textContent = String(highScore).padStart(5, '0');
     requestAnimationFrame(loop);
@@ -85,12 +121,12 @@
   function spawnFood() {
     let c, r, tries = 0;
     do {
-      c = Math.floor(Math.random() * COLS);
-      r = Math.floor(Math.random() * ROWS);
+      c = Math.floor(rand() * COLS);
+      r = Math.floor(rand() * ROWS);
       tries++;
       if (tries > 500) break;
     } while (snake.some(s => s.c === c && s.r === r));
-    const color = FOOD_COLORS[Math.floor(Math.random() * FOOD_COLORS.length)];
+    const color = FOOD_COLORS[Math.floor(rand() * FOOD_COLORS.length)];
     food = { c, r, color };
   }
 
@@ -142,6 +178,7 @@
 
   function endGame() {
     gameOver = true;
+    stopMusic();
     playSound(win ? 'win' : 'death');
     if (score > highScore) {
       highScore = score;
@@ -149,6 +186,7 @@
       highScoreEl.textContent = String(highScore).padStart(5, '0');
     }
     restartBtn.classList.remove('hidden');
+    if (dailyMode) shareBtn.classList.remove('hidden');
   }
 
   // === Draw ===
@@ -266,6 +304,22 @@
     osc.start(t);
     osc.stop(t + duration + 0.01);
   }
+  // Snake music — calm major-scale pattern
+  const MUSIC_NOTES = [392, 523, 659, 523, 440, 587, 523, 392];
+  let musicIdx = 0, musicTimer = null;
+  function startMusic() {
+    if (musicTimer || !soundOn) return;
+    getAudioCtx();
+    musicTimer = setInterval(() => {
+      if (!soundOn) return;
+      beep({ freq: MUSIC_NOTES[musicIdx], type: 'triangle', duration: 0.18, volume: 0.035 });
+      musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
+    }, 260);
+  }
+  function stopMusic() {
+    if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+  }
+
   function playSound(kind) {
     if (!soundOn) return;
     if (kind === 'eat') {
@@ -294,7 +348,7 @@
     else if (e.code === 'ArrowRight' || e.code === 'KeyD') queued = { dc:  1, dr:  0 };
     if (queued) {
       nextDir = queued;
-      if (!gameStarted) { gameStarted = true; dir = queued; }
+      if (!gameStarted) { gameStarted = true; dir = queued; startMusic(); }
       e.preventDefault();
     }
   });
@@ -303,7 +357,23 @@
   muteBtn.addEventListener('click', () => {
     soundOn = !soundOn;
     muteBtn.textContent = soundOn ? '🔊 SOUND' : '🔇 MUTED';
+    if (!soundOn) stopMusic();
+    else if (gameStarted && !gameOver) startMusic();
   });
+  shareBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(shareCard());
+      shareBtn.textContent = '✓ COPIED!';
+      setTimeout(() => { shareBtn.textContent = '📋 COPY SHARE'; }, 1500);
+    } catch (e) { /* ignore */ }
+  });
+  dailyBtn.addEventListener('click', () => {
+    dailyMode = !dailyMode;
+    dailyBtn.textContent = dailyMode ? '📅 DAILY: ON' : '📅 DAILY';
+    reseedFromToday();
+    reset();
+  });
+  if (dailyMode) dailyBtn.textContent = '📅 DAILY: ON';
 
   // === Boot ===
   reset();

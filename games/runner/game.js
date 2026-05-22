@@ -1,7 +1,9 @@
 (() => {
   'use strict';
 
-  const godMode = new URLSearchParams(location.search).has('god');
+  const params = new URLSearchParams(location.search);
+  const godMode = params.has('god');
+  let dailyMode = params.has('daily');
 
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
@@ -12,7 +14,39 @@
   const scoreEl    = document.getElementById('score');
   const highScoreEl = document.getElementById('high-score');
   const restartBtn  = document.getElementById('restart');
+  const shareBtn    = document.getElementById('share');
+  const dailyBtn    = document.getElementById('daily');
   const muteBtn     = document.getElementById('mute');
+
+  // Daily seed (mulberry32, public domain)
+  const todayISO = new Date().toISOString().slice(0, 10);
+  let seedState = 0;
+  function reseedFromToday() {
+    seedState = 0;
+    for (let i = 0; i < todayISO.length; i++) seedState = (seedState * 31 + todayISO.charCodeAt(i)) >>> 0;
+  }
+  reseedFromToday();
+  function rand() {
+    if (!dailyMode) return Math.random();
+    seedState = (seedState + 0x6D2B79F5) | 0;
+    let t = seedState;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+  function scoreTier(s) {
+    if (s >= 3000) return 5;
+    if (s >= 1500) return 4;
+    if (s >= 800)  return 3;
+    if (s >= 300)  return 2;
+    if (s >= 100)  return 1;
+    return 0;
+  }
+  function shareCard() {
+    const tier = scoreTier(score);
+    const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
+    return `🦀 Clawd Runner — ${todayISO}\n${score} pts ${squares}\nclawdbytes.com`;
+  }
 
   // === Constants ===
   const GROUND_Y       = H - 40;
@@ -40,7 +74,7 @@
     clouds      = [];
     groundOffset = 0;
     for (let i = 0; i < 4; i++) {
-      clouds.push({ x: (i + 1) * (W / 4), y: 15 + Math.random() * 55 });
+      clouds.push({ x: (i + 1) * (W / 4), y: 15 + rand() * 55 });
     }
     score          = 0;
     scoreFrame     = 0;
@@ -53,13 +87,15 @@
     lastNightScore = -1;
     stars          = [];
     gameStarted    = false;
+    if (dailyMode) reseedFromToday();
     restartBtn.classList.add('hidden');
+    shareBtn.classList.add('hidden');
     requestAnimationFrame(loop);
   }
 
   function jump() {
     if (gameOver) return reset();
-    if (!gameStarted) gameStarted = true;
+    if (!gameStarted) { gameStarted = true; startMusic(); }
     if (player.grounded) {
       player.vy = JUMP_VELOCITY;
       player.grounded = false;
@@ -79,7 +115,7 @@
 
   // === Obstacle spawning ===
   function spawnObstacle() {
-    const r = Math.random();
+    const r = rand();
     let type;
     if      (r < 0.20) type = 'ptero';
     else if (r < 0.37) type = 'cactus_s';
@@ -107,7 +143,7 @@
     let y = GROUND_Y - h;
     if (type === 'ptero') {
       const pteroHeights = [GROUND_Y - 28, GROUND_Y - 65, GROUND_Y - 105];
-      y = pteroHeights[Math.floor(Math.random() * pteroHeights.length)];
+      y = pteroHeights[Math.floor(rand() * pteroHeights.length)];
     }
 
     obstacles.push({ x: W, y, w, h, type });
@@ -137,14 +173,14 @@
       clouds[i].x -= gameSpeed * 0.2;
       if (clouds[i].x < -80) clouds.splice(i, 1);
     }
-    if (Math.random() < 0.004) clouds.push({ x: W + 20, y: 15 + Math.random() * 55 });
+    if (rand() < 0.004) clouds.push({ x: W + 20, y: 15 + rand() * 55 });
 
     groundOffset = (groundOffset + gameSpeed) % 60;
 
     // Spawn obstacles
     lastSpawn++;
     const spawnGap = Math.max(SPAWN_MIN_GAP - Math.floor(score / 100), 30);
-    if (lastSpawn > spawnGap && Math.random() < 0.04) {
+    if (lastSpawn > spawnGap && rand() < 0.04) {
       spawnObstacle();
       lastSpawn = 0;
     }
@@ -189,9 +225,9 @@
       nightMode  = true;
       nightTimer = NIGHT_DURATION;
       stars = Array.from({ length: 45 }, () => ({
-        x: Math.random() * W,
-        y: 6 + Math.random() * (GROUND_Y - 50),
-        s: Math.random() < 0.25 ? 3 : 2,
+        x: rand() * W,
+        y: 6 + rand() * (GROUND_Y - 50),
+        s: rand() < 0.25 ? 3 : 2,
       }));
     }
     if (nightMode && --nightTimer <= 0) nightMode = false;
@@ -200,6 +236,7 @@
   // === End game ===
   function endGame() {
     gameOver = true;
+    stopMusic();
     playSound('death');
     if (score > highScore) {
       highScore = score;
@@ -207,6 +244,7 @@
       highScoreEl.textContent = String(highScore).padStart(5, '0');
     }
     restartBtn.classList.remove('hidden');
+    if (dailyMode) shareBtn.classList.remove('hidden');
   }
 
   // === Draw ===
@@ -573,6 +611,22 @@
     osc.stop(t + duration + 0.01);
   }
 
+  // Runner music — upbeat pentatonic loop
+  const MUSIC_NOTES = [523, 587, 659, 784, 880, 784, 659, 587];
+  let musicIdx = 0, musicTimer = null;
+  function startMusic() {
+    if (musicTimer || !soundOn) return;
+    getAudioCtx();
+    musicTimer = setInterval(() => {
+      if (!soundOn) return;
+      beep({ freq: MUSIC_NOTES[musicIdx], type: 'triangle', duration: 0.12, volume: 0.035 });
+      musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
+    }, 200);
+  }
+  function stopMusic() {
+    if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+  }
+
   function playSound(kind) {
     if (!soundOn) return;
     if (kind === 'jump') {
@@ -615,7 +669,22 @@
   muteBtn.addEventListener('click', () => {
     soundOn = !soundOn;
     muteBtn.textContent = soundOn ? '🔊 SOUND' : '🔇 MUTED';
+    if (!soundOn) stopMusic();
+    else if (gameStarted && !gameOver) startMusic();
   });
+  shareBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(shareCard());
+      shareBtn.textContent = '✓ COPIED!';
+      setTimeout(() => { shareBtn.textContent = '📋 COPY SHARE'; }, 1500);
+    } catch (e) {}
+  });
+  dailyBtn.addEventListener('click', () => {
+    dailyMode = !dailyMode;
+    dailyBtn.textContent = dailyMode ? '📅 DAILY: ON' : '📅 DAILY';
+    reset();
+  });
+  if (dailyMode) dailyBtn.textContent = '📅 DAILY: ON';
 
   // === Boot ===
   loadSprites();
