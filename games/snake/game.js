@@ -70,6 +70,7 @@
   let shieldFlash;      // frames of cream flash after activating the shield
   let foodEaten;        // total food eaten — drives the streak bonus
   let comboPopup;       // { text, frames }
+  let comboFlash;       // frames of cream border pulse when a streak fires
   let leaderboardResult; // { rank, list } from Worker after submit
   let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-snake-high') || '0', 10);
@@ -134,6 +135,7 @@
     shieldFlash = 0;
     foodEaten = 0;
     comboPopup = null;
+    comboFlash = 0;
     leaderboardResult = null;
     if (window.ClawdStats) window.ClawdStats.resetShield();
     spawnFood();
@@ -201,6 +203,8 @@
       if (foodEaten % 5 === 0) {
         score += 50 * mult;
         comboPopup = { text: 'STREAK +' + (50 * mult), frames: 60 };
+        comboFlash = 25;
+        playSound('combo');
       }
       tickFrames = Math.max(TICK_MIN, tickFrames - TICK_DECAY);
       playSound('eat');
@@ -237,7 +241,7 @@
   }
 
   // === Confetti (high-score celebration) ===
-  const CONFETTI_COLORS = ['#d97757', '#faf9f5', '#788c5d', '#e8a4b8', '#6a9bcc', '#d4a85f'];
+  const CONFETTI_COLORS = ['#d97757', '#faf9f5', '#e8e6dc', '#b0aea5', '#8a8880', '#c2c0b7'];
   let confetti = [];
   function burstConfetti() {
     for (let i = 0; i < 80; i++) {
@@ -300,6 +304,16 @@
       ctx.fillRect(0, 0, W, H);
     }
 
+    // Combo border pulse (cream rim flash, fades over 25 frames)
+    if (comboFlash > 0) {
+      comboFlash--;
+      const a = (comboFlash / 25) * 0.55;
+      ctx.strokeStyle = `rgba(250, 249, 245, ${a})`;
+      ctx.lineWidth = 6;
+      ctx.strokeRect(3, 3, W - 6, H - 6);
+      ctx.lineWidth = 1;
+    }
+
     // Combo popup (floats up, fades out)
     if (comboPopup) {
       comboPopup.frames--;
@@ -307,7 +321,7 @@
         comboPopup = null;
       } else {
         const alpha = Math.min(1, comboPopup.frames / 30);
-        ctx.fillStyle = `rgba(216, 168, 95, ${alpha})`;
+        ctx.fillStyle = `rgba(250, 249, 245, ${alpha})`;
         ctx.font = 'bold 16px "Press Start 2P", monospace';
         ctx.textAlign = 'center';
         const lift = (60 - comboPopup.frames) * 0.5;
@@ -332,7 +346,7 @@
 
     // Ready overlay — wait for the first arrow key
     if (!gameStarted && !gameOver) {
-      ctx.fillStyle = '#d97757';
+      ctx.fillStyle = '#faf9f5';
       ctx.font = '20px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText('READY!', W / 2, H / 2 + 40);
@@ -340,7 +354,7 @@
       ctx.font = '12px "VT323", monospace';
       ctx.fillText('Press ARROW to start', W / 2, H / 2 + 64);
       if (isFirstPlay) {
-        ctx.fillStyle = '#d97757';
+        ctx.fillStyle = '#faf9f5';
         ctx.font = '12px "VT323", monospace';
         ctx.fillText('Eat fruit  ·  don\'t bite yourself', W / 2, H / 2 + 86);
       }
@@ -350,7 +364,7 @@
     if (gameOver) {
       ctx.fillStyle = 'rgba(11, 20, 38, 0.88)';
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#d97757';
+      ctx.fillStyle = '#faf9f5';
       ctx.font = '20px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText(win ? 'BOARD CLEAR!' : 'STACK OVERFLOW', W / 2, H / 2 - 10);
@@ -480,6 +494,11 @@
       beep({ freq: 440, duration: 0.12, volume: 0.18 });
       beep({ freq: 660, duration: 0.12, volume: 0.18, delay: 0.13 });
       beep({ freq: 880, duration: 0.24, volume: 0.18, delay: 0.26 });
+    } else if (kind === 'combo') {
+      // Ascending 3-note sparkle for streak bonuses.
+      beep({ freq: 784,  type: 'triangle', duration: 0.08, volume: 0.12 });
+      beep({ freq: 988,  type: 'triangle', duration: 0.08, volume: 0.12, delay: 0.06 });
+      beep({ freq: 1175, type: 'triangle', duration: 0.16, volume: 0.14, delay: 0.12 });
     }
   }
 

@@ -54,11 +54,13 @@
   // Ghost spawn config: col, row, color, releaseAt frames, personality, scatter corner.
   // Personalities: 'direct' chases player, 'ambush' targets 4 tiles ahead,
   // 'random' adds variance, 'scared' chases when far but flees when close.
+  // 4-step gray ramp — bright = most aggressive, dark = most passive.
+  // Keeps personalities legible while obeying the "only Clawd is colored" rule.
   const GHOST_SPAWNS = [
-    { col:  9, row:  9, color: '#c1574b', releaseAt:   0, personality: 'direct', corner: { c: 17, r:  1 }, name: 'NullPointer' },       // red
-    { col:  8, row: 10, color: '#e8a4b8', releaseAt: 240, personality: 'ambush', corner: { c:  1, r:  1 }, name: 'OffByOne' },          // pink
-    { col:  9, row: 10, color: '#6a9bcc', releaseAt: 480, personality: 'random', corner: { c: 17, r: 19 }, name: 'RaceCondition' },     // cyan
-    { col: 10, row: 10, color: '#d4a85f', releaseAt: 720, personality: 'scared', corner: { c:  1, r: 19 }, name: 'TimeoutException' }, // amber
+    { col:  9, row:  9, color: '#faf9f5', releaseAt:   0, personality: 'direct', corner: { c: 17, r:  1 }, name: 'NullPointer' },       // cream  (chaser)
+    { col:  8, row: 10, color: '#c2c0b7', releaseAt: 240, personality: 'ambush', corner: { c:  1, r:  1 }, name: 'OffByOne' },          // light-gray (flanker)
+    { col:  9, row: 10, color: '#8a8880', releaseAt: 480, personality: 'random', corner: { c: 17, r: 19 }, name: 'RaceCondition' },     // mid-gray (random)
+    { col: 10, row: 10, color: '#54524d', releaseAt: 720, personality: 'scared', corner: { c:  1, r: 19 }, name: 'TimeoutException' }, // dark-gray (scared)
   ];
 
   // === Maze layout (original design) ===
@@ -141,6 +143,7 @@
   let eatFreezeTimer; // brief freeze of all gameplay after eating a ghost (drama)
   let scorePopups; // floating "+200" labels that fade out
   let shieldFlash;      // frames of cream flash after activating the shield
+  let comboFlash;       // cream border pulse frames after a PERFECT CHAIN
   let leaderboardResult; // { rank, list } from Worker after submit
   let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-chomp-high') || '0', 10);
@@ -196,6 +199,7 @@
     eatFreezeTimer = 0;
     scorePopups = [];
     shieldFlash = 0;
+    comboFlash = 0;
     leaderboardResult = null;
     if (window.ClawdStats) window.ClawdStats.resetShield();
     restartBtn.classList.add('hidden');
@@ -488,6 +492,8 @@
             const mult = (window.ClawdStats && window.ClawdStats.getScoreMultiplier()) || 1;
             score += 500 * mult;
             scorePopups.push({ x: W / 2, y: H / 2 - 40, text: 'PERFECT CHAIN +' + (500 * mult), frames: 90 });
+            comboFlash = 35;
+            playSound('combo');
           }
         } else if (!catcher.eaten) {
           const wizardOn = window.ClawdStats && window.ClawdStats.isGodModeActive();
@@ -528,7 +534,7 @@
   }
 
   // === Confetti (high-score celebration) ===
-  const CONFETTI_COLORS = ['#d97757', '#faf9f5', '#788c5d', '#e8a4b8', '#6a9bcc', '#d4a85f'];
+  const CONFETTI_COLORS = ['#d97757', '#faf9f5', '#e8e6dc', '#b0aea5', '#8a8880', '#c2c0b7'];
   let confetti = [];
   function burstConfetti() {
     for (let i = 0; i < 80; i++) {
@@ -622,10 +628,20 @@
       drawClawd(player.x, player.y);
     }
 
+    // Combo border pulse — fires on PERFECT CHAIN
+    if (comboFlash > 0) {
+      comboFlash--;
+      const a = (comboFlash / 35) * 0.55;
+      ctx.strokeStyle = `rgba(250, 249, 245, ${a})`;
+      ctx.lineWidth = 6;
+      ctx.strokeRect(3, 3, W - 6, H - 6);
+      ctx.lineWidth = 1;
+    }
+
     // Score popups float upward and fade
     for (const p of scorePopups) {
       const alpha = Math.min(1, p.frames / 60);
-      ctx.fillStyle = `rgba(217, 119, 87, ${alpha})`;
+      ctx.fillStyle = `rgba(250, 249, 245, ${alpha})`;
       ctx.font = '12px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText(p.text, p.x, p.y);
@@ -643,7 +659,7 @@
       ctx.fillRect(x, y, w, h);
       const active = window.ClawdStats.isShieldActive();
       const frac = active ? window.ClawdStats.shieldActiveFrac() : window.ClawdStats.shieldReadyFrac();
-      ctx.fillStyle = active ? '#faf9f5' : (frac >= 1 ? '#d4a85f' : '#788c5d');
+      ctx.fillStyle = active ? '#faf9f5' : (frac >= 1 ? '#e8e6dc' : '#8a8880');
       ctx.fillRect(x, y, w * frac, h);
       ctx.fillStyle = '#b0aea5';
       ctx.font = '8px "Press Start 2P", monospace';
@@ -653,7 +669,7 @@
 
     // Ready overlay — shown until first input
     if (!gameStarted && !gameOver) {
-      ctx.fillStyle = '#d97757';
+      ctx.fillStyle = '#faf9f5';
       ctx.font = '20px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText('READY!', W / 2, H / 2 + 50);
@@ -661,7 +677,7 @@
       ctx.font = '12px "VT323", monospace';
       ctx.fillText('Press ARROW to start', W / 2, H / 2 + 72);
       if (isFirstPlay) {
-        ctx.fillStyle = '#d97757';
+        ctx.fillStyle = '#faf9f5';
         ctx.font = '12px "VT323", monospace';
         ctx.fillText('Eat dots  ·  dodge bugs  ·  power pellets fight back', W / 2, H / 2 + 94);
       }
@@ -676,8 +692,8 @@
 
     // Mid-game catch feedback: red flash + panel with "Caught by X" while respawning
     if (catchFlash > 0) {
-      const alpha = (catchFlash / 60) * 0.7;
-      ctx.fillStyle = `rgba(229, 86, 75, ${alpha})`;
+      const alpha = (catchFlash / 60) * 0.55;
+      ctx.fillStyle = `rgba(250, 249, 245, ${alpha})`;
       ctx.fillRect(0, 0, W, H);
     }
     if (respawnTimer > 0 && lastCaughtBy && !gameOver) {
@@ -685,15 +701,15 @@
       const panelH = 88;
       ctx.fillStyle = 'rgba(11, 20, 38, 0.92)';
       ctx.fillRect(0, H / 2 - panelH / 2, W, panelH);
-      ctx.strokeStyle = '#c1574b';
+      ctx.strokeStyle = '#faf9f5';
       ctx.lineWidth = 2;
       ctx.strokeRect(0, H / 2 - panelH / 2, W, panelH);
 
-      ctx.fillStyle = '#c1574b';
+      ctx.fillStyle = '#faf9f5';
       ctx.font = '22px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText('CAUGHT!', W / 2, H / 2 - 8);
-      ctx.fillStyle = '#faf9f5';
+      ctx.fillStyle = '#b0aea5';
       ctx.font = '12px "Press Start 2P", monospace';
       ctx.fillText(`by ${lastCaughtBy}`, W / 2, H / 2 + 20);
     }
@@ -702,12 +718,12 @@
     if (gameOver) {
       ctx.fillStyle = 'rgba(11, 20, 38, 0.88)';
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#d97757';
+      ctx.fillStyle = '#faf9f5';
       ctx.font = '20px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText(win ? 'MAZE CLEAR!' : 'STACK OVERFLOW', W / 2, H / 2 - 18);
       if (!win && lastCaughtBy) {
-        ctx.fillStyle = '#c1574b';
+        ctx.fillStyle = '#b0aea5';
         ctx.font = '10px "Press Start 2P", monospace';
         ctx.fillText(`Caught by ${lastCaughtBy}`, W / 2, H / 2 + 6);
       }
@@ -720,9 +736,9 @@
         ctx.font = 'bold 14px "Press Start 2P", monospace';
         const metrics = ctx.measureText(rankLabel);
         const pillW = metrics.width + 24, pillH = 26;
-        ctx.fillStyle = 'rgba(216, 168, 95, 0.18)';
+        ctx.fillStyle = 'rgba(250, 249, 245, 0.10)';
         ctx.fillRect(W / 2 - pillW / 2, retryY - 18, pillW, pillH);
-        ctx.fillStyle = '#d4a85f';
+        ctx.fillStyle = '#faf9f5';
         ctx.fillText(rankLabel, W / 2, retryY);
         ctx.font = '14px "VT323", monospace';
         ctx.fillStyle = '#faf9f5';
@@ -822,13 +838,13 @@
       return;
     }
 
-    // Body color: frightened blue, flashing white in the last ~2s of the timer.
+    // Body color: frightened dark-gray, flashing cream in the last ~2s of the timer.
     let G, Wh, B;
     if (frightenedTimer > 0) {
       const flashing = frightenedTimer < FRIGHTENED_FLASH && Math.floor(frightenedTimer / 8) % 2 === 0;
-      G  = flashing ? '#faf9f5' : '#2A4FB8';
-      Wh = flashing ? '#2A4FB8' : '#faf9f5';
-      B  = flashing ? '#2A4FB8' : '#c1574b';
+      G  = flashing ? '#faf9f5' : '#3a3835';
+      Wh = flashing ? '#3a3835' : '#faf9f5';
+      B  = flashing ? '#3a3835' : '#141413';
     } else {
       G  = g.color;
       Wh = '#FFFFFF';
@@ -922,6 +938,12 @@
     } else if (kind === 'eatGhost') {
       beep({ freq: 880, freq2: 1760, type: 'square', duration: 0.18, volume: 0.18 });
       beep({ freq: 1320, freq2: 660, type: 'square', duration: 0.12, volume: 0.14, delay: 0.18 });
+    } else if (kind === 'combo') {
+      // Big sparkle for PERFECT CHAIN (4 ghosts in one frightened window).
+      beep({ freq: 784,  type: 'triangle', duration: 0.09, volume: 0.13 });
+      beep({ freq: 988,  type: 'triangle', duration: 0.09, volume: 0.13, delay: 0.07 });
+      beep({ freq: 1175, type: 'triangle', duration: 0.09, volume: 0.13, delay: 0.14 });
+      beep({ freq: 1568, type: 'triangle', duration: 0.22, volume: 0.16, delay: 0.21 });
     }
   }
 

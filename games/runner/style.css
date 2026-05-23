@@ -84,16 +84,20 @@ h1 {
 .controls button {
   margin-top: 0.5rem;
   padding: 0.5rem 1rem;
-  background: var(--orange);
-  color: var(--navy);
-  border: none;
+  background: transparent;
+  color: var(--cream);
+  border: 1px solid var(--gray);
   border-radius: 4px;
   font-family: 'Press Start 2P', monospace;
   font-size: 0.7rem;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.controls button:hover { background: #ffa040; }
+.controls button:hover {
+  background: var(--cream);
+  color: var(--navy);
+}
 
 .hidden { display: none; }
 

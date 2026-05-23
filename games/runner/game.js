@@ -71,6 +71,7 @@
   let shieldFlash = 0;
   let obstaclesDodged = 0;
   let comboPopup = null; // { text, frames }
+  let comboFlash = 0;    // frames of cream border pulse on combo trigger
   let leaderboardResult = null; // { rank, list } from Worker after submit
   let nightMode, nightTimer, stars, lastNightScore;
   let frameCount;
@@ -93,6 +94,7 @@
     shieldFlash    = 0;
     obstaclesDodged = 0;
     comboPopup     = null;
+    comboFlash     = 0;
     leaderboardResult = null;
     if (window.ClawdStats) window.ClawdStats.resetShield();
     nightMode      = false;
@@ -214,7 +216,8 @@
           const mult = (window.ClawdStats && window.ClawdStats.getScoreMultiplier()) || 1;
           score += 50 * mult;
           comboPopup = { text: 'STREAK +' + (50 * mult), frames: 60 };
-          playSound('milestone');
+          comboFlash = 25;
+          playSound('combo');
         }
       }
     }
@@ -268,6 +271,8 @@
     if (score > 0 && score % 1000 === 0 && scoreFrame % 3 === 0) {
       burstConfetti();
       comboPopup = { text: `${score} PTS!`, frames: 75 };
+      comboFlash = 30;
+      playSound('combo');
     }
 
     // Night mode every 700 pts — lasts NIGHT_DURATION frames
@@ -305,7 +310,7 @@
   }
 
   // === Confetti (high-score celebration) ===
-  const CONFETTI_COLORS = ['#d97757', '#faf9f5', '#788c5d', '#e8a4b8', '#6a9bcc', '#d4a85f'];
+  const CONFETTI_COLORS = ['#d97757', '#faf9f5', '#e8e6dc', '#b0aea5', '#8a8880', '#c2c0b7'];
   let confetti = [];
   function burstConfetti() {
     for (let i = 0; i < 80; i++) {
@@ -381,13 +386,22 @@
       ctx.fillStyle = `rgba(250, 249, 245, ${(shieldFlash / 30) * 0.45})`;
       ctx.fillRect(0, 0, W, H);
     }
+    // Combo border pulse (cream rim flash)
+    if (comboFlash > 0) {
+      comboFlash--;
+      const a = (comboFlash / 30) * 0.55;
+      ctx.strokeStyle = `rgba(250, 249, 245, ${a})`;
+      ctx.lineWidth = 6;
+      ctx.strokeRect(3, 3, W - 6, H - 6);
+      ctx.lineWidth = 1;
+    }
     if (comboPopup) {
       comboPopup.frames--;
       if (comboPopup.frames <= 0) {
         comboPopup = null;
       } else {
         const alpha = Math.min(1, comboPopup.frames / 30);
-        ctx.fillStyle = `rgba(216, 168, 95, ${alpha})`; // gold
+        ctx.fillStyle = `rgba(250, 249, 245, ${alpha})`;
         ctx.font = 'bold 18px "Press Start 2P", monospace';
         ctx.textAlign = 'center';
         const lift = (60 - comboPopup.frames) * 0.5;
@@ -410,7 +424,7 @@
 
     // Ready overlay — wait for the first jump/duck
     if (!gameStarted && !gameOver) {
-      ctx.fillStyle    = '#d97757';
+      ctx.fillStyle    = '#faf9f5';
       ctx.font         = '20px "Press Start 2P", monospace';
       ctx.textAlign    = 'center';
       ctx.fillText('READY!', W / 2, H / 2 - 6);
@@ -418,7 +432,7 @@
       ctx.font      = '14px "VT323", monospace';
       ctx.fillText('Press SPACE or tap to start', W / 2, H / 2 + 18);
       if (isFirstPlay) {
-        ctx.fillStyle = '#d97757';
+        ctx.fillStyle = '#faf9f5';
         ctx.font = '12px "VT323", monospace';
         ctx.fillText('↑/SPACE jump  ·  ↓ duck', W / 2, H / 2 + 40);
       }
@@ -428,7 +442,7 @@
     if (gameOver) {
       ctx.fillStyle = 'rgba(11, 20, 38, 0.85)';
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle    = '#d97757';
+      ctx.fillStyle    = '#faf9f5';
       ctx.font         = '24px "Press Start 2P", monospace';
       ctx.textAlign    = 'center';
       ctx.fillText('STACK OVERFLOW', W / 2, H / 2 - 10);
@@ -792,6 +806,11 @@
     } else if (kind === 'milestone') {
       beep({ freq: 660, duration: 0.08, volume: 0.15 });
       beep({ freq: 880, duration: 0.08, volume: 0.15, delay: 0.1 });
+    } else if (kind === 'combo') {
+      // Ascending 3-note sparkle for streaks.
+      beep({ freq: 784,  type: 'triangle', duration: 0.08, volume: 0.12 });
+      beep({ freq: 988,  type: 'triangle', duration: 0.08, volume: 0.12, delay: 0.06 });
+      beep({ freq: 1175, type: 'triangle', duration: 0.16, volume: 0.14, delay: 0.12 });
     }
   }
 
