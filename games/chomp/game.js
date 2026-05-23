@@ -32,7 +32,7 @@
   function shareCard() {
     const tier = scoreTier(score);
     const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
-    return `🦀 Clawdman — ${todayISO}\n${score} pts ${squares}\nclawdbytes.com`;
+    return `🦀 Clawd Man — ${todayISO}\n${score} pts ${squares}\nclawdbytes.com`;
   }
 
   // === Constants ===
@@ -40,7 +40,7 @@
   const COLS  = 19;
   const ROWS  = 21;
   const SPEED = 3;
-  const GHOST_SPEED = 1.7;
+  const GHOST_SPEED = 2.0;
   const LIVES_START = 5;
 
   // Mode timing — chase/scatter rhythm gives the player breathing room.
@@ -199,10 +199,15 @@
   }
 
   // === Helpers ===
+  function isTunnelRow(r) {
+    if (r < 0 || r >= ROWS) return false;
+    return grid[r][0] === CELL_PATH || grid[r][COLS - 1] === CELL_PATH;
+  }
   function isWallTile(c, r) {
     if (r < 0 || r >= ROWS) return true;
-    // Horizontal wrap: out-of-bounds cols are not walls (used by tunnel rows)
-    if (c < 0 || c >= COLS) return false;
+    // Out-of-bounds cols only count as path on tunnel rows; everywhere else
+    // they're walls so Clawd / ghosts can't escape into negative tile space.
+    if (c < 0 || c >= COLS) return !isTunnelRow(r);
     return grid[r][c] === CELL_WALL;
   }
 
@@ -576,7 +581,9 @@
           drawWall(px, py, c, r);
         } else if (cell === CELL_DOT) {
           ctx.fillStyle = '#F5EFE0';
-          ctx.fillRect(px + TILE / 2 - 2, py + TILE / 2 - 2, 4, 4);
+          ctx.beginPath();
+          ctx.arc(px + TILE / 2, py + TILE / 2, 4, 0, Math.PI * 2);
+          ctx.fill();
         } else if (cell === CELL_PELLET) {
           const pulse = (Math.sin(frameCount * 0.15) + 1) * 0.5;
           ctx.fillStyle = '#FF8A1F';
