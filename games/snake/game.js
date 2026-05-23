@@ -257,8 +257,8 @@
     ctx.fillStyle = '#2a2825';
     ctx.fillRect(0, 0, W, H);
 
-    // Subtle checker grid so movement reads clearly
-    ctx.fillStyle = '#0F1F3D';
+    // Subtle checker grid so movement reads clearly — grayscale, not blue.
+    ctx.fillStyle = '#1f1d1b';
     for (let c = 0; c < COLS; c++) {
       for (let r = 0; r < ROWS; r++) {
         if ((c + r) % 2 === 0) ctx.fillRect(c * TILE, r * TILE, TILE, TILE);
