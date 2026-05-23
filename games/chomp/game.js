@@ -585,8 +585,9 @@
           ctx.arc(px + TILE / 2, py + TILE / 2, 4, 0, Math.PI * 2);
           ctx.fill();
         } else if (cell === CELL_PELLET) {
+          // Pulsing cream pellet — drives the eye without competing with Clawd.
           const pulse = (Math.sin(frameCount * 0.15) + 1) * 0.5;
-          ctx.fillStyle = '#d97757';
+          ctx.fillStyle = '#faf9f5';
           ctx.beginPath();
           ctx.arc(px + TILE / 2, py + TILE / 2, 4 + pulse * 6, 0, Math.PI * 2);
           ctx.fill();
@@ -676,9 +677,9 @@
     }
   }
 
-  // Walls — muted Claude navy-blue, slightly inset so corridors read clearly
+  // Walls — muted mid-gray so the maze recedes and Clawd reads on top.
   function drawWall(px, py, c, r) {
-    ctx.fillStyle = '#3A5A7A';
+    ctx.fillStyle = '#5c5a52';
     const inset = 2;
     ctx.fillRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2);
   }

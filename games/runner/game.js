@@ -300,9 +300,11 @@
 
   // === Draw ===
   function draw() {
+    // Claude-Radio-style monochrome environment: dark canvas, cream silhouettes
+    // for the world, ONLY Clawd carries color. Day/night still flips the bg.
     const bg  = nightMode ? '#141413' : '#faf9f5';
-    const gnd = nightMode ? '#3A5A7A' : '#8E9DAA';
-    const cld = nightMode ? '#1C3A5A' : '#EAE3D0';
+    const gnd = nightMode ? '#b0aea5' : '#5c5a52';
+    const cld = nightMode ? '#5c5a52' : '#b0aea5';
 
     // Background
     ctx.fillStyle = bg;
@@ -310,7 +312,7 @@
 
     // Stars + moon
     if (nightMode) {
-      ctx.fillStyle = '#FFFFFF';
+      ctx.fillStyle = '#faf9f5';
       for (const s of stars) ctx.fillRect(s.x, s.y, s.s, s.s);
       drawMoon(W - 80, 14);
     }
@@ -418,9 +420,9 @@
     }));
   }
 
-  // Moon crescent — 5×5 at P=4 = 20×20px
+  // Moon crescent — 5×5 at P=4 = 20×20px. Cream against dark sky.
   function drawMoon(x, y) {
-    const P = 4, C = '#FFF5AA', _ = null;
+    const P = 4, C = '#faf9f5', _ = null;
     [
       [ _,C,C,C,_ ],
       [ C,C,C,_,_ ],
@@ -496,12 +498,12 @@
   const SW = 20, SH = 36;
   const LW = 24, LH = 50;
 
-  // Small cactus — 10×18 at P=2 = 20×36px. 3-tone shaded with horizontal ridges.
+  // Small cactus — 10×18 at P=2 = 20×36px. Cream silhouette, 3-tone for depth.
   function drawCactusSm(x, y) {
     const P = 2;
-    const L = nightMode ? '#8FDF94' : '#6DBF72'; // light highlight
-    const M = nightMode ? '#6DBF72' : '#4A7C4E'; // mid body
-    const D = nightMode ? '#4A7C4E' : '#2D5530'; // dark shadow / ridge
+    const L = nightMode ? '#e8e6dc' : '#3a3835'; // highlight
+    const M = nightMode ? '#b0aea5' : '#5c5a52'; // mid body
+    const D = nightMode ? '#5c5a52' : '#1a1a17'; // shadow / ridge
     const _ = null;
     [
       [_,_,_,L,M,M,M,_,_,_],
@@ -527,12 +529,12 @@
     }));
   }
 
-  // Large cactus — 12×25 at P=2 = 24×50px. 3-tone shaded with horizontal ridges.
+  // Large cactus — 12×25 at P=2 = 24×50px. Cream silhouette, 3-tone for depth.
   function drawCactusLg(x, y) {
     const P = 2;
-    const L = nightMode ? '#8FDF94' : '#6DBF72';
-    const M = nightMode ? '#6DBF72' : '#4A7C4E';
-    const D = nightMode ? '#4A7C4E' : '#2D5530';
+    const L = nightMode ? '#e8e6dc' : '#3a3835';
+    const M = nightMode ? '#b0aea5' : '#5c5a52';
+    const D = nightMode ? '#5c5a52' : '#1a1a17';
     const _ = null;
     [
       [_,_,_,_,L,M,M,M,_,_,_,_],
@@ -565,11 +567,11 @@
     }));
   }
 
-  // Pterodactyl — 22×13 grid at P=2 = 44×26px
+  // Pterodactyl — 22×13 grid at P=2 = 44×26px. Cream silhouette.
   function drawPtero(x, y) {
     const P = 2;
-    const C = nightMode ? '#8B9FBE' : '#5C6374';
-    const D = nightMode ? '#3A3D47' : '#2A2D35';
+    const C = nightMode ? '#b0aea5' : '#5c5a52';
+    const D = nightMode ? '#5c5a52' : '#1a1a17';
     const _ = null;
     const wingFrame = Math.floor(frameCount / 18) % 2;
     const frames = [

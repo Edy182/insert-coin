@@ -133,7 +133,9 @@
     requestAnimationFrame(loop);
   }
 
-  const FOOD_COLORS = ['#d97757', '#faf9f5', '#788c5d', '#e8a4b8', '#6a9bcc', '#d4a85f'];
+  // Cream food with rare blue accent — Claude-Radio-style focus keeps Clawd
+  // (terracotta) as the only consistent color on screen.
+  const FOOD_COLORS = ['#faf9f5', '#faf9f5', '#faf9f5', '#faf9f5', '#6a9bcc'];
 
   function spawnFood() {
     let c, r, tries = 0;
