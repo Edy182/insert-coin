@@ -683,14 +683,16 @@
   function getClawdSprite() {
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
-    const key = O + '|' + B;
+    const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
+    const key = O + '|' + B + '|' + (outline || '');
     if (clawdSprite && clawdSpriteKey === key) return clawdSprite;
     const P = 2, _ = null;
+    const pad = outline ? 1 : 0;
     clawdSprite = document.createElement('canvas');
-    clawdSprite.width  = 12 * P;
-    clawdSprite.height = 9  * P;
+    clawdSprite.width  = 12 * P + 2 * pad;
+    clawdSprite.height = 9  * P + 2 * pad;
     const sctx = clawdSprite.getContext('2d');
-    [
+    const grid = [
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,B,O,O,O,O,O,B,O,_ ],
@@ -700,8 +702,16 @@
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,_,O,_,O,_,_,_,O,_,O,_ ],
-    ].forEach((row, r) => row.forEach((col, c) => {
-      if (col) { sctx.fillStyle = col; sctx.fillRect(c*P, r*P, P, P); }
+    ];
+    if (outline) {
+      sctx.fillStyle = outline;
+      const offs = [[-1,0],[1,0],[0,-1],[0,1]];
+      grid.forEach((row, r) => row.forEach((col, c) => {
+        if (col) for (const [dx, dy] of offs) sctx.fillRect(c*P + pad + dx, r*P + pad + dy, P, P);
+      }));
+    }
+    grid.forEach((row, r) => row.forEach((col, c) => {
+      if (col) { sctx.fillStyle = col; sctx.fillRect(c*P + pad, r*P + pad, P, P); }
     }));
     clawdSpriteKey = key;
     return clawdSprite;

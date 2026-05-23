@@ -14,12 +14,11 @@
   const SKINS = [
     { id: 'classic', name: 'CLASSIC', color: DEFAULT_COLOR, eyeColor: DARK_EYE,  requires: () => true,                 unlockHint: 'default' },
     { id: 'cyan',    name: 'CYAN',    color: '#4ED8E5',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 2,   unlockHint: '2 games' },
-    { id: 'pink',    name: 'PINK',    color: '#FF5BA7',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 3,   unlockHint: '3 games' },
-    { id: 'lime',    name: 'LIME',    color: '#34D399',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 5,   unlockHint: '5 games' },
-    { id: 'red',     name: 'RED',     color: '#E5564B',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 7,   unlockHint: '7 games' },
-    { id: 'gold',    name: 'GOLD',    color: '#FFCD3C',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 11,  unlockHint: '11 · rare' },
-    { id: 'white',   name: 'WHITE',   color: '#F5F5F5',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 14,  unlockHint: '14 · rare' },
-    { id: 'black',   name: 'BLACK',   color: '#3C3D5A',     eyeColor: LIGHT_EYE, requires: (s) => s.totalGames >= 22,  unlockHint: '22 · rare' },
+    { id: 'pink',    name: 'PINK',    color: '#FF5BA7',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 4,   unlockHint: '4 games' },
+    { id: 'lime',    name: 'LIME',    color: '#4ADE80',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 6,   unlockHint: '6 games' },
+    { id: 'gold',    name: 'GOLD',    color: '#FFCD3C',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 9,   unlockHint: '9 · rare' },
+    { id: 'white',   name: 'WHITE',   color: '#FAFAFA',     eyeColor: DARK_EYE,  outlineColor: '#1A0808', requires: (s) => s.totalGames >= 12,  unlockHint: '12 · rare' },
+    { id: 'black',   name: 'BLACK',   color: '#000000',     eyeColor: LIGHT_EYE, outlineColor: '#F5EFE0', requires: (s) => s.totalGames >= 18,  unlockHint: '18 · rare' },
   ];
 
   // Hat overlays. Highest-tier unlocked auto-applies.
@@ -27,8 +26,8 @@
     {
       id: 'crown',
       name: 'CROWN',
-      requires: (s) => s.totalGames >= 9,
-      unlockHint: '9 games',
+      requires: (s) => s.totalGames >= 7,
+      unlockHint: '7 games',
       pixels: [
         [1, 0, 1, 0, 1],
         [1, 1, 1, 1, 1],
@@ -37,24 +36,26 @@
       colors: { 1: '#FFCD3C', 3: '#E5564B' },
     },
     {
+      // Fantasia-style sorcerer's hat: tall midnight-blue cone with a bent
+      // tip and a prominent yellow star front-and-center.
       id: 'wizard',
       name: 'WIZARD HAT',
-      requires: (s) => s.totalGames >= 17,
-      unlockHint: '17 games',
+      requires: (s) => s.totalGames >= 15,
+      unlockHint: '15 games',
       sparkles: true,
       godMode: true,
       pixels: [
+        [0, 0, 0, 0, 0, 0, 1, 0],
         [0, 0, 0, 0, 0, 1, 1, 0],
-        [0, 0, 0, 0, 1, 1, 1, 0],
-        [0, 0, 0, 1, 1, 1, 0, 0],
-        [0, 0, 1, 1, 1, 0, 0, 0],
-        [0, 0, 1, 4, 1, 1, 0, 0],
-        [0, 1, 4, 3, 4, 1, 1, 0],
-        [1, 1, 1, 4, 1, 1, 1, 1],
-        [2, 2, 5, 5, 5, 2, 2, 2],
+        [0, 0, 0, 0, 1, 1, 0, 0],
+        [0, 0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 1, 1, 1, 1, 0, 0],
+        [0, 1, 1, 3, 1, 1, 1, 0],
+        [1, 1, 3, 3, 3, 1, 1, 1],
+        [1, 1, 1, 3, 1, 1, 1, 1],
         [2, 2, 2, 2, 2, 2, 2, 2],
       ],
-      colors: { 1: '#7C5DD3', 2: '#1F0F4A', 3: '#FFD93D', 4: '#FFE066', 5: '#FFCD3C' },
+      colors: { 1: '#1E40AF', 2: '#0F1F5A', 3: '#FFE066' },
     },
   ];
 
@@ -112,8 +113,9 @@
     for (const skin of SKINS) if (skin.requires(stats)) active = skin;
     return active;
   }
-  function getActiveSkinColor() { return getActiveSkin().color; }
-  function getActiveEyeColor()  { return getActiveSkin().eyeColor || DARK_EYE; }
+  function getActiveSkinColor()    { return getActiveSkin().color; }
+  function getActiveEyeColor()     { return getActiveSkin().eyeColor || DARK_EYE; }
+  function getActiveOutlineColor() { return getActiveSkin().outlineColor || null; }
   function isGodModeActive() {
     const hat = getActiveHat();
     return !!(hat && hat.godMode);
@@ -319,6 +321,7 @@
     getActiveSkin: getActiveSkin,
     getActiveSkinColor: getActiveSkinColor,
     getActiveEyeColor: getActiveEyeColor,
+    getActiveOutlineColor: getActiveOutlineColor,
     getActiveHat: getActiveHat,
     isGodModeActive: isGodModeActive,
     getScoreMultiplier: getScoreMultiplier,

@@ -199,7 +199,8 @@
     }
 
     // Collision
-    if (!godMode) {
+    const wizardOn = window.ClawdStats && window.ClawdStats.isGodModeActive();
+    if (!godMode && !wizardOn) {
       for (const obs of obstacles) {
         if (
           player.x             < obs.x + obs.w &&
@@ -364,8 +365,9 @@
     const P = 3;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
+    const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const _ = null;
-    [
+    const grid = [
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,B,O,O,O,O,O,B,O,_ ],
@@ -375,7 +377,15 @@
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,_,O,_,O,_,_,_,O,_,O,_ ],
-    ].forEach((row, r) => row.forEach((col, c) => {
+    ];
+    if (outline) {
+      ctx.fillStyle = outline;
+      const offs = [[-1,0],[1,0],[0,-1],[0,1]];
+      grid.forEach((row, r) => row.forEach((col, c) => {
+        if (col) for (const [dx, dy] of offs) ctx.fillRect(x + c*P + dx, y + r*P + dy, P, P);
+      }));
+    }
+    grid.forEach((row, r) => row.forEach((col, c) => {
       if (col) { ctx.fillStyle = col; ctx.fillRect(x + c*P, y + r*P, P, P); }
     }));
     if (window.ClawdStats) {
@@ -389,13 +399,22 @@
     const P = 3;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
+    const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const _ = null;
-    [
+    const grid = [
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ O,O,O,B,O,O,O,O,O,B,O,O ],
       [ O,O,O,O,O,O,O,O,O,O,O,O ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-    ].forEach((row, r) => row.forEach((col, c) => {
+    ];
+    if (outline) {
+      ctx.fillStyle = outline;
+      const offs = [[-1,0],[1,0],[0,-1],[0,1]];
+      grid.forEach((row, r) => row.forEach((col, c) => {
+        if (col) for (const [dx, dy] of offs) ctx.fillRect(x + c*P + dx, y + r*P + dy, P, P);
+      }));
+    }
+    grid.forEach((row, r) => row.forEach((col, c) => {
       if (col) { ctx.fillStyle = col; ctx.fillRect(x + c*P, y + r*P, P, P); }
     }));
   }
