@@ -23,17 +23,19 @@
   // Hat overlays. Highest-tier unlocked auto-applies.
   const HATS = [
     {
+      // Two-tone gold crown so it stays distinct even when the GOLD skin is
+      // active: bright-yellow spikes on top, deeper amber band at the base,
+      // ruby jewels for accent. No outline.
       id: 'crown',
       name: 'CROWN',
       requires: (s) => s.totalGames >= 6,
       unlockHint: '6 games',
-      outlineColor: '#5C4A0F',
       pixels: [
         [1, 0, 1, 0, 1],
         [1, 1, 1, 1, 1],
-        [1, 3, 1, 3, 1],
+        [2, 3, 2, 3, 2],
       ],
-      colors: { 1: '#FFCD3C', 3: '#E5564B' },
+      colors: { 1: '#FFE066', 2: '#B8860B', 3: '#E5564B' },
     },
     {
       // Modeled pixel-by-pixel on the reference image: tall purple cone with

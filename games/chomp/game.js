@@ -728,7 +728,7 @@
   // scale up to 1.8× so the power-pellet effect is visually obvious.
   function drawClawd(cx, cy) {
     const src = getClawdSprite();
-    const scale = frightenedTimer > 0 ? 1.5 : 1.25;
+    const scale = frightenedTimer > 0 ? 1.8 : 1.25;
     const w = src.width * scale;
     const h = src.height * scale;
     ctx.imageSmoothingEnabled = false;
@@ -910,6 +910,26 @@
     }
     e.preventDefault();
   }, { passive: false });
+
+  // Mouse click: derive direction from click position relative to Clawd.
+  canvas.addEventListener('click', e => {
+    if (gameOver) { reset(); return; }
+    if (!player) return;
+    const rect = canvas.getBoundingClientRect();
+    const cx = (e.clientX - rect.left) * (W / rect.width);
+    const cy = (e.clientY - rect.top)  * (H / rect.height);
+    const ddx = cx - player.x;
+    const ddy = cy - player.y;
+    const queued = Math.abs(ddx) > Math.abs(ddy)
+      ? { dx: ddx > 0 ? 1 : -1, dy: 0 }
+      : { dx: 0, dy: ddy > 0 ? 1 : -1 };
+    player.nextDir = queued;
+    if (!gameStarted) {
+      gameStarted = true; startMusic();
+      if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; }
+      if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'chomp', dailyMode: dailyMode, dateISO: todayISO });
+    }
+  });
 
   restartBtn.addEventListener('click', reset);
   muteBtn.addEventListener('click', () => {

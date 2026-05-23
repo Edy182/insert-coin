@@ -451,6 +451,28 @@
     e.preventDefault();
   }, { passive: false });
 
+  // Mouse click: derive direction from click position relative to snake head.
+  canvas.addEventListener('click', e => {
+    if (gameOver) { reset(); return; }
+    const rect = canvas.getBoundingClientRect();
+    const cx = (e.clientX - rect.left) * (W / rect.width);
+    const cy = (e.clientY - rect.top)  * (H / rect.height);
+    const head = snake[0];
+    const hx = head.c * TILE + TILE / 2;
+    const hy = head.r * TILE + TILE / 2;
+    const dx = cx - hx;
+    const dy = cy - hy;
+    const queued = Math.abs(dx) > Math.abs(dy)
+      ? { dc: dx > 0 ? 1 : -1, dr: 0 }
+      : { dc: 0, dr: dy > 0 ? 1 : -1 };
+    nextDir = queued;
+    if (!gameStarted) {
+      gameStarted = true; dir = queued; startMusic();
+      if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; }
+      if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'snake', dailyMode: dailyMode, dateISO: todayISO });
+    }
+  });
+
   restartBtn.addEventListener('click', reset);
   muteBtn.addEventListener('click', () => {
     soundOn = !soundOn;
