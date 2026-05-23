@@ -7,7 +7,21 @@
 const readline = require('readline');
 const { spawn } = require('child_process');
 
-const SITE = 'https://clawdbytes.com';
+// Site URL resolution order: --url=X flag > --local flag > $CLAWD_BYTES_URL >
+// production default. While the public domain isn't live yet you can run
+//   clawd-bytes --local           (uses http://localhost:8001)
+//   clawd-bytes --url=https://x   (any URL)
+//   CLAWD_BYTES_URL=... clawd-bytes
+const args = process.argv.slice(2);
+function argValue(prefix) {
+  const a = args.find((x) => x.startsWith(prefix));
+  return a ? a.slice(prefix.length) : null;
+}
+const SITE =
+  argValue('--url=') ||
+  (args.includes('--local') ? 'http://localhost:8001' : null) ||
+  process.env.CLAWD_BYTES_URL ||
+  'https://clawdbytes.com';
 const GAMES = [
   { key: 'r', label: 'DINOCLAWD',  path: '/games/runner/',  blurb: 'endless runner · dodge cacti and pteros' },
   { key: 'c', label: 'CLAWDMAN',   path: '/games/chomp/',   blurb: 'maze chase · eat the bugs back' },

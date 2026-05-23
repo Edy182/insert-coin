@@ -21,6 +21,16 @@ npm install -g clawd-bytes
 clawd-bytes
 ```
 
+## Pointing at a different URL
+
+By default the launcher opens `https://clawdbytes.com`. Override that with:
+
+```bash
+clawd-bytes --local                 # uses http://localhost:8001
+clawd-bytes --url=https://my.site   # any URL
+CLAWD_BYTES_URL=... clawd-bytes     # env var works too
+```
+
 ## Why a CLI for a browser arcade
 
 The games live on the web so the CLI is a launcher, not a runtime. The goal is one-command access from a Claude Code session — type `npx clawd-bytes`, pick a game, take a five-minute break.
