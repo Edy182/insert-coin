@@ -65,10 +65,10 @@
     'WWWWWWWWWWWWWWWWWWW',
     'Wo.......W.......oW',
     'W.WW.WWW.W.WWW.WW.W',
-    'W.WW.WWW.W.WWW.WW.W',
+    'W.................W',
     'W.................W',
     'W.WW.W.WWWWW.W.WW.W',
-    'W....W...W...W....W',
+    'W....W.......W....W',
     'WWWW.WWW.W.WWW.WWWW',
     '___W.W.......W.W___',
     'WWWW.W.WW_WW.W.WWWW',
@@ -77,10 +77,10 @@
     '___W.W.......W.W___',
     'WWWW.W.WWWWW.W.WWWW',
     'W........S........W',
-    'W.WW.WWW.W.WWW.WW.W',
+    'W.................W',
     'Wo.W...........W.oW',
     'WW.W.W.WWWWW.W.W.WW',
-    'W....W...W...W....W',
+    'W....W.......W....W',
     'W.WWWWWW.W.WWWWWW.W',
     'WWWWWWWWWWWWWWWWWWW',
   ];
@@ -728,7 +728,7 @@
   // scale up to 1.8× so the power-pellet effect is visually obvious.
   function drawClawd(cx, cy) {
     const src = getClawdSprite();
-    const scale = frightenedTimer > 0 ? 1.8 : 1.25;
+    const scale = frightenedTimer > 0 ? 1.5 : 1.25;
     const w = src.width * scale;
     const h = src.height * scale;
     ctx.imageSmoothingEnabled = false;
