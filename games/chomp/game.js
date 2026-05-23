@@ -479,6 +479,12 @@
           eatFreezeTimer = 24;
           scorePopups.push({ x: catcher.x, y: catcher.y - 4, text: '+' + pts, frames: 60 });
           playSound('eatGhost');
+          // Perfect chain: all 4 ghosts in one frightened window = big bonus.
+          if (ghostsEatenInRound === 4) {
+            const mult = (window.ClawdStats && window.ClawdStats.getScoreMultiplier()) || 1;
+            score += 500 * mult;
+            scorePopups.push({ x: W / 2, y: H / 2 - 40, text: 'PERFECT CHAIN +' + (500 * mult), frames: 90 });
+          }
         } else if (!catcher.eaten) {
           const wizardOn = window.ClawdStats && window.ClawdStats.isGodModeActive();
           const shieldOn = window.ClawdStats && window.ClawdStats.isShieldActive();

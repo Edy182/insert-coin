@@ -67,6 +67,8 @@
   let player, obstacles, clouds, groundOffset;
   let score, scoreFrame, gameOver, gameSpeed, lastSpawn;
   let shieldFlash = 0;
+  let obstaclesDodged = 0;
+  let comboPopup = null; // { text, frames }
   let nightMode, nightTimer, stars, lastNightScore;
   let frameCount;
   let gameStarted;
@@ -86,6 +88,8 @@
     gameOver       = false;
     lastSpawn      = 0;
     shieldFlash    = 0;
+    obstaclesDodged = 0;
+    comboPopup     = null;
     if (window.ClawdStats) window.ClawdStats.resetShield();
     nightMode      = false;
     nightTimer     = 0;
@@ -195,10 +199,20 @@
       lastSpawn = 0;
     }
 
-    // Move + cull obstacles
+    // Move + cull obstacles. Each one that scrolls off-screen counts as
+    // "dodged" — every 10 dodges fires a STREAK +50 bonus.
     for (let i = obstacles.length - 1; i >= 0; i--) {
       obstacles[i].x -= gameSpeed;
-      if (obstacles[i].x + obstacles[i].w < 0) obstacles.splice(i, 1);
+      if (obstacles[i].x + obstacles[i].w < 0) {
+        obstacles.splice(i, 1);
+        obstaclesDodged++;
+        if (obstaclesDodged % 10 === 0) {
+          const mult = (window.ClawdStats && window.ClawdStats.getScoreMultiplier()) || 1;
+          score += 50 * mult;
+          comboPopup = { text: 'STREAK +' + (50 * mult), frames: 60 };
+          playSound('milestone');
+        }
+      }
     }
 
     // Collision — wizard / ?god / active crown shield bypass.
@@ -354,6 +368,19 @@
       shieldFlash--;
       ctx.fillStyle = `rgba(250, 249, 245, ${(shieldFlash / 30) * 0.45})`;
       ctx.fillRect(0, 0, W, H);
+    }
+    if (comboPopup) {
+      comboPopup.frames--;
+      if (comboPopup.frames <= 0) {
+        comboPopup = null;
+      } else {
+        const alpha = Math.min(1, comboPopup.frames / 30);
+        ctx.fillStyle = `rgba(216, 168, 95, ${alpha})`; // gold
+        ctx.font = 'bold 18px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        const lift = (60 - comboPopup.frames) * 0.5;
+        ctx.fillText(comboPopup.text, W / 2, 90 - lift);
+      }
     }
     if (window.ClawdStats && window.ClawdStats.hasShield()) {
       const x = W - 70, y = 14, w = 60, h = 6;

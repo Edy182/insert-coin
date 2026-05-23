@@ -502,7 +502,7 @@
     </p>
   </footer>
 
-  <script src="assets/clawd-stats.js?v=28"></script>
+  <script src="assets/clawd-stats.js?v=29"></script>
   <script>
     (function () {
       'use strict';
@@ -521,6 +521,26 @@
       const stats = window.ClawdStats.read();
       const games = stats.totalGames || 0;
       if (games <= 0) return;
+      // v1 ships classic-only — hide the unlocks roster until skin packs drop.
+      // Dev mode (?dev=1) still shows the full picker.
+      if (window.ClawdStats.SKINS.length > 1) {
+        const filteredCount = window.ClawdStats.SKINS.filter(s => s.requires(stats)).length;
+        if (filteredCount === 1 && !window.ClawdStats.getActiveHat()) {
+          // Only classic unlocked AND no hat — assume classic-only launch mode.
+          // Show a minimal "X games played" line, hide the cosmetics grid.
+          const profileEl = document.getElementById('profile');
+          if (profileEl) {
+            profileEl.hidden = false;
+            const statsEl = document.getElementById('stat-games');
+            if (statsEl) statsEl.textContent = games;
+            const unlocksEl = document.getElementById('unlocks');
+            if (unlocksEl) unlocksEl.hidden = true;
+            const nextEl = document.getElementById('next-up');
+            if (nextEl) nextEl.hidden = true;
+          }
+          return;
+        }
+      }
 
       const profile = document.getElementById('profile');
       profile.hidden = false;

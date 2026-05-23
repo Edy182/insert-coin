@@ -66,6 +66,8 @@
   let frame, tickFrames;
   let gameStarted; // false until the first arrow key
   let shieldFlash;      // frames of cream flash after activating the shield
+  let foodEaten;        // total food eaten — drives the streak bonus
+  let comboPopup;       // { text, frames }
   let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-snake-high') || '0', 10);
   const ONBOARDED_KEY = 'clawd-onboarded-snake';
@@ -127,6 +129,8 @@
     win = false;
     gameStarted = false;
     shieldFlash = 0;
+    foodEaten = 0;
+    comboPopup = null;
     if (window.ClawdStats) window.ClawdStats.resetShield();
     spawnFood();
     restartBtn.classList.add('hidden');
@@ -186,7 +190,14 @@
 
     snake.unshift(newHead);
     if (willGrow) {
-      score += 10 * ((window.ClawdStats && window.ClawdStats.getScoreMultiplier()) || 1);
+      const mult = (window.ClawdStats && window.ClawdStats.getScoreMultiplier()) || 1;
+      score += 10 * mult;
+      foodEaten++;
+      // Every 5 food = STREAK +50 bonus.
+      if (foodEaten % 5 === 0) {
+        score += 50 * mult;
+        comboPopup = { text: 'STREAK +' + (50 * mult), frames: 60 };
+      }
       tickFrames = Math.max(TICK_MIN, tickFrames - TICK_DECAY);
       playSound('eat');
       if (snake.length >= COLS * ROWS) {
@@ -288,6 +299,21 @@
       shieldFlash--;
       ctx.fillStyle = `rgba(250, 249, 245, ${(shieldFlash / 30) * 0.45})`;
       ctx.fillRect(0, 0, W, H);
+    }
+
+    // Combo popup (floats up, fades out)
+    if (comboPopup) {
+      comboPopup.frames--;
+      if (comboPopup.frames <= 0) {
+        comboPopup = null;
+      } else {
+        const alpha = Math.min(1, comboPopup.frames / 30);
+        ctx.fillStyle = `rgba(216, 168, 95, ${alpha})`;
+        ctx.font = 'bold 16px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        const lift = (60 - comboPopup.frames) * 0.5;
+        ctx.fillText(comboPopup.text, W / 2, 100 - lift);
+      }
     }
 
     // Crown shield HUD — small bar bottom-right when the player has it.

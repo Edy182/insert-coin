@@ -8,6 +8,11 @@
   // Official Anthropic brand orange (Crail) — also the Clawd body color.
   const DEFAULT_COLOR = '#d97757';
 
+  // v1 launch ships classic Clawd only. Skin packs + hats arrive as
+  // post-launch content drops. Flip LAUNCH_MODE to 'all' to enable the
+  // full cosmetics roster. Dev panel still works under either mode.
+  const LAUNCH_MODE = 'classic-only';
+
   // Body recolors. Highest-unlocked tier auto-applies. The shape of Clawd stays
   // identical — only the body color changes.
   const DARK_EYE  = '#141413';  // Anthropic dark
@@ -105,6 +110,8 @@
   }
   // Returns the highest-tier unlocked skin (later items in SKINS are rarer).
   // Resolution order: URL preview > dev override > auto-unlocked.
+  // In LAUNCH_MODE='classic-only' the auto path always returns classic;
+  // URL preview and dev override still work for testing.
   function getActiveSkin() {
     const preview = urlParam('skin');
     if (preview) {
@@ -116,6 +123,7 @@
       const match = SKINS.find((s) => s.id === dev);
       if (match) return match;
     }
+    if (LAUNCH_MODE === 'classic-only') return SKINS[0];
     const stats = read();
     let active = SKINS[0];
     for (const skin of SKINS) if (skin.requires(stats)) active = skin;
@@ -192,6 +200,8 @@
   }
   // Returns the active hat (or null if none unlocked / explicitly cleared).
   // Resolution order: URL preview > dev override > auto-unlocked.
+  // In LAUNCH_MODE='classic-only' the auto path is disabled — hats only show
+  // when a tester forces them via URL or dev panel.
   function getActiveHat() {
     const preview = urlParam('hat');
     if (preview === '' || preview === 'none') return null;
@@ -205,6 +215,7 @@
       const match = HATS.find((h) => h.id === dev);
       if (match) return match;
     }
+    if (LAUNCH_MODE === 'classic-only') return null;
     const stats = read();
     for (let i = HATS.length - 1; i >= 0; i--) if (HATS[i].requires(stats)) return HATS[i];
     return null;
