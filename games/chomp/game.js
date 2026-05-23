@@ -905,17 +905,19 @@
     osc.stop(t + duration + 0.01);
   }
 
-  // Shared arcade music — Runner's upbeat pentatonic loop across all 3 games
-  const MUSIC_NOTES = [523, 587, 659, 784, 880, 784, 659, 587];
+  // Mac-Pan music — A-minor labyrinth loop with chromatic descent. Faster
+  // tempo + minor key give the chase-through-the-maze tension that bright
+  // pentatonic loops miss.
+  const MUSIC_NOTES = [440, 523, 587, 698, 659, 587, 523, 440, 392, 440, 523, 587];
   let musicIdx = 0, musicTimer = null;
   function startMusic() {
     if (musicTimer || !soundOn) return;
     getAudioCtx();
     musicTimer = setInterval(() => {
       if (!soundOn) return;
-      beep({ freq: MUSIC_NOTES[musicIdx], type: 'triangle', duration: 0.12, volume: 0.035 });
+      beep({ freq: MUSIC_NOTES[musicIdx], type: 'triangle', duration: 0.1, volume: 0.035 });
       musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
-    }, 200);
+    }, 175);
   }
   function stopMusic() {
     if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }

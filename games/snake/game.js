@@ -467,17 +467,18 @@
     osc.start(t);
     osc.stop(t + duration + 0.01);
   }
-  // Shared arcade music — Runner's upbeat pentatonic loop across all 3 games
-  const MUSIC_NOTES = [523, 587, 659, 784, 880, 784, 659, 587];
+  // Snake music — slithery G-minor loop, slower tempo to fit the contemplative
+  // tail-hunt vibe. Hovers around G with chromatic neighbors, gives a sneaky feel.
+  const MUSIC_NOTES = [392, 466, 392, 523, 466, 392, 466, 349];
   let musicIdx = 0, musicTimer = null;
   function startMusic() {
     if (musicTimer || !soundOn) return;
     getAudioCtx();
     musicTimer = setInterval(() => {
       if (!soundOn) return;
-      beep({ freq: MUSIC_NOTES[musicIdx], type: 'triangle', duration: 0.12, volume: 0.035 });
+      beep({ freq: MUSIC_NOTES[musicIdx], type: 'triangle', duration: 0.18, volume: 0.035 });
       musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
-    }, 200);
+    }, 260);
   }
   function stopMusic() {
     if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }

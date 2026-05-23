@@ -268,7 +268,10 @@
   }
 
   // Returns newly-unlocked skins/hats that haven't been celebrated yet.
+  // In LAUNCH_MODE='classic-only' nothing is unlockable through play, so
+  // the toast pipeline returns empty — skins/hats arrive as post-launch drops.
   function findNewUnlocks() {
+    if (LAUNCH_MODE === 'classic-only') return [];
     const stats = read();
     const seen = new Set(seenIds());
     const out = [];
