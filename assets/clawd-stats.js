@@ -5,7 +5,8 @@
 
   const STATS_KEY = 'clawd-stats';
   const DEFAULTS = { totalGames: 0, dailiesDone: 0 };
-  const DEFAULT_COLOR = '#FF8A00';
+  // Official Clawd body color from the Claude Code CLI mascot — rgb(215,119,87).
+  const DEFAULT_COLOR = '#D77757';
 
   // Body recolors. Highest-unlocked tier auto-applies. The shape of Clawd stays
   // identical — only the body color changes.

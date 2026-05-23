@@ -688,7 +688,7 @@
   let clawdSprite = null;
   let clawdSpriteKey = null;
   function getClawdSprite() {
-    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#D77757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const key = O + '|' + B + '|' + (outline || '');
@@ -741,7 +741,7 @@
 
   // Tiny Clawd icon for the lives indicator.
   function drawMiniClawd(cx, cy) {
-    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#D77757';
     const B = '#1A0808';
     ctx.fillStyle = O;
     ctx.fillRect(cx - 6, cy - 4, 12, 8);

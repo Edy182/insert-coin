@@ -470,7 +470,8 @@
     </div>
 
     <section class="about">
-      <p>Three pixel games starring Clawd the crab. Built on weekends, MIT licensed. Independent fan project, not affiliated with Anthropic.</p>
+      <p>A solo dev got attached to Clawd, the little crab on the Claude Code welcome screen, and rebuilt three arcade classics around him. Three games, no install, five-minute breaks.</p>
+      <p>MIT licensed, all original code. Independent fan project. Not affiliated with Anthropic.</p>
       <p class="meta">
         <a href="https://github.com/Edy182/insert-coin">GitHub</a>·
         <a href="#">Discord</a>·
@@ -493,11 +494,11 @@
       <a href="https://github.com/[your-handle]/clawd-bytes">GitHub</a> ·
       <a href="https://discord.gg/[your-invite]">Discord</a> ·
       <a href="https://twitter.com/insertcoinarcade">@insertcoin</a> ·
-      <a href="#" id="dev-toggle">🛠 dev: <span id="dev-state">off</span></a>
+      <span id="dev-toggle" style="cursor: default; user-select: none;" title="double-click">·</span>
     </p>
   </footer>
 
-  <script src="assets/clawd-stats.js?v=21"></script>
+  <script src="assets/clawd-stats.js?v=22"></script>
   <script>
     (function () {
       'use strict';
@@ -605,12 +606,11 @@
       const lsOn = (function () { try { return localStorage.getItem(DEV_KEY) === '1'; } catch (_) { return false; } })();
       const devOn = params.get('dev') === '1' || lsOn;
 
-      // Footer toggle — always wired.
+      // Footer dot is the dev toggle — double-click only, so casual visitors
+      // don't accidentally find it. Title attribute hints at it for power users.
       const toggle = document.getElementById('dev-toggle');
-      const stateLabel = document.getElementById('dev-state');
-      if (stateLabel) stateLabel.textContent = devOn ? 'on' : 'off';
       if (toggle) {
-        toggle.addEventListener('click', (e) => {
+        toggle.addEventListener('dblclick', (e) => {
           e.preventDefault();
           try { localStorage.setItem(DEV_KEY, devOn ? '0' : '1'); } catch (_) {}
           window.location.search = '';

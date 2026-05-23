@@ -362,7 +362,7 @@
   // Clawd standing — 12×9 grid at P=3 = 36×27px
   function drawClawd(x, y) {
     const P = 3;
-    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#D77757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const _ = null;
@@ -396,7 +396,7 @@
   // Clawd ducking — 12×4 grid at P=3 = 36×12px
   function drawClawdDuck(x, y) {
     const P = 3;
-    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#D77757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const _ = null;

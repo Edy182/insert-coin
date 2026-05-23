@@ -74,7 +74,7 @@
   let clawdSprite = null;
   let clawdSpriteKey = null;
   function getClawdSprite() {
-    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#D77757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const key = O + '|' + B + '|' + (outline || '');
@@ -328,7 +328,7 @@
       ctx.arc(cx, cy, radius + 1, 0, Math.PI * 2);
       ctx.fill();
     }
-    ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
+    ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#D77757';
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.fill();
