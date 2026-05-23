@@ -277,17 +277,9 @@
 
   // === Draw ===
   function draw() {
-    // Pure black canvas — Claude Radio aesthetic.
+    // Pure black canvas — Claude Radio aesthetic. No checker noise.
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, W, H);
-
-    // Barely-there grayscale checker — subtle texture, not a competing color.
-    ctx.fillStyle = '#0e0e0c';
-    for (let c = 0; c < COLS; c++) {
-      for (let r = 0; r < ROWS; r++) {
-        if ((c + r) % 2 === 0) ctx.fillRect(c * TILE, r * TILE, TILE, TILE);
-      }
-    }
 
     // Food
     drawFood(food.c, food.r);
@@ -365,12 +357,19 @@
       ctx.fillStyle = '#faf9f5';
       ctx.font = '14px "VT323", monospace';
       ctx.fillText(`Score: ${score}`, W / 2, H / 2 + 20);
-      let retryY = H / 2 + 40;
+      let retryY = H / 2 + 55;
       if (leaderboardResult && leaderboardResult.rank) {
+        const rankLabel = `★ RANK #${leaderboardResult.rank} ${dailyMode ? 'TODAY' : 'ALL-TIME'} ★`;
+        ctx.font = 'bold 14px "Press Start 2P", monospace';
+        const metrics = ctx.measureText(rankLabel);
+        const pillW = metrics.width + 24, pillH = 26;
+        ctx.fillStyle = 'rgba(216, 168, 95, 0.18)';
+        ctx.fillRect(W / 2 - pillW / 2, retryY - 18, pillW, pillH);
         ctx.fillStyle = '#d4a85f';
-        ctx.fillText(`rank #${leaderboardResult.rank} ${dailyMode ? "today's top 10" : 'all-time top 10'}`, W / 2, retryY);
+        ctx.fillText(rankLabel, W / 2, retryY);
+        ctx.font = '14px "VT323", monospace';
         ctx.fillStyle = '#faf9f5';
-        retryY += 20;
+        retryY += 30;
       }
       ctx.fillText('Press SPACE to retry', W / 2, retryY);
     }

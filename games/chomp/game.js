@@ -714,25 +714,31 @@
       ctx.fillStyle = '#faf9f5';
       ctx.font = '14px "VT323", monospace';
       ctx.fillText(`Score: ${score}`, W / 2, H / 2 + 30);
-      let retryY = H / 2 + 50;
+      let retryY = H / 2 + 65;
       if (leaderboardResult && leaderboardResult.rank) {
+        const rankLabel = `★ RANK #${leaderboardResult.rank} ${dailyMode ? 'TODAY' : 'ALL-TIME'} ★`;
+        ctx.font = 'bold 14px "Press Start 2P", monospace';
+        const metrics = ctx.measureText(rankLabel);
+        const pillW = metrics.width + 24, pillH = 26;
+        ctx.fillStyle = 'rgba(216, 168, 95, 0.18)';
+        ctx.fillRect(W / 2 - pillW / 2, retryY - 18, pillW, pillH);
         ctx.fillStyle = '#d4a85f';
-        ctx.fillText(`rank #${leaderboardResult.rank} ${dailyMode ? "today's top 10" : 'all-time top 10'}`, W / 2, retryY);
+        ctx.fillText(rankLabel, W / 2, retryY);
+        ctx.font = '14px "VT323", monospace';
         ctx.fillStyle = '#faf9f5';
-        retryY += 20;
+        retryY += 30;
       }
       ctx.fillText('Press SPACE to retry', W / 2, retryY);
     }
   }
 
-  // Walls — wireframe outline against pure black, like the ASCII furniture
-  // silhouettes in the Claude Radio welcome screen. Hollow squares instead of
-  // solid blocks so the maze breathes and only Clawd carries color.
+  // Walls — filled dark warm gray. Solid enough to give the maze weight and
+  // containment (classic Pac-Man feel), dim enough that Clawd stays the
+  // colored focal point against pure black canvas.
   function drawWall(px, py, c, r) {
-    ctx.strokeStyle = '#b0aea5';
-    ctx.lineWidth = 1.5;
-    const inset = 4;
-    ctx.strokeRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2);
+    ctx.fillStyle = '#3a3835';
+    const inset = 2;
+    ctx.fillRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2);
   }
 
   // Pre-render Clawd sprite once into an offscreen canvas, then blit it scaled.

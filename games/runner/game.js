@@ -264,6 +264,11 @@
       gameSpeed += 0.3;
       playSound('milestone');
     }
+    // Endless runners need celebration moments. Every 1000 pts = confetti burst.
+    if (score > 0 && score % 1000 === 0 && scoreFrame % 3 === 0) {
+      burstConfetti();
+      comboPopup = { text: `${score} PTS!`, frames: 75 };
+    }
 
     // Night mode every 700 pts — lasts NIGHT_DURATION frames
     const nightMilestone = Math.floor(score / 700) * 700;
@@ -430,12 +435,19 @@
       ctx.fillStyle = '#faf9f5';
       ctx.font      = '14px "VT323", monospace';
       ctx.fillText(`Final score: ${score}`, W / 2, H / 2 + 20);
-      let retryY = H / 2 + 40;
+      let retryY = H / 2 + 50;
       if (leaderboardResult && leaderboardResult.rank) {
+        const rankLabel = `★ RANK #${leaderboardResult.rank} ${dailyMode ? 'TODAY' : 'ALL-TIME'} ★`;
+        ctx.font = 'bold 14px "Press Start 2P", monospace';
+        const metrics = ctx.measureText(rankLabel);
+        const pillW = metrics.width + 24, pillH = 26;
+        ctx.fillStyle = 'rgba(216, 168, 95, 0.18)';
+        ctx.fillRect(W / 2 - pillW / 2, retryY - 18, pillW, pillH);
         ctx.fillStyle = '#d4a85f';
-        ctx.fillText(`rank #${leaderboardResult.rank} ${dailyMode ? "today's top 10" : 'all-time top 10'}`, W / 2, retryY);
+        ctx.fillText(rankLabel, W / 2, retryY);
+        ctx.font = '14px "VT323", monospace';
         ctx.fillStyle = '#faf9f5';
-        retryY += 20;
+        retryY += 30;
       }
       ctx.fillText('Press SPACE or tap to retry', W / 2, retryY);
     }

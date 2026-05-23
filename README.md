@@ -1,84 +1,68 @@
 # Insert Coin 🕹️
 
-A collection of retro browser games starring Clawd, a friendly pixel-art crab — built for the Claude Code community and AI dev culture. Independent fan project, not affiliated with Anthropic.
+A weekend project: three pixel-art arcade classics starring Clawd, the tiny crab on the Claude Code welcome screen. No install, five-minute breaks for devs.
+
+**Live site:** https://insert-coin-sigma-sand.vercel.app
+**Terminal launcher:** `npx insert-coin-arcade`
+**Claude Code slash command:** `/play` (copy `claude-commands/play.md` to `~/.claude/commands/`)
+
+Independent fan project. All original code, MIT licensed. Not affiliated with or endorsed by Anthropic.
+
+## The games
+
+| Name | Genre | How |
+|---|---|---|
+| **Dino** | Endless runner | jump cacti, duck pteros |
+| **Mac-Pan** | Maze chase | eat dots, dodge bugs, power pellet flips the script |
+| **Snake** | Classic snake | grow, don't bite yourself |
+
+All three support keyboard, mouse, and touch. Cross-platform, no download.
+
+Daily challenge: same seed for everyone each day; the share card includes your rank against today's top-10 leaderboard.
 
 ## Local development
 
 ```bash
-npm install      # one-time, installs Vite as dev dependency
-npm run dev      # serves on http://localhost:8001 with hot reload + no-cache headers
+npm install      # installs Vite as dev dependency
+npm run dev      # http://localhost:8001 with hot reload + no-cache headers
 ```
 
-Edit any HTML / CSS / JS file and the browser refreshes automatically. Production deploys (Vercel, Cloudflare Pages) serve the raw files directly — no build step.
+Edit any HTML / CSS / JS file and the browser refreshes automatically. Production deploys (Vercel) serve the raw files directly — no build step.
 
-## What this is
+## Architecture
 
-Not just one game — an **arcade ecosystem**. The strategy is to ship a single playable game first (Clawd Runner), then add more games every 4-6 weeks to build a defensible catalog. Single brand, multiple games, growing community.
+- **Frontend**: vanilla HTML5 Canvas + plain JS modules (no framework). Each game is one `game.js` IIFE that owns its loop and renderer.
+- **Shared cross-game module**: `assets/clawd-stats.js` exposes `window.ClawdStats` for stats tracking, skin/hat overrides, shield handling, leaderboard submission, and dev tooling.
+- **Backend**: Cloudflare Worker at `leaderboards/worker.js` backed by KV. Stores top-10 per game (all-time + per-day). Free tier handles indie traffic comfortably.
+- **CLI**: `cli/index.js` is a Node script with no dependencies. Spawns the OS default browser at the live URL. Published as `insert-coin-arcade` on npm.
+- **Hosting**: Vercel for the static site, Cloudflare Workers for the leaderboard API, npm for the CLI, GitHub for the repo.
 
-## Why an arcade, not just one game
+## Repo layout
 
-A standalone game is replicable in 2 days. An arcade ecosystem with community, leaderboards, lore, and 4-5 games is not. The moat is the collection plus the community around it, not the code of any single game.
+```
+/                      landing page (index.html)
+games/runner/          Dino
+games/chomp/           Mac-Pan
+games/snake/           Snake
+assets/clawd-stats.js  shared stats / cosmetics module
+cli/                   the npm CLI launcher
+leaderboards/          Cloudflare Worker + wrangler config
+claude-commands/       /play slash command for Claude Code
+docs/                  project strategy notes (CLAUDE.md, PLAN.md)
+```
 
-## Games — launch order (browser then terminal, staggered)
+## Roadmap
 
-| Order | Game | Genre | Browser ship | Terminal ship |
-|---|---|---|---|---|
-| 1 | **Clawd Runner** | Endless runner (Chrome dino-style) | 🟡 Weekend 1 | Month 2 |
-| 2 | **Clawd Chomp** | Pac-Man clone | ⚪ Month 2 | Month 3 |
-| 3 | **Clawd Snake** | Snake clone | ⚪ Month 3 | Month 4 |
-| 4 | **Clawd Tetris** | Tetris clone | ⚪ Month 4 | Month 5 |
-| 5+ | TBD (Breakout, Asteroids, Frogger…) | various | ⚪ Month 5+ | Month 6+ |
+- **v1 (now)**: 3 games, classic Clawd terracotta, leaderboards, daily challenge, share cards
+- **Drop 1**: skin pack — Blue / Pink / Sage Clawd
+- **Drop 2**: rare skin pack — Gold / Cream / Onyx Clawd
+- **Drop 3**: hat pack — Crown (SHIFT to activate shield) + Wizard Hat (godmode + sparkles)
+- **Drop 4**: original 4th game (no clone)
 
-## Distribution — hybrid strategy
+## Contributing
 
-Each game ships in TWO platforms (browser first, terminal version 4-6 weeks later):
+It's a side project. Issues and PRs welcome but I ship on weekends. If you find a bug, open an issue. If you want a new game, propose it and we'll talk.
 
-**Browser (clawdbytes.com)** — primary launch surface
-- Mobile + desktop, no install required
-- Viral-friendly (shareable URL, embeddable iframe, video clips)
-- PWA-ready (installable to mobile home screen)
-- Target: general public + AI dev community
+## Disclaimer
 
-**Terminal (`npm install -g clawd-bytes-cli`)** — deep distribution
-- For Claude Code users — play without leaving the terminal
-- Lives alongside `claude-arcade` (which has puzzle games like Wordle/Chess) — our category is **action/reflex** so we're complementary, not competing
-- Claude Code plugin `/arcade` discovers it natively
-- Target: hardcore dev audience
-
-Same characters, same lore, both platforms. The COMBINED catalog is harder to replicate than either alone — that's the moat.
-
-## Current status
-
-- [ ] Domain registered (`clawdbytes.com` or alternative)
-- [ ] Private GitHub repo created
-- [ ] Branding decisions locked (name, palette, sprite reference)
-- [ ] Clawd sprite designed (8-bit retro orange, original variant — see `docs/branding.md`)
-- [ ] Landing page skeleton (`index.html`)
-- [ ] **Clawd Runner** playable MVP
-- [ ] Sound effects integrated
-- [ ] Score persistence (localStorage)
-- [ ] Sharable URL with score parameter
-- [ ] Discord server created
-- [ ] Public launch: repo public + landing page live + HN/Reddit/X posts
-- [ ] Claude Code `/arcade` plugin shipped
-- [ ] First 100 unique players
-
-## Vision
-
-Become the **Cool Math Games of the AI dev community** — a destination people return to for new games, with a recognizable brand (Clawd + friends), a community (Discord with leaderboards), and a steady release cadence. Within 6 months: 4 games shipped, 5K+ active community, optional sponsors from dev tools brands.
-
-## Why this might work
-
-- Claude Code has 160K+ monthly devs through its plugin marketplace — built-in audience
-- Clawd is a beloved mascot Anthropic created but they haven't built any games around
-- Browser HTML5 is mature; weekend-scope feasible
-- Multi-game ecosystem is defensible (one game can be cloned; an arcade brand cannot)
-- Anthropic culture is pro-community: history of amplifying good fan projects, not crushing them
-
-## Risks
-
-- Anthropic builds their own arcade officially — mitigated by being first-mover with community
-- One game falls flat — that's why we have a catalog, not a single product
-- Time sink without traction — kill criteria in `PLAN.md` to avoid sunk cost spiral
-
-See `CLAUDE.md` for project instructions, `PLAN.md` for execution roadmap, `docs/legal-strategy.md` for the defensive moves.
+Independent fan project. Clawd is rendered as transformative pixel art in tribute to the Claude Code welcome screen. Not affiliated with or endorsed by Anthropic. MIT licensed — fork freely.
