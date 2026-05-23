@@ -241,6 +241,7 @@
       border: 1px dashed var(--green);
       border-radius: 6px;
       text-align: center;
+      position: relative;
     }
     .dev-panel h3 {
       font-family: 'Press Start 2P', monospace;
@@ -308,6 +309,20 @@
       border-radius: 3px;
       cursor: pointer;
     }
+    .dev-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font-family: 'VT323', monospace;
+      font-size: 0.9rem;
+      background: transparent;
+      color: var(--gray);
+      border: 1px solid var(--gray);
+      border-radius: 3px;
+      padding: 0.2rem 0.5rem;
+      cursor: pointer;
+    }
+    .dev-close:hover { color: var(--red); border-color: var(--red); }
     /* Intro splash */
     .splash {
       position: fixed;
@@ -372,6 +387,25 @@
   </header>
 
   <main>
+    <section class="dev-panel" id="dev-panel" hidden>
+      <button class="dev-close" id="dev-close" title="turn off dev mode">✕</button>
+      <h3>🛠️ DEV PANEL</h3>
+      <div class="dev-row">
+        <span class="label">skin:</span>
+        <div id="dev-skins" class="dev-row" style="margin-bottom:0;"></div>
+      </div>
+      <div class="dev-row">
+        <span class="label">hat:</span>
+        <div id="dev-hats" class="dev-row" style="margin-bottom:0;"></div>
+      </div>
+      <div class="dev-row">
+        <span class="label">games:</span>
+        <input type="number" min="0" id="dev-games" class="dev-input" placeholder="0">
+        <button id="dev-set-games" class="dev-btn">SET</button>
+      </div>
+      <button id="dev-clear" class="dev-clear">CLEAR ALL OVERRIDES</button>
+    </section>
+
     <div class="games-grid">
 
       <a href="games/runner/" class="game-card available">
@@ -456,23 +490,6 @@
       <p class="next-up" id="next-up"></p>
     </section>
 
-    <section class="dev-panel" id="dev-panel" hidden>
-      <h3>🛠️ DEV PANEL</h3>
-      <div class="dev-row">
-        <span class="label">skin:</span>
-        <div id="dev-skins" class="dev-row" style="margin-bottom:0;"></div>
-      </div>
-      <div class="dev-row">
-        <span class="label">hat:</span>
-        <div id="dev-hats" class="dev-row" style="margin-bottom:0;"></div>
-      </div>
-      <div class="dev-row">
-        <span class="label">games:</span>
-        <input type="number" min="0" id="dev-games" class="dev-input" placeholder="0">
-        <button id="dev-set-games" class="dev-btn">SET</button>
-      </div>
-      <button id="dev-clear" class="dev-clear">CLEAR ALL OVERRIDES</button>
-    </section>
   </main>
 
   <footer>
@@ -493,7 +510,7 @@
     </p>
   </footer>
 
-  <script src="assets/clawd-stats.js?v=10"></script>
+  <script src="assets/clawd-stats.js?v=11"></script>
   <script>
     (function () {
       'use strict';
@@ -616,6 +633,13 @@
       if (!devOn) return;
       const panel = document.getElementById('dev-panel');
       panel.hidden = false;
+      const close = document.getElementById('dev-close');
+      if (close) {
+        close.addEventListener('click', () => {
+          try { localStorage.setItem(DEV_KEY, '0'); } catch (_) {}
+          window.location.search = '';
+        });
+      }
 
       const overrides = window.ClawdStats.devOverrides();
       const skinsEl = document.getElementById('dev-skins');
