@@ -323,14 +323,9 @@
     // t = 0 right behind head, 1 at the tail tip
     const t = (total <= 1) ? 0 : (idx - 1) / (total - 1);
     const radius = 8 - t * 3.5; // 8px → 4.5px
-    const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
-    if (outline) {
-      ctx.fillStyle = outline;
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius + 1, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
+    // Body in cream so the head (Clawd in skin color) is the only colored
+    // element on the board — Claude-Radio focus.
+    ctx.fillStyle = '#faf9f5';
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.fill();

@@ -677,9 +677,10 @@
     }
   }
 
-  // Walls — muted mid-gray so the maze recedes and Clawd reads on top.
+  // Walls — Anthropic mid-gray. Visible against the dark canvas but neutral
+  // enough that Clawd stays the focal point.
   function drawWall(px, py, c, r) {
-    ctx.fillStyle = '#5c5a52';
+    ctx.fillStyle = '#b0aea5';
     const inset = 2;
     ctx.fillRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2);
   }
