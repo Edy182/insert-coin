@@ -467,18 +467,20 @@
     osc.start(t);
     osc.stop(t + duration + 0.01);
   }
-  // Snake music — slithery G-minor loop, slower tempo to fit the contemplative
-  // tail-hunt vibe. Hovers around G with chromatic neighbors, gives a sneaky feel.
-  const MUSIC_NOTES = [392, 466, 392, 523, 466, 392, 466, 349];
+  // Snake music — SAWTOOTH wave in low register (G3 / 196Hz area) for a buzzy,
+  // alien, sneaky texture. Very slow tempo + long sustained notes = hypnotic
+  // slither vibe. Completely different timbre from Dino (triangle) and Mac-Pan
+  // (square): three distinct waveforms = three distinct game identities.
+  const MUSIC_NOTES = [196, 247, 220, 247, 196, 175, 196, 247];
   let musicIdx = 0, musicTimer = null;
   function startMusic() {
     if (musicTimer || !soundOn) return;
     getAudioCtx();
     musicTimer = setInterval(() => {
       if (!soundOn) return;
-      beep({ freq: MUSIC_NOTES[musicIdx], type: 'triangle', duration: 0.18, volume: 0.035 });
+      beep({ freq: MUSIC_NOTES[musicIdx], type: 'sawtooth', duration: 0.32, volume: 0.024 });
       musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
-    }, 260);
+    }, 380);
   }
   function stopMusic() {
     if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }

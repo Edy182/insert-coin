@@ -905,19 +905,22 @@
     osc.stop(t + duration + 0.01);
   }
 
-  // Mac-Pan music — A-minor labyrinth loop with chromatic descent. Faster
-  // tempo + minor key give the chase-through-the-maze tension that bright
-  // pentatonic loops miss.
-  const MUSIC_NOTES = [440, 523, 587, 698, 659, 587, 523, 440, 392, 440, 523, 587];
+  // Mac-Pan music — classic-arcade SQUARE wave for the harsh chase texture,
+  // every tick plays melody + octave-below bass simultaneously (dense, urgent),
+  // staccato 80ms notes at 150ms tempo. Sounds nothing like Dino's triangle
+  // pentatonic. E-minor descending phrase → builds chase tension.
+  const MUSIC_NOTES = [659, 587, 523, 494, 440, 494, 523, 587];
   let musicIdx = 0, musicTimer = null;
   function startMusic() {
     if (musicTimer || !soundOn) return;
     getAudioCtx();
     musicTimer = setInterval(() => {
       if (!soundOn) return;
-      beep({ freq: MUSIC_NOTES[musicIdx], type: 'triangle', duration: 0.1, volume: 0.035 });
+      const f = MUSIC_NOTES[musicIdx];
+      beep({ freq: f,       type: 'square', duration: 0.08, volume: 0.028 });
+      beep({ freq: f * 0.5, type: 'square', duration: 0.08, volume: 0.022 });
       musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
-    }, 175);
+    }, 150);
   }
   function stopMusic() {
     if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
