@@ -252,7 +252,7 @@
   function draw() {
     // Background — lighter when BLACK skin is active so Clawd doesn't blend in.
     const activeSkin = window.ClawdStats && window.ClawdStats.getActiveSkin();
-    ctx.fillStyle = (activeSkin && activeSkin.id === 'black') ? '#2A3A5E' : '#0B1426';
+    ctx.fillStyle = (activeSkin && activeSkin.id === 'black') ? '#4A5E85' : '#0B1426';
     ctx.fillRect(0, 0, W, H);
 
     // Subtle checker grid so movement reads clearly
@@ -323,6 +323,13 @@
     // t = 0 right behind head, 1 at the tail tip
     const t = (total <= 1) ? 0 : (idx - 1) / (total - 1);
     const radius = 8 - t * 3.5; // 8px → 4.5px
+    const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
+    if (outline) {
+      ctx.fillStyle = outline;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius + 1, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
