@@ -32,7 +32,7 @@
   function shareCard() {
     const tier = scoreTier(score);
     const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
-    return `🦀 Clawd Man — ${todayISO}\n${score} pts ${squares}\nclawdbytes.com`;
+    return `🦀 Clawd Man — ${todayISO}\n${score} pts ${squares}\nInsert Coin`;
   }
 
   // === Constants ===

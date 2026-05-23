@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-// Clawd Bytes launcher — minimal ASCII menu that opens the browser arcade.
+// Insert Coin launcher — minimal ASCII menu that opens the browser arcade.
 // Independent fan project. Not affiliated with or endorsed by Anthropic.
 
 const readline = require('readline');
@@ -20,8 +20,9 @@ function argValue(prefix) {
 const SITE =
   argValue('--url=') ||
   (args.includes('--local') ? 'http://localhost:8001' : null) ||
+  process.env.INSERT_COIN_URL ||
   process.env.CLAWD_BYTES_URL ||
-  'https://clawdbytes.com';
+  'https://insert-coin-arcade.vercel.app';
 const GAMES = [
   { key: 'r', label: 'DINOCLAWD',  path: '/games/runner/',  blurb: 'endless runner · dodge cacti and pteros' },
   { key: 'c', label: 'CLAWDMAN',   path: '/games/chomp/',   blurb: 'maze chase · eat the bugs back' },
@@ -37,7 +38,7 @@ function banner() {
   return [
     '',
     O('  ┌──────────────────────────────────┐'),
-    O('  │       C L A W D   B Y T E S      │'),
+    O('  │       I N S E R T   C O I N      │'),
     O('  └──────────────────────────────────┘'),
     G('       retro games for the AI dev community'),
     '',

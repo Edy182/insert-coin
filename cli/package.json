@@ -1,9 +1,9 @@
 {
-  "name": "clawd-bytes",
-  "version": "0.1.1",
-  "description": "Launch the Clawd Bytes browser arcade from your terminal. Three pixel games starring Clawd, the Claude Code crab mascot. Independent fan project, not affiliated with Anthropic.",
+  "name": "insert-coin-arcade",
+  "version": "0.1.0",
+  "description": "Launch the Insert Coin browser arcade from your terminal. Three pixel games starring Clawd, a friendly crab. Independent fan project, not affiliated with Anthropic.",
   "bin": {
-    "clawd-bytes": "index.js"
+    "insert-coin": "index.js"
   },
   "engines": {
     "node": ">=16"

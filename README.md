@@ -1,6 +1,6 @@
-# Clawd Bytes 🕹️
+# Insert Coin 🕹️
 
-A collection of retro browser games starring Clawd (and friends) — built for the Claude Code community and AI dev culture. Independent fan project — not affiliated with Anthropic.
+A collection of retro browser games starring Clawd, a friendly pixel-art crab — built for the Claude Code community and AI dev culture. Independent fan project, not affiliated with Anthropic.
 
 ## What this is
 
