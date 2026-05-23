@@ -488,9 +488,12 @@
       <a href="https://discord.gg/[your-invite]">Discord</a> ·
       <a href="https://twitter.com/clawdbytes">@clawdbytes</a>
     </p>
+    <p style="margin-top:0.8rem;">
+      <a href="#" id="dev-toggle" style="color: var(--gray); font-size: 0.7rem;">🛠 dev mode: <span id="dev-state">off</span></a>
+    </p>
   </footer>
 
-  <script src="assets/clawd-stats.js?v=9"></script>
+  <script src="assets/clawd-stats.js?v=10"></script>
   <script>
     (function () {
       'use strict';
@@ -587,13 +590,30 @@
       }
     })();
 
-    // Dev panel: visible when ?dev=1 is in the URL. Lets you click any skin or
-    // hat (locked or not), set your totalGames count, and clear overrides.
+    // Dev panel: visible when ?dev=1 is in the URL OR the persistent
+    // localStorage flag is on. The footer "🛠 dev mode" link toggles the flag.
     (function () {
       'use strict';
       if (!window.ClawdStats) return;
+
+      const DEV_KEY = 'clawd-dev-mode';
       const params = new URLSearchParams(window.location.search);
-      if (params.get('dev') !== '1') return;
+      const lsOn = (function () { try { return localStorage.getItem(DEV_KEY) === '1'; } catch (_) { return false; } })();
+      const devOn = params.get('dev') === '1' || lsOn;
+
+      // Footer toggle — always wired.
+      const toggle = document.getElementById('dev-toggle');
+      const stateLabel = document.getElementById('dev-state');
+      if (stateLabel) stateLabel.textContent = devOn ? 'on' : 'off';
+      if (toggle) {
+        toggle.addEventListener('click', (e) => {
+          e.preventDefault();
+          try { localStorage.setItem(DEV_KEY, devOn ? '0' : '1'); } catch (_) {}
+          window.location.search = '';
+        });
+      }
+
+      if (!devOn) return;
       const panel = document.getElementById('dev-panel');
       panel.hidden = false;
 
