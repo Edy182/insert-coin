@@ -54,13 +54,14 @@
   // Ghost spawn config: col, row, color, releaseAt frames, personality, scatter corner.
   // Personalities: 'direct' chases player, 'ambush' targets 4 tiles ahead,
   // 'random' adds variance, 'scared' chases when far but flees when close.
-  // 4-step gray ramp — bright = most aggressive, dark = most passive.
-  // Keeps personalities legible while obeying the "only Clawd is colored" rule.
+  // Each ghost's color encodes behavior — keeping them colored makes
+  // their personalities readable at a glance during play. Clawd is still
+  // the protagonist; the ghosts are the colored antagonist cast.
   const GHOST_SPAWNS = [
-    { col:  9, row:  9, color: '#faf9f5', releaseAt:   0, personality: 'direct', corner: { c: 17, r:  1 }, name: 'NullPointer' },       // cream  (chaser)
-    { col:  8, row: 10, color: '#c2c0b7', releaseAt: 240, personality: 'ambush', corner: { c:  1, r:  1 }, name: 'OffByOne' },          // light-gray (flanker)
-    { col:  9, row: 10, color: '#8a8880', releaseAt: 480, personality: 'random', corner: { c: 17, r: 19 }, name: 'RaceCondition' },     // mid-gray (random)
-    { col: 10, row: 10, color: '#54524d', releaseAt: 720, personality: 'scared', corner: { c:  1, r: 19 }, name: 'TimeoutException' }, // dark-gray (scared)
+    { col:  9, row:  9, color: '#c1574b', releaseAt:   0, personality: 'direct', corner: { c: 17, r:  1 }, name: 'NullPointer' },       // red
+    { col:  8, row: 10, color: '#e8a4b8', releaseAt: 240, personality: 'ambush', corner: { c:  1, r:  1 }, name: 'OffByOne' },          // pink
+    { col:  9, row: 10, color: '#6a9bcc', releaseAt: 480, personality: 'random', corner: { c: 17, r: 19 }, name: 'RaceCondition' },     // cyan
+    { col: 10, row: 10, color: '#d4a85f', releaseAt: 720, personality: 'scared', corner: { c:  1, r: 19 }, name: 'TimeoutException' }, // amber
   ];
 
   // === Maze layout (original design) ===
@@ -838,13 +839,13 @@
       return;
     }
 
-    // Body color: frightened dark-gray, flashing cream in the last ~2s of the timer.
+    // Body color: frightened blue, flashing white in the last ~2s of the timer.
     let G, Wh, B;
     if (frightenedTimer > 0) {
       const flashing = frightenedTimer < FRIGHTENED_FLASH && Math.floor(frightenedTimer / 8) % 2 === 0;
-      G  = flashing ? '#faf9f5' : '#3a3835';
-      Wh = flashing ? '#3a3835' : '#faf9f5';
-      B  = flashing ? '#3a3835' : '#141413';
+      G  = flashing ? '#faf9f5' : '#2A4FB8';
+      Wh = flashing ? '#2A4FB8' : '#faf9f5';
+      B  = flashing ? '#2A4FB8' : '#c1574b';
     } else {
       G  = g.color;
       Wh = '#FFFFFF';
