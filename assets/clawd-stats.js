@@ -27,6 +27,7 @@
       name: 'CROWN',
       requires: (s) => s.totalGames >= 6,
       unlockHint: '6 games',
+      outlineColor: '#5C4A0F',
       pixels: [
         [1, 0, 1, 0, 1],
         [1, 1, 1, 1, 1],
@@ -178,6 +179,20 @@
     const rows = hat.pixels.length;
     const cols = hat.pixels[0].length;
     const leftX = Math.round(cx - (cols * pixelSize) / 2);
+    // Optional 1px outline so the hat stays visible against same-colored skins.
+    if (hat.outlineColor) {
+      ctx.fillStyle = hat.outlineColor;
+      const offs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const v = hat.pixels[r][c];
+          if (!v || !hat.colors[v]) continue;
+          for (const [dx, dy] of offs) {
+            ctx.fillRect(leftX + c * pixelSize + dx, Math.round(topY) - (rows - r) * pixelSize + dy, pixelSize, pixelSize);
+          }
+        }
+      }
+    }
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const v = hat.pixels[r][c];
