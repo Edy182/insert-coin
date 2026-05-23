@@ -66,7 +66,6 @@
   // === Game state ===
   let player, obstacles, clouds, groundOffset;
   let score, scoreFrame, gameOver, gameSpeed, lastSpawn;
-  let crownShieldUsed = false;
   let shieldFlash = 0;
   let nightMode, nightTimer, stars, lastNightScore;
   let frameCount;
@@ -86,8 +85,8 @@
     gameSpeed      = INITIAL_SPEED;
     gameOver       = false;
     lastSpawn      = 0;
-    crownShieldUsed = false;
     shieldFlash    = 0;
+    if (window.ClawdStats) window.ClawdStats.resetShield();
     nightMode      = false;
     nightTimer     = 0;
     lastNightScore = -1;
@@ -202,9 +201,10 @@
       if (obstacles[i].x + obstacles[i].w < 0) obstacles.splice(i, 1);
     }
 
-    // Collision — wizard god-mode + crown shield + ?god flag are all bypasses.
+    // Collision — wizard / ?god / active crown shield bypass.
     const wizardOn = window.ClawdStats && window.ClawdStats.isGodModeActive();
-    if (!godMode && !wizardOn) {
+    const shieldOn = window.ClawdStats && window.ClawdStats.isShieldActive();
+    if (!godMode && !wizardOn && !shieldOn) {
       for (let i = obstacles.length - 1; i >= 0; i--) {
         const obs = obstacles[i];
         if (
@@ -213,18 +213,25 @@
           player.y             < obs.y + obs.h &&
           player.y + player.h  > obs.y
         ) {
-          if (!crownShieldUsed && window.ClawdStats && window.ClawdStats.hasShield()) {
-            // Crown shield absorbs the first obstacle of the run — vaporize it.
-            crownShieldUsed = true;
-            shieldFlash = 30;
-            obstacles.splice(i, 1);
-            break;
-          }
           endGame();
           return;
         }
       }
+    } else if (shieldOn) {
+      // Vaporize obstacles you touch while shielded — feels powerful.
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
+        if (
+          player.x             < obs.x + obs.w &&
+          player.x + player.w  > obs.x &&
+          player.y             < obs.y + obs.h &&
+          player.y + player.h  > obs.y
+        ) {
+          obstacles.splice(i, 1);
+        }
+      }
     }
+    if (window.ClawdStats) window.ClawdStats.tickShield();
 
     frameCount++;
 
@@ -342,11 +349,24 @@
     // Obstacles
     for (const obs of obstacles) drawObstacle(obs);
 
-    // Crown shield absorbed an obstacle — brief cream flash.
+    // Crown shield activated — brief cream flash, then HUD bar.
     if (shieldFlash > 0) {
       shieldFlash--;
       ctx.fillStyle = `rgba(250, 249, 245, ${(shieldFlash / 30) * 0.45})`;
       ctx.fillRect(0, 0, W, H);
+    }
+    if (window.ClawdStats && window.ClawdStats.hasShield()) {
+      const x = W - 70, y = 14, w = 60, h = 6;
+      ctx.fillStyle = 'rgba(176, 174, 165, 0.25)';
+      ctx.fillRect(x, y, w, h);
+      const active = window.ClawdStats.isShieldActive();
+      const frac = active ? window.ClawdStats.shieldActiveFrac() : window.ClawdStats.shieldReadyFrac();
+      ctx.fillStyle = active ? '#faf9f5' : (frac >= 1 ? '#d4a85f' : '#788c5d');
+      ctx.fillRect(x, y, w * frac, h);
+      ctx.fillStyle = '#b0aea5';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(active ? 'SHIELD' : (frac >= 1 ? 'SHIFT' : ''), x + w, y - 2);
     }
 
     // Ready overlay — wait for the first jump/duck
@@ -728,6 +748,13 @@
   document.addEventListener('keydown', e => {
     if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); jump(); }
     if (e.code === 'ArrowDown') { e.preventDefault(); duck(true); }
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+      e.preventDefault();
+      if (window.ClawdStats && window.ClawdStats.tryActivateShield()) {
+        shieldFlash = 20;
+        playSound('milestone');
+      }
+    }
   });
   document.addEventListener('keyup', e => {
     if (e.code === 'ArrowDown') duck(false);

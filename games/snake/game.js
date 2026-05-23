@@ -65,8 +65,7 @@
   let score, gameOver, win;
   let frame, tickFrames;
   let gameStarted; // false until the first arrow key
-  let crownShieldUsed;  // crown hat: one free hit per game
-  let shieldFlash;      // frames of cream flash after the shielded hit
+  let shieldFlash;      // frames of cream flash after activating the shield
   let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-snake-high') || '0', 10);
   const ONBOARDED_KEY = 'clawd-onboarded-snake';
@@ -127,8 +126,8 @@
     gameOver = false;
     win = false;
     gameStarted = false;
-    crownShieldUsed = false;
     shieldFlash = 0;
+    if (window.ClawdStats) window.ClawdStats.resetShield();
     spawnFood();
     restartBtn.classList.add('hidden');
     shareBtn.classList.add('hidden');
@@ -156,6 +155,7 @@
   // === Update ===
   function update() {
     if (gameOver) return;
+    if (window.ClawdStats) window.ClawdStats.tickShield();
     if (!gameStarted) return; // wait for the first arrow key
     frame++;
     if (frame % Math.floor(tickFrames) !== 0) return;
@@ -167,21 +167,12 @@
     const head = snake[0];
     const newHead = { c: head.c + dir.dc, r: head.r + dir.dr };
 
-    // Wall collision (or wrap in god mode, or shielded by crown once)
+    // Wall + self collision: wizard / ?god / active crown shield all bypass.
     const wizardOn = window.ClawdStats && window.ClawdStats.isGodModeActive();
-    function spendShieldOrEnd() {
-      if (!crownShieldUsed && window.ClawdStats && window.ClawdStats.hasShield()) {
-        crownShieldUsed = true;
-        shieldFlash = 30;
-        return 'shielded';
-      }
-      endGame();
-      return 'ended';
-    }
+    const shieldOn = window.ClawdStats && window.ClawdStats.isShieldActive();
+    const invuln  = godMode || wizardOn || shieldOn;
     if (newHead.c < 0 || newHead.c >= COLS || newHead.r < 0 || newHead.r >= ROWS) {
-      if (!godMode && !wizardOn) {
-        if (spendShieldOrEnd() === 'ended') return;
-      }
+      if (!invuln) { endGame(); return; }
       newHead.c = (newHead.c + COLS) % COLS;
       newHead.r = (newHead.r + ROWS) % ROWS;
     }
@@ -190,9 +181,7 @@
     const willGrow = newHead.c === food.c && newHead.r === food.r;
     const bodyToCheck = willGrow ? snake : snake.slice(0, -1);
     if (bodyToCheck.some(s => s.c === newHead.c && s.r === newHead.r)) {
-      if (!godMode && !wizardOn) {
-        if (spendShieldOrEnd() === 'ended') return;
-      }
+      if (!invuln) { endGame(); return; }
     }
 
     snake.unshift(newHead);
@@ -294,11 +283,26 @@
     // Head: Clawd
     drawClawdHead(snake[0].c, snake[0].r);
 
-    // Crown shield absorbed a hit — brief cream pulse so it reads.
+    // Crown shield activated — brief cream pulse so it reads.
     if (shieldFlash > 0) {
       shieldFlash--;
       ctx.fillStyle = `rgba(250, 249, 245, ${(shieldFlash / 30) * 0.45})`;
       ctx.fillRect(0, 0, W, H);
+    }
+
+    // Crown shield HUD — small bar bottom-right when the player has it.
+    if (window.ClawdStats && window.ClawdStats.hasShield()) {
+      const x = W - 60, y = H - 18, w = 50, h = 6;
+      ctx.fillStyle = 'rgba(176, 174, 165, 0.25)';
+      ctx.fillRect(x, y, w, h);
+      const active = window.ClawdStats.isShieldActive();
+      const frac = active ? window.ClawdStats.shieldActiveFrac() : window.ClawdStats.shieldReadyFrac();
+      ctx.fillStyle = active ? '#faf9f5' : (frac >= 1 ? '#d4a85f' : '#788c5d');
+      ctx.fillRect(x, y, w * frac, h);
+      ctx.fillStyle = '#b0aea5';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(active ? 'SHIELD' : (frac >= 1 ? 'SHIFT' : ''), x + w, y - 2);
     }
 
     // Ready overlay — wait for the first arrow key
@@ -445,6 +449,14 @@
     if (gameOver && (e.code === 'Space' || e.code === 'Enter')) {
       e.preventDefault();
       reset();
+      return;
+    }
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+      e.preventDefault();
+      if (window.ClawdStats && window.ClawdStats.tryActivateShield()) {
+        shieldFlash = 20;
+        playSound('eat');
+      }
       return;
     }
     let queued = null;

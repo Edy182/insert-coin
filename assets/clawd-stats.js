@@ -128,12 +128,41 @@
     const hat = getActiveHat();
     return !!(hat && hat.godMode);
   }
-  // Crown grants one shield per game session. Each game tracks consumption
-  // locally; this just reports whether the active hat declares the ability.
+  // Crown shield — player-controlled invincibility burst. Tap the activate
+  // key (typically SHIFT) to spend it; lasts 2s, then 15s cooldown before
+  // you can spend it again. State is global so it persists across the canvas
+  // even when respawning.
+  const SHIELD_ACTIVE_FRAMES   = 120;  // 2s at 60fps
+  const SHIELD_COOLDOWN_FRAMES = 900;  // 15s at 60fps
+  let _shieldActiveLeft   = 0;
+  let _shieldCooldownLeft = 0;
   function hasShield() {
     const hat = getActiveHat();
     return !!(hat && hat.shield);
   }
+  function tickShield() {
+    if (_shieldActiveLeft > 0) {
+      _shieldActiveLeft--;
+      if (_shieldActiveLeft === 0) _shieldCooldownLeft = SHIELD_COOLDOWN_FRAMES;
+    } else if (_shieldCooldownLeft > 0) {
+      _shieldCooldownLeft--;
+    }
+  }
+  function tryActivateShield() {
+    if (!hasShield()) return false;
+    if (_shieldActiveLeft > 0 || _shieldCooldownLeft > 0) return false;
+    _shieldActiveLeft = SHIELD_ACTIVE_FRAMES;
+    return true;
+  }
+  function isShieldActive()    { return _shieldActiveLeft > 0; }
+  function shieldActiveFrac()  { return _shieldActiveLeft / SHIELD_ACTIVE_FRAMES; }
+  function shieldReadyFrac()   {
+    if (!hasShield()) return 0;
+    if (_shieldActiveLeft > 0) return 0;
+    if (_shieldCooldownLeft === 0) return 1;
+    return 1 - (_shieldCooldownLeft / SHIELD_COOLDOWN_FRAMES);
+  }
+  function resetShield() { _shieldActiveLeft = 0; _shieldCooldownLeft = 0; }
   // Score multiplier for whatever cosmetic is active. Wizard = 2x; default = 1x.
   function getScoreMultiplier() {
     return isGodModeActive() ? 2 : 1;
@@ -356,6 +385,12 @@
     getActiveHat: getActiveHat,
     isGodModeActive: isGodModeActive,
     hasShield: hasShield,
+    tickShield: tickShield,
+    tryActivateShield: tryActivateShield,
+    isShieldActive: isShieldActive,
+    shieldActiveFrac: shieldActiveFrac,
+    shieldReadyFrac: shieldReadyFrac,
+    resetShield: resetShield,
     getScoreMultiplier: getScoreMultiplier,
     drawHat: drawHat,
     drawSparkles: drawSparkles,

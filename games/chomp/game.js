@@ -138,8 +138,7 @@
   let ghostsEatenInRound; // 1-4, scoring multiplier within a single frightened round
   let eatFreezeTimer; // brief freeze of all gameplay after eating a ghost (drama)
   let scorePopups; // floating "+200" labels that fade out
-  let crownShieldUsed;  // crown hat: one free hit per game
-  let shieldFlash;      // frames of cream flash after a shielded hit
+  let shieldFlash;      // frames of cream flash after activating the shield
   let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-chomp-high') || '0', 10);
   const ONBOARDED_KEY = 'clawd-onboarded-chomp';
@@ -193,8 +192,8 @@
     ghostsEatenInRound = 0;
     eatFreezeTimer = 0;
     scorePopups = [];
-    crownShieldUsed = false;
     shieldFlash = 0;
+    if (window.ClawdStats) window.ClawdStats.resetShield();
     restartBtn.classList.add('hidden');
     shareBtn.classList.add('hidden');
     scoreEl.textContent = '00000';
@@ -434,6 +433,7 @@
 
     if (catchFlash > 0) catchFlash--;
     if (shieldFlash > 0) shieldFlash--;
+    if (window.ClawdStats) window.ClawdStats.tickShield();
     if (frightenedTimer > 0) frightenedTimer--;
     if (frightenedTimer === 0) ghostsEatenInRound = 0;
 
@@ -481,13 +481,9 @@
           playSound('eatGhost');
         } else if (!catcher.eaten) {
           const wizardOn = window.ClawdStats && window.ClawdStats.isGodModeActive();
-          const shieldAvailable = !crownShieldUsed && window.ClawdStats && window.ClawdStats.hasShield();
-          if (godMode || wizardOn) {
-            // Wizard hat / ?god param: ghosts can't catch Clawd. Walk through them.
-          } else if (shieldAvailable) {
-            // Crown shield absorbs the first catch per game — no life lost.
-            crownShieldUsed = true;
-            shieldFlash = 30;
+          const shieldOn = window.ClawdStats && window.ClawdStats.isShieldActive();
+          if (godMode || wizardOn || shieldOn) {
+            // Wizard hat / ?god / active crown shield: ghosts can't catch Clawd.
           } else {
             loseLife(catcher);
             return;
@@ -625,6 +621,21 @@
     // Lives — small Clawd faces along the bottom-left
     for (let i = 0; i < lives - 1; i++) {
       drawMiniClawd(14 + i * 20, H - 14);
+    }
+
+    // Crown shield HUD — small bar bottom-right when the player has it.
+    if (window.ClawdStats && window.ClawdStats.hasShield()) {
+      const x = W - 60, y = H - 18, w = 50, h = 6;
+      ctx.fillStyle = 'rgba(176, 174, 165, 0.25)';
+      ctx.fillRect(x, y, w, h);
+      const active = window.ClawdStats.isShieldActive();
+      const frac = active ? window.ClawdStats.shieldActiveFrac() : window.ClawdStats.shieldReadyFrac();
+      ctx.fillStyle = active ? '#faf9f5' : (frac >= 1 ? '#d4a85f' : '#788c5d');
+      ctx.fillRect(x, y, w * frac, h);
+      ctx.fillStyle = '#b0aea5';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(active ? 'SHIELD' : (frac >= 1 ? 'SHIFT' : ''), x + w, y - 2);
     }
 
     // Ready overlay — shown until first input
@@ -893,6 +904,14 @@
     if (gameOver && (e.code === 'Space' || e.code === 'Enter')) {
       e.preventDefault();
       reset();
+      return;
+    }
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+      e.preventDefault();
+      if (window.ClawdStats && window.ClawdStats.tryActivateShield()) {
+        shieldFlash = 20;
+        playSound('pellet');
+      }
       return;
     }
     let dx = 0, dy = 0;
