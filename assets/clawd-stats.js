@@ -30,13 +30,11 @@
       requires: (s) => s.totalGames >= 9,
       unlockHint: '9 games',
       pixels: [
-        [1, 0, 1, 0, 1, 0, 1, 0, 0],
-        [1, 1, 1, 1, 1, 1, 1, 0, 0],
-        [1, 1, 1, 1, 1, 1, 1, 0, 0],
-        [1, 3, 1, 2, 1, 3, 1, 0, 0],
-        [2, 2, 2, 2, 2, 2, 2, 0, 0],
+        [1, 0, 1, 0, 1],
+        [1, 1, 1, 1, 1],
+        [1, 3, 1, 3, 1],
       ],
-      colors: { 1: '#FFCD3C', 2: '#C19318', 3: '#E5564B' },
+      colors: { 1: '#FFCD3C', 3: '#E5564B' },
     },
     {
       id: 'wizard',
@@ -79,8 +77,20 @@
     const item = list.find((x) => x.id === id);
     return !!item && item.requires(stats);
   }
+  // URL preview: ?skin=black and/or ?hat=wizard override what's drawn for the
+  // current page only, without touching localStorage. Lets you see cosmetics
+  // before earning them.
+  function urlParam(name) {
+    if (typeof window === 'undefined' || !window.location) return null;
+    try { return new URLSearchParams(window.location.search).get(name); } catch (_) { return null; }
+  }
   // Returns the highest-tier unlocked skin (later items in SKINS are rarer).
   function getActiveSkin() {
+    const preview = urlParam('skin');
+    if (preview) {
+      const match = SKINS.find((s) => s.id === preview);
+      if (match) return match;
+    }
     const stats = read();
     let active = SKINS[0];
     for (const skin of SKINS) if (skin.requires(stats)) active = skin;
@@ -90,6 +100,11 @@
   function getActiveEyeColor()  { return getActiveSkin().eyeColor || DARK_EYE; }
   // Returns the active hat (or null if none unlocked).
   function getActiveHat() {
+    const preview = urlParam('hat');
+    if (preview) {
+      const match = HATS.find((h) => h.id === preview);
+      if (match) return match;
+    }
     const stats = read();
     for (let i = HATS.length - 1; i >= 0; i--) if (HATS[i].requires(stats)) return HATS[i];
     return null;
@@ -232,6 +247,17 @@
     } catch (_) {}
   }
 
+  // Debug helper: force a toast to appear regardless of unlock state. Run
+  // `ClawdStats.previewToast('cyan')` or `previewToast('wizard')` from the
+  // browser console to verify the toast renders.
+  function previewToast(id) {
+    const skin = SKINS.find((s) => s.id === id);
+    if (skin) { showToast({ kind: 'skin', id: id, name: skin.name, color: skin.color }); return true; }
+    const hat = HATS.find((h) => h.id === id);
+    if (hat)  { showToast({ kind: 'hat',  id: id, name: hat.name,  color: hat.colors && hat.colors[1] }); return true; }
+    return false;
+  }
+
   window.ClawdStats = {
     read: read,
     increment: increment,
@@ -243,6 +269,8 @@
     drawSparkles: drawSparkles,
     trackSessionStart: trackSessionStart,
     submitScore: submitScore,
+    previewToast: previewToast,
+    findNewUnlocks: findNewUnlocks,
     SKINS: SKINS,
     HATS: HATS,
     DEFAULT_COLOR: DEFAULT_COLOR,
