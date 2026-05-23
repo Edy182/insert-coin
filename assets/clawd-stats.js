@@ -9,14 +9,20 @@
 
   // Body recolors. Highest-unlocked tier auto-applies. The shape of Clawd stays
   // identical — only the body color changes.
+  const DARK_EYE  = '#1A0808';
+  const LIGHT_EYE = '#F5EFE0';
   const SKINS = [
-    { id: 'classic', name: 'CLASSIC', color: DEFAULT_COLOR, requires: () => true,                 unlockHint: 'default' },
-    { id: 'cyan',    name: 'CYAN',    color: '#4ED8E5',     requires: (s) => s.totalGames >= 3,   unlockHint: '3 games' },
-    { id: 'pink',    name: 'PINK',    color: '#FFB6E1',     requires: (s) => s.totalGames >= 8,   unlockHint: '8 games' },
-    { id: 'lime',    name: 'LIME',    color: '#3FCB7A',     requires: (s) => s.totalGames >= 15,  unlockHint: '15 games' },
+    { id: 'classic', name: 'CLASSIC', color: DEFAULT_COLOR, eyeColor: DARK_EYE,  requires: () => true,                 unlockHint: 'default' },
+    { id: 'cyan',    name: 'CYAN',    color: '#4ED8E5',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 3,   unlockHint: '3 games' },
+    { id: 'pink',    name: 'PINK',    color: '#FF5BA7',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 7,   unlockHint: '7 games' },
+    { id: 'lime',    name: 'LIME',    color: '#34D399',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 12,  unlockHint: '12 games' },
+    { id: 'red',     name: 'RED',     color: '#E5564B',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 18,  unlockHint: '18 games' },
+    { id: 'gold',    name: 'GOLD',    color: '#FFCD3C',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 30,  unlockHint: '30 · rare' },
+    { id: 'white',   name: 'WHITE',   color: '#F5F5F5',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 45,  unlockHint: '45 · rare' },
+    { id: 'black',   name: 'BLACK',   color: '#3C3D5A',     eyeColor: LIGHT_EYE, requires: (s) => s.totalGames >= 65,  unlockHint: '65 · rare' },
   ];
 
-  // Hat overlays. Crown is the only one — auto-applies once unlocked.
+  // Hat overlays. Highest-tier unlocked auto-applies.
   const HATS = [
     {
       id: 'crown',
@@ -24,11 +30,29 @@
       requires: (s) => s.totalGames >= 25,
       unlockHint: '25 games',
       pixels: [
-        [1, 0, 1, 0, 1, 0, 1, 0],
-        [1, 1, 1, 1, 1, 1, 1, 0],
-        [1, 1, 1, 1, 1, 1, 1, 0],
+        [1, 0, 1, 0, 1, 0, 1, 0, 0],
+        [1, 1, 1, 1, 1, 1, 1, 0, 0],
+        [1, 1, 1, 1, 1, 1, 1, 0, 0],
+        [1, 3, 1, 2, 1, 3, 1, 0, 0],
+        [2, 2, 2, 2, 2, 2, 2, 0, 0],
       ],
-      colors: { 1: '#FFCD3C' },
+      colors: { 1: '#FFCD3C', 2: '#C19318', 3: '#E5564B' },
+    },
+    {
+      id: 'wizard',
+      name: 'WIZARD HAT',
+      requires: (s) => s.totalGames >= 50,
+      unlockHint: '50 games',
+      sparkles: true,
+      pixels: [
+        [0, 0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 1, 1, 1, 0, 0],
+        [0, 0, 1, 1, 3, 1, 1, 0],
+        [0, 1, 1, 3, 3, 3, 1, 0],
+        [1, 1, 1, 1, 3, 1, 1, 1],
+        [2, 2, 2, 2, 2, 2, 2, 2],
+      ],
+      colors: { 1: '#6B4FBD', 2: '#3D2A7A', 3: '#FFE066' },
     },
   ];
 
@@ -63,6 +87,7 @@
     return active;
   }
   function getActiveSkinColor() { return getActiveSkin().color; }
+  function getActiveEyeColor()  { return getActiveSkin().eyeColor || DARK_EYE; }
   // Returns the active hat (or null if none unlocked).
   function getActiveHat() {
     const stats = read();
@@ -141,14 +166,12 @@
     setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 4000);
   }
 
-  // Bumps totalGames once per page load (per game), then fires a toast for any
-  // skin/hat the user just unlocked. Each new tier is acknowledged once, ever.
+  // Bumps totalGames every time the player starts a new game (each play counts,
+  // not each page load). Fires a toast for any skin/hat the user just unlocked.
+  // Each new tier is acknowledged once, ever.
   function trackSessionStart(opts) {
     const gameId = opts && opts.gameId;
     if (!gameId) return;
-    const sessionKey = 'clawd-session-' + gameId;
-    if (sessionStorage.getItem(sessionKey)) return;
-    sessionStorage.setItem(sessionKey, '1');
     increment('totalGames');
     if (opts.dailyMode) {
       const dailyKey = 'clawd-daily-counted-' + gameId + '-' + (opts.dateISO || new Date().toISOString().slice(0, 10));
@@ -159,11 +182,35 @@
     }
     const fresh = findNewUnlocks();
     if (fresh.length === 0) return;
-    // Stagger toasts so a multi-unlock session doesn't pile up.
     fresh.forEach(function (item, idx) { setTimeout(function () { showToast(item); }, idx * 700); });
     const seen = new Set(seenIds());
     fresh.forEach(function (item) { seen.add(item.id); });
     markSeen(Array.from(seen));
+  }
+
+  // Wizard-hat sparkles. Games call this once per frame near Clawd's center; the
+  // function no-ops unless the wizard hat is the active tier.
+  function drawSparkles(ctx, cx, cy, radius) {
+    const active = getActiveHat();
+    if (!active || !active.sparkles) return;
+    const t = (typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now()) / 90;
+    const colors = ['#FFE066', '#F5F5F5', '#A78BFA'];
+    for (let i = 0; i < 4; i++) {
+      const angle = (i / 4) * Math.PI * 2 + t * 0.06;
+      const r = radius + 4 + Math.sin(t * 0.12 + i * 1.3) * 3;
+      const x = Math.round(cx + Math.cos(angle) * r);
+      const y = Math.round(cy + Math.sin(angle) * r);
+      const phase = (t * 0.5 + i * 1.7) % 6;
+      if (phase > 3) continue;
+      const alpha = (1 - phase / 3).toFixed(2);
+      const color = colors[i % colors.length];
+      const rgb = color === '#FFE066' ? '255, 224, 102'
+                : color === '#F5F5F5' ? '245, 245, 245'
+                : '167, 139, 250';
+      ctx.fillStyle = 'rgba(' + rgb + ', ' + alpha + ')';
+      ctx.fillRect(x, y - 1, 1, 3);
+      ctx.fillRect(x - 1, y, 3, 1);
+    }
   }
 
   // Optional cloud leaderboard submission. No-ops unless window.CLAWD_LB_URL is set.
@@ -190,8 +237,10 @@
     increment: increment,
     getActiveSkin: getActiveSkin,
     getActiveSkinColor: getActiveSkinColor,
+    getActiveEyeColor: getActiveEyeColor,
     getActiveHat: getActiveHat,
     drawHat: drawHat,
+    drawSparkles: drawSparkles,
     trackSessionStart: trackSessionStart,
     submitScore: submitScore,
     SKINS: SKINS,

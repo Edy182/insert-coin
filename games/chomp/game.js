@@ -673,11 +673,13 @@
   // Pre-render Clawd sprite once into an offscreen canvas, then blit it scaled.
   // Lets us scale by any factor and stay crisp (imageSmoothingEnabled=false).
   let clawdSprite = null;
-  let clawdSpriteColor = null;
+  let clawdSpriteKey = null;
   function getClawdSprite() {
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
-    if (clawdSprite && clawdSpriteColor === O) return clawdSprite;
-    const P = 2, B = '#1A0808', _ = null;
+    const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
+    const key = O + '|' + B;
+    if (clawdSprite && clawdSpriteKey === key) return clawdSprite;
+    const P = 2, _ = null;
     clawdSprite = document.createElement('canvas');
     clawdSprite.width  = 12 * P;
     clawdSprite.height = 9  * P;
@@ -695,7 +697,7 @@
     ].forEach((row, r) => row.forEach((col, c) => {
       if (col) { sctx.fillStyle = col; sctx.fillRect(c*P, r*P, P, P); }
     }));
-    clawdSpriteColor = O;
+    clawdSpriteKey = key;
     return clawdSprite;
   }
 
@@ -708,7 +710,10 @@
     const h = src.height * scale;
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(src, Math.round(cx - w / 2), Math.round(cy - h / 2), w, h);
-    if (window.ClawdStats) window.ClawdStats.drawHat(ctx, cx, cy - h / 2, frightenedTimer > 0 ? 4 : 3);
+    if (window.ClawdStats) {
+      window.ClawdStats.drawHat(ctx, cx, cy - h / 2, frightenedTimer > 0 ? 4 : 3);
+      window.ClawdStats.drawSparkles(ctx, cx, cy, w / 2 + 4);
+    }
   }
 
   // Tiny Clawd icon for the lives indicator.

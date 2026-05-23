@@ -361,7 +361,8 @@
   function drawClawd(x, y) {
     const P = 3;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
-    const B = '#1A0808', _ = null;
+    const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
+    const _ = null;
     [
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
@@ -375,14 +376,18 @@
     ].forEach((row, r) => row.forEach((col, c) => {
       if (col) { ctx.fillStyle = col; ctx.fillRect(x + c*P, y + r*P, P, P); }
     }));
-    if (window.ClawdStats) window.ClawdStats.drawHat(ctx, x + 6 * P, y, P);
+    if (window.ClawdStats) {
+      window.ClawdStats.drawHat(ctx, x + 6 * P, y, P);
+      window.ClawdStats.drawSparkles(ctx, x + 6 * P, y + 4 * P, 20);
+    }
   }
 
   // Clawd ducking — 12×4 grid at P=3 = 36×12px
   function drawClawdDuck(x, y) {
     const P = 3;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#FF8A00';
-    const B = '#1A0808', _ = null;
+    const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
+    const _ = null;
     [
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ O,O,O,B,O,O,O,O,O,B,O,O ],
