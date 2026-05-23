@@ -32,7 +32,9 @@
   function shareCard() {
     const tier = scoreTier(score);
     const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
-    return `🦀 Mac-Pan — ${todayISO}\n${score} pts ${squares}\nInsert Coin`;
+    const rank = leaderboardResult && leaderboardResult.rank;
+    const rankLine = rank ? `\nrank #${rank} ${dailyMode ? 'today' : 'all-time'}` : '';
+    return `🦀 Mac-Pan — ${todayISO}\n${score} pts ${squares}${rankLine}\nInsert Coin`;
   }
 
   // === Constants ===
@@ -139,6 +141,7 @@
   let eatFreezeTimer; // brief freeze of all gameplay after eating a ghost (drama)
   let scorePopups; // floating "+200" labels that fade out
   let shieldFlash;      // frames of cream flash after activating the shield
+  let leaderboardResult; // { rank, list } from Worker after submit
   let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-chomp-high') || '0', 10);
   const ONBOARDED_KEY = 'clawd-onboarded-chomp';
@@ -193,6 +196,7 @@
     eatFreezeTimer = 0;
     scorePopups = [];
     shieldFlash = 0;
+    leaderboardResult = null;
     if (window.ClawdStats) window.ClawdStats.resetShield();
     restartBtn.classList.add('hidden');
     shareBtn.classList.add('hidden');
@@ -515,7 +519,10 @@
       highScoreEl.textContent = String(highScore).padStart(5, '0');
     }
     if (win) burstConfetti();
-    if (window.ClawdStats) window.ClawdStats.submitScore({ game: 'chomp', score: score, dailyMode: dailyMode, dateISO: todayISO });
+    if (window.ClawdStats) window.ClawdStats.submitScore(
+      { game: 'chomp', score: score, dailyMode: dailyMode, dateISO: todayISO },
+      function (data) { leaderboardResult = data; }
+    );
     restartBtn.classList.remove('hidden');
     if (dailyMode) shareBtn.classList.remove('hidden');
   }
@@ -707,7 +714,14 @@
       ctx.fillStyle = '#faf9f5';
       ctx.font = '14px "VT323", monospace';
       ctx.fillText(`Score: ${score}`, W / 2, H / 2 + 30);
-      ctx.fillText('Press SPACE to retry', W / 2, H / 2 + 50);
+      let retryY = H / 2 + 50;
+      if (leaderboardResult && leaderboardResult.rank) {
+        ctx.fillStyle = '#d4a85f';
+        ctx.fillText(`rank #${leaderboardResult.rank} ${dailyMode ? "today's top 10" : 'all-time top 10'}`, W / 2, retryY);
+        ctx.fillStyle = '#faf9f5';
+        retryY += 20;
+      }
+      ctx.fillText('Press SPACE to retry', W / 2, retryY);
     }
   }
 

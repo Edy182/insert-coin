@@ -356,10 +356,13 @@
     }
   }
 
-  // Optional cloud leaderboard submission. No-ops unless window.CLAWD_LB_URL is set.
-  function submitScore(opts) {
+  // Optional cloud leaderboard submission. No-ops unless window.CLAWD_LB_URL
+  // is set. If an onResult callback is provided, it fires with the parsed
+  // response { ok, rank, list } once the Worker replies — used by games to
+  // render the player's rank on the game-over overlay and share card.
+  function submitScore(opts, onResult) {
     if (!opts || !window.CLAWD_LB_URL || typeof fetch !== 'function') return;
-    const name = (function () { try { return localStorage.getItem('clawd-player-name') || ''; } catch (_) { return ''; } })();
+    const name = (function () { try { return localStorage.getItem('clawd-player-name') || 'anon'; } catch (_) { return 'anon'; } })();
     try {
       fetch(window.CLAWD_LB_URL.replace(/\/$/, '') + '/api/score', {
         method: 'POST',
@@ -371,7 +374,10 @@
           daily: !!opts.dailyMode,
           dateISO: opts.dateISO || new Date().toISOString().slice(0, 10),
         }),
-      }).catch(function () {});
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { if (onResult && data && data.ok) onResult(data); })
+      .catch(function () {});
     } catch (_) {}
   }
 

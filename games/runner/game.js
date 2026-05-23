@@ -45,7 +45,9 @@
   function shareCard() {
     const tier = scoreTier(score);
     const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
-    return `🦀 Dino — ${todayISO}\n${score} pts ${squares}\nInsert Coin`;
+    const rank = leaderboardResult && leaderboardResult.rank;
+    const rankLine = rank ? `\nrank #${rank} ${dailyMode ? 'today' : 'all-time'}` : '';
+    return `🦀 Dino — ${todayISO}\n${score} pts ${squares}${rankLine}\nInsert Coin`;
   }
 
   // === Constants ===
@@ -69,6 +71,7 @@
   let shieldFlash = 0;
   let obstaclesDodged = 0;
   let comboPopup = null; // { text, frames }
+  let leaderboardResult = null; // { rank, list } from Worker after submit
   let nightMode, nightTimer, stars, lastNightScore;
   let frameCount;
   let gameStarted;
@@ -90,6 +93,7 @@
     shieldFlash    = 0;
     obstaclesDodged = 0;
     comboPopup     = null;
+    leaderboardResult = null;
     if (window.ClawdStats) window.ClawdStats.resetShield();
     nightMode      = false;
     nightTimer     = 0;
@@ -287,7 +291,10 @@
       localStorage.setItem('clawd-runner-high', String(highScore));
       highScoreEl.textContent = String(highScore).padStart(5, '0');
     }
-    if (window.ClawdStats) window.ClawdStats.submitScore({ game: 'runner', score: score, dailyMode: dailyMode, dateISO: todayISO });
+    if (window.ClawdStats) window.ClawdStats.submitScore(
+      { game: 'runner', score: score, dailyMode: dailyMode, dateISO: todayISO },
+      function (data) { leaderboardResult = data; }
+    );
     restartBtn.classList.remove('hidden');
     if (dailyMode) shareBtn.classList.remove('hidden');
   }
@@ -423,7 +430,14 @@
       ctx.fillStyle = '#faf9f5';
       ctx.font      = '14px "VT323", monospace';
       ctx.fillText(`Final score: ${score}`, W / 2, H / 2 + 20);
-      ctx.fillText('Press SPACE or tap to retry', W / 2, H / 2 + 40);
+      let retryY = H / 2 + 40;
+      if (leaderboardResult && leaderboardResult.rank) {
+        ctx.fillStyle = '#d4a85f';
+        ctx.fillText(`rank #${leaderboardResult.rank} ${dailyMode ? "today's top 10" : 'all-time top 10'}`, W / 2, retryY);
+        ctx.fillStyle = '#faf9f5';
+        retryY += 20;
+      }
+      ctx.fillText('Press SPACE or tap to retry', W / 2, retryY);
     }
   }
 
