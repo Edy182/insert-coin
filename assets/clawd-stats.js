@@ -14,8 +14,8 @@
   const SKINS = [
     { id: 'classic', name: 'CLASSIC', color: DEFAULT_COLOR, eyeColor: DARK_EYE,  requires: () => true,                 unlockHint: 'default' },
     { id: 'cyan',    name: 'CYAN',    color: '#4ED8E5',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 2,   unlockHint: '2 games' },
-    { id: 'pink',    name: 'PINK',    color: '#FF5BA7',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 4,   unlockHint: '4 games' },
-    { id: 'lime',    name: 'LIME',    color: '#4ADE80',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 6,   unlockHint: '6 games' },
+    { id: 'pink',    name: 'PINK',    color: '#FFB6E1',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 4,   unlockHint: '4 games' },
+    { id: 'lime',    name: 'LIME',    color: '#22D348',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 6,   unlockHint: '6 games' },
     { id: 'gold',    name: 'GOLD',    color: '#FFCD3C',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 9,   unlockHint: '9 · rare' },
     { id: 'white',   name: 'WHITE',   color: '#FAFAFA',     eyeColor: DARK_EYE,  outlineColor: '#1A0808', requires: (s) => s.totalGames >= 12,  unlockHint: '12 · rare' },
     { id: 'black',   name: 'BLACK',   color: '#000000',     eyeColor: LIGHT_EYE, outlineColor: '#F5EFE0', requires: (s) => s.totalGames >= 18,  unlockHint: '18 · rare' },
@@ -36,8 +36,9 @@
       colors: { 1: '#FFCD3C', 3: '#E5564B' },
     },
     {
-      // Fantasia-style sorcerer's hat: tall midnight-blue cone with a bent
-      // tip and four bright yellow pinprick stars scattered across the body.
+      // Fantasia sorcerer hat: tall bent-tip cone, a prominent 5-point yellow
+      // star front and center, two floating sparkle stars, gold band trim,
+      // dark brim. 14 rows tall for proper sorcerer silhouette.
       id: 'wizard',
       name: 'WIZARD HAT',
       requires: (s) => s.totalGames >= 15,
@@ -45,19 +46,22 @@
       sparkles: true,
       godMode: true,
       pixels: [
-        [0, 0, 0, 0, 0, 0, 1, 0],
-        [0, 0, 0, 0, 0, 1, 1, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0],
-        [0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 1, 3, 1, 0, 0],
-        [0, 0, 1, 1, 1, 1, 0, 0],
-        [0, 0, 1, 3, 1, 1, 1, 0],
-        [0, 1, 1, 1, 1, 1, 1, 0],
-        [1, 1, 3, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 3, 1, 1],
-        [2, 2, 2, 2, 2, 2, 2, 2],
+        [0, 0, 0, 0, 0, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 0, 0, 0, 0, 1, 1, 0, 0],
+        [0, 0, 0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 0, 1, 1, 1, 0, 0, 0],
+        [0, 0, 0, 1, 1, 1, 1, 0, 3],
+        [0, 0, 1, 1, 1, 1, 1, 0, 0],
+        [0, 0, 1, 1, 3, 1, 1, 0, 0],
+        [0, 1, 1, 3, 3, 3, 1, 1, 0],
+        [0, 1, 1, 3, 3, 3, 1, 1, 0],
+        [1, 1, 1, 3, 1, 3, 1, 1, 1],
+        [1, 3, 1, 1, 1, 1, 1, 1, 1],
+        [4, 4, 4, 4, 4, 4, 4, 4, 4],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2],
       ],
-      colors: { 1: '#1E40AF', 2: '#0F1F5A', 3: '#FFE066' },
+      colors: { 1: '#1E40AF', 2: '#0A1442', 3: '#FFE066', 4: '#FFCD3C' },
     },
   ];
 

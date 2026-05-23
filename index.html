@@ -29,14 +29,14 @@
       overflow: hidden;
     }
     header {
-      padding: 0.7rem 1rem 0.55rem;
+      padding: 1rem 1rem 0.8rem;
       text-align: center;
       border-bottom: 2px solid var(--orange);
       flex-shrink: 0;
     }
     h1 {
       font-family: 'Press Start 2P', monospace;
-      font-size: clamp(1rem, 3vw, 1.5rem);
+      font-size: clamp(1.2rem, 3.2vw, 1.7rem);
       color: var(--orange);
       letter-spacing: 0.05em;
       margin-bottom: 0.25rem;
@@ -52,26 +52,26 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 0.8rem 1rem;
+      padding: 1.2rem 1rem;
       width: 100%;
-      gap: 0.9rem;
+      gap: 1.3rem;
       overflow: hidden;
       min-height: 0;
     }
     .games-grid {
       width: 100%;
-      max-width: 720px;
+      max-width: 760px;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 0.7rem;
+      gap: 1rem;
     }
     .game-card {
-      width: 160px;
+      width: 180px;
       background: rgba(255, 138, 31, 0.08);
       border: 2px solid var(--orange);
       border-radius: 6px;
-      padding: 0.7rem 0.6rem;
+      padding: 1rem 0.8rem;
       text-align: center;
       transition: transform 0.15s ease, background 0.15s ease;
       position: relative;
@@ -82,8 +82,8 @@
       background: rgba(255, 138, 31, 0.18);
     }
     .game-card .sprite {
-      width: 48px; height: 48px;
-      margin: 0 auto 0.5rem;
+      width: 56px; height: 56px;
+      margin: 0 auto 0.65rem;
       background: var(--orange);
       border-radius: 4px;
       image-rendering: pixelated;
@@ -98,26 +98,26 @@
     }
     .game-card h2 {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.6rem;
+      font-size: 0.66rem;
       color: var(--cream);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.6rem;
     }
     .game-card .play-btn {
       display: inline-block;
-      padding: 0.35rem 0.7rem;
+      padding: 0.42rem 0.85rem;
       background: var(--orange);
       color: var(--navy);
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.55rem;
+      font-size: 0.6rem;
       text-decoration: none;
       border-radius: 4px;
       font-weight: bold;
     }
     footer {
-      padding: 0.5rem 1rem;
+      padding: 0.7rem 1rem;
       text-align: center;
       border-top: 1px solid var(--gray);
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       color: var(--gray);
       flex-shrink: 0;
     }
@@ -127,34 +127,34 @@
       margin: 0 0.3rem;
     }
     .disclaimer {
-      font-size: 0.7rem;
-      line-height: 1.3;
+      font-size: 0.78rem;
+      line-height: 1.35;
     }
     .build-badge {
-      font-size: 0.7rem;
+      font-size: 0.78rem;
       color: var(--gray);
-      margin-top: 0.2rem;
+      margin-top: 0.25rem;
     }
     .build-badge .accent { color: var(--orange); }
-    .footer-links { margin-top: 0.2rem; font-size: 0.75rem; }
+    .footer-links { margin-top: 0.3rem; font-size: 0.82rem; }
     .about {
-      max-width: 600px;
+      max-width: 620px;
       margin: 0 auto;
       padding: 0 1rem;
       text-align: center;
-      font-size: 0.8rem;
-      line-height: 1.4;
+      font-size: 0.92rem;
+      line-height: 1.45;
       color: var(--cream);
     }
-    .about p { margin-bottom: 0.25rem; }
+    .about p { margin-bottom: 0.35rem; }
     .about .meta {
-      font-size: 0.75rem;
+      font-size: 0.82rem;
       color: var(--gray);
     }
     .about .meta a {
       color: var(--orange);
       text-decoration: none;
-      margin: 0 0.3rem;
+      margin: 0 0.35rem;
     }
     /* Hide about + profile when dev panel is active to keep no-scroll. */
     body.dev-on .about,
@@ -168,40 +168,40 @@
     }
     .profile {
       width: 100%;
-      max-width: 700px;
+      max-width: 720px;
       margin: 0 auto;
-      padding: 0.5rem 0.8rem;
+      padding: 0.7rem 1rem;
       text-align: center;
       border: 1px dashed rgba(255, 138, 31, 0.4);
       border-radius: 6px;
     }
     .profile h3 {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.5rem;
+      font-size: 0.58rem;
       color: var(--orange);
       letter-spacing: 0.08em;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.5rem;
     }
     .profile .stats {
       font-family: 'VT323', monospace;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       color: var(--cream);
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.5rem;
     }
     .profile .stats span { color: var(--orange); }
     .unlocks {
       display: flex;
-      gap: 0.3rem;
+      gap: 0.4rem;
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.5rem;
     }
     .unlock {
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 0.25rem;
-      padding: 0.25rem 0.4rem;
+      gap: 0.35rem;
+      padding: 0.35rem 0.55rem;
       border: 1px solid var(--gray);
       border-radius: 3px;
     }
@@ -211,14 +211,14 @@
     }
     .unlock.locked { opacity: 0.4; }
     .unlock .swatch {
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       border-radius: 2px;
       image-rendering: pixelated;
     }
     .unlock .label {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.42rem;
+      font-size: 0.5rem;
       color: var(--cream);
       letter-spacing: 0.04em;
     }
@@ -226,15 +226,15 @@
     .unlock.active .label { color: var(--orange); }
     .next-up {
       font-family: 'VT323', monospace;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       color: var(--gray);
     }
     .next-up b { color: var(--orange); font-weight: normal; }
     .dev-panel {
       width: 100%;
-      max-width: 760px;
+      max-width: 800px;
       margin: 0 auto;
-      padding: 0.55rem 0.7rem;
+      padding: 0.8rem 1rem;
       border: 1px dashed var(--green);
       border-radius: 6px;
       text-align: center;
@@ -242,30 +242,30 @@
     }
     .dev-panel h3 {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.5rem;
+      font-size: 0.58rem;
       color: var(--green);
       letter-spacing: 0.08em;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.5rem;
     }
     .dev-row {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      gap: 0.3rem;
-      margin-bottom: 0.35rem;
+      gap: 0.4rem;
+      margin-bottom: 0.5rem;
     }
     .dev-row .label {
       font-family: 'VT323', monospace;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       color: var(--cream);
-      min-width: 40px;
+      min-width: 50px;
       text-align: right;
     }
     .dev-btn {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.42rem;
-      padding: 0.28rem 0.4rem;
+      font-size: 0.5rem;
+      padding: 0.38rem 0.55rem;
       background: transparent;
       color: var(--cream);
       border: 1px solid var(--gray);
@@ -273,7 +273,7 @@
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 0.25rem;
+      gap: 0.3rem;
     }
     .dev-btn.active {
       background: var(--green);
@@ -281,25 +281,25 @@
       border-color: var(--green);
     }
     .dev-btn .sw {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 2px;
     }
     .dev-input {
       font-family: 'VT323', monospace;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       background: transparent;
       color: var(--cream);
       border: 1px solid var(--gray);
       border-radius: 3px;
-      padding: 0.2rem 0.4rem;
-      width: 60px;
+      padding: 0.25rem 0.5rem;
+      width: 70px;
       text-align: center;
     }
     .dev-clear {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.42rem;
-      padding: 0.35rem 0.7rem;
+      font-size: 0.5rem;
+      padding: 0.45rem 0.85rem;
       background: var(--red);
       color: var(--cream);
       border: none;
@@ -497,7 +497,7 @@
     </p>
   </footer>
 
-  <script src="assets/clawd-stats.js?v=13"></script>
+  <script src="assets/clawd-stats.js?v=14"></script>
   <script>
     (function () {
       'use strict';

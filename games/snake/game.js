@@ -250,8 +250,9 @@
 
   // === Draw ===
   function draw() {
-    // Background
-    ctx.fillStyle = '#0B1426';
+    // Background — lighter when BLACK skin is active so Clawd doesn't blend in.
+    const activeSkin = window.ClawdStats && window.ClawdStats.getActiveSkin();
+    ctx.fillStyle = (activeSkin && activeSkin.id === 'black') ? '#2A3A5E' : '#0B1426';
     ctx.fillRect(0, 0, W, H);
 
     // Subtle checker grid so movement reads clearly
