@@ -68,7 +68,7 @@ h1 {
   width: 100%;
   height: auto;
   display: block;
-  background: #000;
+  background: #000000;
   border: 4px solid var(--orange);
   border-radius: 8px;
   image-rendering: pixelated;

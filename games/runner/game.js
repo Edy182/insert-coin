@@ -66,6 +66,8 @@
   // === Game state ===
   let player, obstacles, clouds, groundOffset;
   let score, scoreFrame, gameOver, gameSpeed, lastSpawn;
+  let crownShieldUsed = false;
+  let shieldFlash = 0;
   let nightMode, nightTimer, stars, lastNightScore;
   let frameCount;
   let gameStarted;
@@ -84,6 +86,8 @@
     gameSpeed      = INITIAL_SPEED;
     gameOver       = false;
     lastSpawn      = 0;
+    crownShieldUsed = false;
+    shieldFlash    = 0;
     nightMode      = false;
     nightTimer     = 0;
     lastNightScore = -1;
@@ -198,16 +202,24 @@
       if (obstacles[i].x + obstacles[i].w < 0) obstacles.splice(i, 1);
     }
 
-    // Collision
+    // Collision — wizard god-mode + crown shield + ?god flag are all bypasses.
     const wizardOn = window.ClawdStats && window.ClawdStats.isGodModeActive();
     if (!godMode && !wizardOn) {
-      for (const obs of obstacles) {
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
         if (
           player.x             < obs.x + obs.w &&
           player.x + player.w  > obs.x &&
           player.y             < obs.y + obs.h &&
           player.y + player.h  > obs.y
         ) {
+          if (!crownShieldUsed && window.ClawdStats && window.ClawdStats.hasShield()) {
+            // Crown shield absorbs the first obstacle of the run — vaporize it.
+            crownShieldUsed = true;
+            shieldFlash = 30;
+            obstacles.splice(i, 1);
+            break;
+          }
           endGame();
           return;
         }
@@ -329,6 +341,13 @@
 
     // Obstacles
     for (const obs of obstacles) drawObstacle(obs);
+
+    // Crown shield absorbed an obstacle — brief cream flash.
+    if (shieldFlash > 0) {
+      shieldFlash--;
+      ctx.fillStyle = `rgba(250, 249, 245, ${(shieldFlash / 30) * 0.45})`;
+      ctx.fillRect(0, 0, W, H);
+    }
 
     // Ready overlay — wait for the first jump/duck
     if (!gameStarted && !gameOver) {

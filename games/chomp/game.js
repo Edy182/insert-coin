@@ -138,6 +138,8 @@
   let ghostsEatenInRound; // 1-4, scoring multiplier within a single frightened round
   let eatFreezeTimer; // brief freeze of all gameplay after eating a ghost (drama)
   let scorePopups; // floating "+200" labels that fade out
+  let crownShieldUsed;  // crown hat: one free hit per game
+  let shieldFlash;      // frames of cream flash after a shielded hit
   let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-chomp-high') || '0', 10);
   const ONBOARDED_KEY = 'clawd-onboarded-chomp';
@@ -191,6 +193,8 @@
     ghostsEatenInRound = 0;
     eatFreezeTimer = 0;
     scorePopups = [];
+    crownShieldUsed = false;
+    shieldFlash = 0;
     restartBtn.classList.add('hidden');
     shareBtn.classList.add('hidden');
     scoreEl.textContent = '00000';
@@ -429,6 +433,7 @@
     scoreEl.textContent = String(score).padStart(5, '0');
 
     if (catchFlash > 0) catchFlash--;
+    if (shieldFlash > 0) shieldFlash--;
     if (frightenedTimer > 0) frightenedTimer--;
     if (frightenedTimer === 0) ghostsEatenInRound = 0;
 
@@ -476,8 +481,13 @@
           playSound('eatGhost');
         } else if (!catcher.eaten) {
           const wizardOn = window.ClawdStats && window.ClawdStats.isGodModeActive();
+          const shieldAvailable = !crownShieldUsed && window.ClawdStats && window.ClawdStats.hasShield();
           if (godMode || wizardOn) {
             // Wizard hat / ?god param: ghosts can't catch Clawd. Walk through them.
+          } else if (shieldAvailable) {
+            // Crown shield absorbs the first catch per game — no life lost.
+            crownShieldUsed = true;
+            shieldFlash = 30;
           } else {
             loseLife(catcher);
             return;
@@ -633,6 +643,13 @@
       }
     }
 
+    // Crown shield absorbed a ghost hit: brief cream pulse so it's obvious.
+    if (shieldFlash > 0) {
+      const alpha = (shieldFlash / 30) * 0.45;
+      ctx.fillStyle = `rgba(250, 249, 245, ${alpha})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+
     // Mid-game catch feedback: red flash + panel with "Caught by X" while respawning
     if (catchFlash > 0) {
       const alpha = (catchFlash / 60) * 0.7;
@@ -677,10 +694,11 @@
     }
   }
 
-  // Walls — Anthropic blue. Classic Pac-Man-style colored maze that
-  // contrasts cleanly with the cream dots and Clawd.
+  // Walls — cream against pure black, matching the Claude Radio dot-matrix
+  // aesthetic. The maze reads like the ASCII environment from the welcome
+  // screen: monochrome silhouettes, only Clawd carries color.
   function drawWall(px, py, c, r) {
-    ctx.fillStyle = '#6a9bcc';
+    ctx.fillStyle = '#faf9f5';
     const inset = 2;
     ctx.fillRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2);
   }

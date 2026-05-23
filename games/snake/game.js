@@ -65,6 +65,8 @@
   let score, gameOver, win;
   let frame, tickFrames;
   let gameStarted; // false until the first arrow key
+  let crownShieldUsed;  // crown hat: one free hit per game
+  let shieldFlash;      // frames of cream flash after the shielded hit
   let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-snake-high') || '0', 10);
   const ONBOARDED_KEY = 'clawd-onboarded-snake';
@@ -125,6 +127,8 @@
     gameOver = false;
     win = false;
     gameStarted = false;
+    crownShieldUsed = false;
+    shieldFlash = 0;
     spawnFood();
     restartBtn.classList.add('hidden');
     shareBtn.classList.add('hidden');
@@ -163,9 +167,21 @@
     const head = snake[0];
     const newHead = { c: head.c + dir.dc, r: head.r + dir.dr };
 
-    // Wall collision (or wrap in god mode)
+    // Wall collision (or wrap in god mode, or shielded by crown once)
+    const wizardOn = window.ClawdStats && window.ClawdStats.isGodModeActive();
+    function spendShieldOrEnd() {
+      if (!crownShieldUsed && window.ClawdStats && window.ClawdStats.hasShield()) {
+        crownShieldUsed = true;
+        shieldFlash = 30;
+        return 'shielded';
+      }
+      endGame();
+      return 'ended';
+    }
     if (newHead.c < 0 || newHead.c >= COLS || newHead.r < 0 || newHead.r >= ROWS) {
-      if (!godMode && !(window.ClawdStats && window.ClawdStats.isGodModeActive())) { endGame(); return; }
+      if (!godMode && !wizardOn) {
+        if (spendShieldOrEnd() === 'ended') return;
+      }
       newHead.c = (newHead.c + COLS) % COLS;
       newHead.r = (newHead.r + ROWS) % ROWS;
     }
@@ -174,7 +190,9 @@
     const willGrow = newHead.c === food.c && newHead.r === food.r;
     const bodyToCheck = willGrow ? snake : snake.slice(0, -1);
     if (bodyToCheck.some(s => s.c === newHead.c && s.r === newHead.r)) {
-      if (!godMode && !(window.ClawdStats && window.ClawdStats.isGodModeActive())) { endGame(); return; }
+      if (!godMode && !wizardOn) {
+        if (spendShieldOrEnd() === 'ended') return;
+      }
     }
 
     snake.unshift(newHead);
@@ -252,12 +270,12 @@
 
   // === Draw ===
   function draw() {
-    // Anthropic dark — matches the other games for a cohesive arcade look.
-    ctx.fillStyle = '#141413';
+    // Pure black canvas — Claude Radio aesthetic.
+    ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, W, H);
 
-    // Subtle checker grid so movement reads clearly — warm dark gray.
-    ctx.fillStyle = '#1c1a18';
+    // Barely-there grayscale checker — subtle texture, not a competing color.
+    ctx.fillStyle = '#0e0e0c';
     for (let c = 0; c < COLS; c++) {
       for (let r = 0; r < ROWS; r++) {
         if ((c + r) % 2 === 0) ctx.fillRect(c * TILE, r * TILE, TILE, TILE);
@@ -275,6 +293,13 @@
 
     // Head: Clawd
     drawClawdHead(snake[0].c, snake[0].r);
+
+    // Crown shield absorbed a hit — brief cream pulse so it reads.
+    if (shieldFlash > 0) {
+      shieldFlash--;
+      ctx.fillStyle = `rgba(250, 249, 245, ${(shieldFlash / 30) * 0.45})`;
+      ctx.fillRect(0, 0, W, H);
+    }
 
     // Ready overlay — wait for the first arrow key
     if (!gameStarted && !gameOver) {
@@ -324,7 +349,15 @@
     // t = 0 right behind head, 1 at the tail tip
     const t = (total <= 1) ? 0 : (idx - 1) / (total - 1);
     const radius = 8 - t * 3.5; // 8px → 4.5px
-    // Body matches the head color so the whole snake reads as Clawd.
+    // Body matches the head color. Skins with an outlineColor (ONYX, CREAM)
+    // also paint a contrast ring so the snake stays visible on dark bg.
+    const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
+    if (outline) {
+      ctx.fillStyle = outline;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius + 1, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);

@@ -31,6 +31,7 @@
       name: 'CROWN',
       requires: (s) => s.totalGames >= 20,
       unlockHint: '20 games',
+      shield: true, // grants one free hit per game across all 3 titles
       pixels: [
         [1, 0, 1, 0, 1],
         [1, 1, 1, 1, 1],
@@ -127,6 +128,12 @@
     const hat = getActiveHat();
     return !!(hat && hat.godMode);
   }
+  // Crown grants one shield per game session. Each game tracks consumption
+  // locally; this just reports whether the active hat declares the ability.
+  function hasShield() {
+    const hat = getActiveHat();
+    return !!(hat && hat.shield);
+  }
   // Score multiplier for whatever cosmetic is active. Wizard = 2x; default = 1x.
   function getScoreMultiplier() {
     return isGodModeActive() ? 2 : 1;
@@ -176,15 +183,18 @@
 
   // Draws the active hat above a sprite.
   // (cx, topY) is the top-center of the sprite; pixelSize scales the hat.
+  // Always paints a 1px outline in the active skin's contrast (eye) color so
+  // the hat stays visible against every skin — gold hat on gold Clawd, cream
+  // hat on cream Clawd, etc.
   function drawHat(ctx, cx, topY, pixelSize) {
     const hat = getActiveHat();
     if (!hat || !hat.pixels) return;
     const rows = hat.pixels.length;
     const cols = hat.pixels[0].length;
     const leftX = Math.round(cx - (cols * pixelSize) / 2);
-    // Optional 1px outline so the hat stays visible against same-colored skins.
-    if (hat.outlineColor) {
-      ctx.fillStyle = hat.outlineColor;
+    const outline = hat.outlineColor || getActiveEyeColor();
+    if (outline) {
+      ctx.fillStyle = outline;
       const offs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
@@ -345,6 +355,7 @@
     getActiveOutlineColor: getActiveOutlineColor,
     getActiveHat: getActiveHat,
     isGodModeActive: isGodModeActive,
+    hasShield: hasShield,
     getScoreMultiplier: getScoreMultiplier,
     drawHat: drawHat,
     drawSparkles: drawSparkles,
