@@ -1,0 +1,28 @@
+# Don't ship dev / publishing tooling to the static site
+node_modules
+cli
+leaderboards
+claude-commands
+docs
+terminal
+
+# Repo metadata / planning
+PLAN.md
+CLAUDE.md
+README.md
+.git
+
+# Dev server
+serve.py
+vite.config.js
+package.json
+package-lock.json
+.gitignore
+
+# Working / reference assets (keep assets/clawd-stats.js — that ships)
+assets/sprites
+assets/sounds
+assets/ui
+assets/*.png
+*.psd
+*.aseprite
