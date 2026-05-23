@@ -29,8 +29,8 @@
     {
       id: 'crown',
       name: 'CROWN',
-      requires: (s) => s.totalGames >= 6,
-      unlockHint: '6 games',
+      requires: (s) => s.totalGames >= 20,
+      unlockHint: '20 games',
       pixels: [
         [1, 0, 1, 0, 1],
         [1, 1, 1, 1, 1],
@@ -44,8 +44,8 @@
       // body, two-row dark-purple brim that extends wider than the cone.
       id: 'wizard',
       name: 'WIZARD HAT',
-      requires: (s) => s.totalGames >= 12,
-      unlockHint: '12 games',
+      requires: (s) => s.totalGames >= 25,
+      unlockHint: '25 games',
       sparkles: true,
       godMode: true,
       pixels: [

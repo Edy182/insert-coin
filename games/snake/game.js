@@ -252,13 +252,12 @@
 
   // === Draw ===
   function draw() {
-    // Clear grayscale background — gives Clawd-the-snake more breathing room
-    // than the near-black canvas of the other games.
-    ctx.fillStyle = '#2a2825';
+    // Anthropic dark — matches the other games for a cohesive arcade look.
+    ctx.fillStyle = '#141413';
     ctx.fillRect(0, 0, W, H);
 
-    // Subtle checker grid so movement reads clearly — grayscale, not blue.
-    ctx.fillStyle = '#1f1d1b';
+    // Subtle checker grid so movement reads clearly — warm dark gray.
+    ctx.fillStyle = '#1c1a18';
     for (let c = 0; c < COLS; c++) {
       for (let r = 0; r < ROWS; r++) {
         if ((c + r) % 2 === 0) ctx.fillRect(c * TILE, r * TILE, TILE, TILE);

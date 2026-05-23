@@ -677,10 +677,10 @@
     }
   }
 
-  // Walls — Anthropic mid-gray. Visible against the dark canvas but neutral
-  // enough that Clawd stays the focal point.
+  // Walls — Anthropic blue. Classic Pac-Man-style colored maze that
+  // contrasts cleanly with the cream dots and Clawd.
   function drawWall(px, py, c, r) {
-    ctx.fillStyle = '#b0aea5';
+    ctx.fillStyle = '#6a9bcc';
     const inset = 2;
     ctx.fillRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2);
   }
