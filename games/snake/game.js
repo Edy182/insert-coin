@@ -133,9 +133,9 @@
     requestAnimationFrame(loop);
   }
 
-  // Cream food with rare blue accent — Claude-Radio-style focus keeps Clawd
-  // (terracotta) as the only consistent color on screen.
-  const FOOD_COLORS = ['#faf9f5', '#faf9f5', '#faf9f5', '#faf9f5', '#6a9bcc'];
+  // Grayscale food with subtle shade variation — pure Claude-Radio aesthetic.
+  // The colorful snake (Clawd) is the only colored thing on the board.
+  const FOOD_COLORS = ['#faf9f5', '#e8e6dc', '#b0aea5'];
 
   function spawnFood() {
     let c, r, tries = 0;
@@ -252,7 +252,9 @@
 
   // === Draw ===
   function draw() {
-    ctx.fillStyle = '#141413';
+    // Clear grayscale background — gives Clawd-the-snake more breathing room
+    // than the near-black canvas of the other games.
+    ctx.fillStyle = '#2a2825';
     ctx.fillRect(0, 0, W, H);
 
     // Subtle checker grid so movement reads clearly
@@ -323,9 +325,8 @@
     // t = 0 right behind head, 1 at the tail tip
     const t = (total <= 1) ? 0 : (idx - 1) / (total - 1);
     const radius = 8 - t * 3.5; // 8px → 4.5px
-    // Body in cream so the head (Clawd in skin color) is the only colored
-    // element on the board — Claude-Radio focus.
-    ctx.fillStyle = '#faf9f5';
+    // Body matches the head color so the whole snake reads as Clawd.
+    ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.fill();
