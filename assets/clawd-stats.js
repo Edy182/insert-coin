@@ -36,9 +36,9 @@
       colors: { 1: '#FFCD3C', 3: '#E5564B' },
     },
     {
-      // Tall sorcerer cone, big 5-point yellow star centered low on the body,
-      // gold band, dark brim. Star is constructed with peak + arms + V legs
-      // so it reads unambiguously as a star (not a cross).
+      // Modeled pixel-by-pixel on the reference image: tall purple cone with
+      // tip curling to the upper-left, five gold stars scattered across the
+      // body, two-row dark-purple brim that extends wider than the cone.
       id: 'wizard',
       name: 'WIZARD HAT',
       requires: (s) => s.totalGames >= 15,
@@ -46,22 +46,23 @@
       sparkles: true,
       godMode: true,
       pixels: [
-        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
-        [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
-        [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
-        [0, 0, 1, 1, 3, 1, 1, 1, 0, 0],
-        [0, 1, 1, 3, 3, 3, 1, 1, 1, 0],
-        [0, 1, 3, 3, 3, 3, 3, 1, 1, 0],
-        [1, 1, 1, 3, 1, 3, 1, 1, 1, 1],
-        [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 3, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 3, 1, 1, 1, 0, 0, 0],
+        [0, 0, 1, 1, 1, 1, 3, 1, 0, 0, 0],
+        [0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+        [0, 0, 1, 3, 1, 1, 1, 1, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 3, 1, 1, 0, 0],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
       ],
-      colors: { 1: '#1E40AF', 2: '#0A1442', 3: '#FFE066', 4: '#FFCD3C' },
+      colors: { 1: '#6B4FBD', 2: '#2D1B5E', 3: '#FFCD3C' },
     },
   ];
 
