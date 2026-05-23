@@ -451,9 +451,8 @@
     e.preventDefault();
   }, { passive: false });
 
-  // Mouse click: derive direction from click position relative to snake head.
-  canvas.addEventListener('click', e => {
-    if (gameOver) { reset(); return; }
+  // Mouse: click starts the game, mousemove continuously steers the snake.
+  function mouseDir(e) {
     const rect = canvas.getBoundingClientRect();
     const cx = (e.clientX - rect.left) * (W / rect.width);
     const cy = (e.clientY - rect.top)  * (H / rect.height);
@@ -462,15 +461,26 @@
     const hy = head.r * TILE + TILE / 2;
     const dx = cx - hx;
     const dy = cy - hy;
-    const queued = Math.abs(dx) > Math.abs(dy)
+    if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return null;
+    return Math.abs(dx) > Math.abs(dy)
       ? { dc: dx > 0 ? 1 : -1, dr: 0 }
       : { dc: 0, dr: dy > 0 ? 1 : -1 };
+  }
+  canvas.addEventListener('click', e => {
+    if (gameOver) { reset(); return; }
+    const queued = mouseDir(e);
+    if (!queued) return;
     nextDir = queued;
     if (!gameStarted) {
       gameStarted = true; dir = queued; startMusic();
       if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; }
       if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'snake', dailyMode: dailyMode, dateISO: todayISO });
     }
+  });
+  canvas.addEventListener('mousemove', e => {
+    if (!gameStarted || gameOver) return;
+    const queued = mouseDir(e);
+    if (queued) nextDir = queued;
   });
 
   restartBtn.addEventListener('click', reset);

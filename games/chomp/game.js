@@ -41,12 +41,12 @@
   const ROWS  = 21;
   const SPEED = 3;
   const GHOST_SPEED = 2.0;
-  const LIVES_START = 5;
+  const LIVES_START = 8;
 
   // Mode timing — chase/scatter rhythm gives the player breathing room.
-  const CHASE_FRAMES      = 1000; // ~17s of chase
-  const SCATTER_FRAMES    = 420;  // 7s of scatter (longer breather)
-  const FRIGHTENED_FRAMES = 540;  // 9s of "ghosts flee" after a power pellet
+  const CHASE_FRAMES      = 900;  // 15s of chase
+  const SCATTER_FRAMES    = 540;  // 9s of scatter (long breather)
+  const FRIGHTENED_FRAMES = 780;  // 13s of "ghosts flee" after a power pellet
   const FRIGHTENED_FLASH  = 120;  // last 2s flash white as warning
 
   // Ghost spawn config: col, row, color, releaseAt frames, personality, scatter corner.
@@ -911,24 +911,34 @@
     e.preventDefault();
   }, { passive: false });
 
-  // Mouse click: derive direction from click position relative to Clawd.
-  canvas.addEventListener('click', e => {
-    if (gameOver) { reset(); return; }
-    if (!player) return;
+  // Mouse: click starts the game, then movement continuously steers Clawd
+  // toward the cursor (dominant axis wins, with a small dead zone).
+  function mouseDirection(e) {
+    if (!player) return null;
     const rect = canvas.getBoundingClientRect();
     const cx = (e.clientX - rect.left) * (W / rect.width);
     const cy = (e.clientY - rect.top)  * (H / rect.height);
     const ddx = cx - player.x;
     const ddy = cy - player.y;
-    const queued = Math.abs(ddx) > Math.abs(ddy)
+    if (Math.abs(ddx) < 6 && Math.abs(ddy) < 6) return null;
+    return Math.abs(ddx) > Math.abs(ddy)
       ? { dx: ddx > 0 ? 1 : -1, dy: 0 }
       : { dx: 0, dy: ddy > 0 ? 1 : -1 };
-    player.nextDir = queued;
+  }
+  canvas.addEventListener('click', e => {
+    if (gameOver) { reset(); return; }
+    const queued = mouseDirection(e);
+    if (queued) player.nextDir = queued;
     if (!gameStarted) {
       gameStarted = true; startMusic();
       if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; }
       if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'chomp', dailyMode: dailyMode, dateISO: todayISO });
     }
+  });
+  canvas.addEventListener('mousemove', e => {
+    if (!gameStarted || gameOver) return;
+    const queued = mouseDirection(e);
+    if (queued) player.nextDir = queued;
   });
 
   restartBtn.addEventListener('click', reset);
