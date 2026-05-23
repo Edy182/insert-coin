@@ -13,13 +13,13 @@
   const LIGHT_EYE = '#F5EFE0';
   const SKINS = [
     { id: 'classic', name: 'CLASSIC', color: DEFAULT_COLOR, eyeColor: DARK_EYE,  requires: () => true,                 unlockHint: 'default' },
-    { id: 'cyan',    name: 'CYAN',    color: '#4ED8E5',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 3,   unlockHint: '3 games' },
-    { id: 'pink',    name: 'PINK',    color: '#FF5BA7',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 7,   unlockHint: '7 games' },
-    { id: 'lime',    name: 'LIME',    color: '#34D399',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 12,  unlockHint: '12 games' },
-    { id: 'red',     name: 'RED',     color: '#E5564B',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 18,  unlockHint: '18 games' },
-    { id: 'gold',    name: 'GOLD',    color: '#FFCD3C',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 30,  unlockHint: '30 · rare' },
-    { id: 'white',   name: 'WHITE',   color: '#F5F5F5',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 45,  unlockHint: '45 · rare' },
-    { id: 'black',   name: 'BLACK',   color: '#3C3D5A',     eyeColor: LIGHT_EYE, requires: (s) => s.totalGames >= 65,  unlockHint: '65 · rare' },
+    { id: 'cyan',    name: 'CYAN',    color: '#4ED8E5',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 2,   unlockHint: '2 games' },
+    { id: 'pink',    name: 'PINK',    color: '#FF5BA7',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 4,   unlockHint: '4 games' },
+    { id: 'lime',    name: 'LIME',    color: '#34D399',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 7,   unlockHint: '7 games' },
+    { id: 'red',     name: 'RED',     color: '#E5564B',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 10,  unlockHint: '10 games' },
+    { id: 'gold',    name: 'GOLD',    color: '#FFCD3C',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 17,  unlockHint: '17 · rare' },
+    { id: 'white',   name: 'WHITE',   color: '#F5F5F5',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 25,  unlockHint: '25 · rare' },
+    { id: 'black',   name: 'BLACK',   color: '#3C3D5A',     eyeColor: LIGHT_EYE, requires: (s) => s.totalGames >= 38,  unlockHint: '38 · rare' },
   ];
 
   // Hat overlays. Highest-tier unlocked auto-applies.
@@ -27,8 +27,8 @@
     {
       id: 'crown',
       name: 'CROWN',
-      requires: (s) => s.totalGames >= 25,
-      unlockHint: '25 games',
+      requires: (s) => s.totalGames >= 14,
+      unlockHint: '14 games',
       pixels: [
         [1, 0, 1, 0, 1, 0, 1, 0, 0],
         [1, 1, 1, 1, 1, 1, 1, 0, 0],
@@ -41,8 +41,8 @@
     {
       id: 'wizard',
       name: 'WIZARD HAT',
-      requires: (s) => s.totalGames >= 50,
-      unlockHint: '50 games',
+      requires: (s) => s.totalGames >= 30,
+      unlockHint: '30 games',
       sparkles: true,
       pixels: [
         [0, 0, 0, 0, 1, 0, 0, 0],
