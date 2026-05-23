@@ -401,14 +401,15 @@
     const er = Math.floor(player.y / TILE);
     if (ec >= 0 && ec < COLS && er >= 0 && er < ROWS) {
       const cell = grid[er][ec];
+      const mult = (window.ClawdStats && window.ClawdStats.getScoreMultiplier()) || 1;
       if (cell === CELL_DOT) {
         grid[er][ec] = CELL_PATH;
-        score += 10;
+        score += 10 * mult;
         dotsRemaining--;
         playSound('dot');
       } else if (cell === CELL_PELLET) {
         grid[er][ec] = CELL_PATH;
-        score += 50;
+        score += 50 * mult;
         dotsRemaining--;
         playSound('pellet');
         // Frightened mode: ghosts flee, reverse direction, become edible.
@@ -468,9 +469,14 @@
           eatFreezeTimer = 24;
           scorePopups.push({ x: catcher.x, y: catcher.y - 4, text: '+' + pts, frames: 60 });
           playSound('eatGhost');
-        } else if (!godMode && !catcher.eaten) {
-          loseLife(catcher);
-          return;
+        } else if (!catcher.eaten) {
+          const wizardOn = window.ClawdStats && window.ClawdStats.isGodModeActive();
+          if (godMode || wizardOn) {
+            // Wizard hat / ?god param: ghosts can't catch Clawd. Walk through them.
+          } else {
+            loseLife(catcher);
+            return;
+          }
         }
       }
     }

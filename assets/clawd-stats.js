@@ -42,15 +42,19 @@
       requires: (s) => s.totalGames >= 17,
       unlockHint: '17 games',
       sparkles: true,
+      godMode: true,
       pixels: [
-        [0, 0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 0, 0, 0, 1, 1, 1, 0],
         [0, 0, 0, 1, 1, 1, 0, 0],
-        [0, 0, 1, 1, 3, 1, 1, 0],
-        [0, 1, 1, 3, 3, 3, 1, 0],
-        [1, 1, 1, 1, 3, 1, 1, 1],
+        [0, 0, 1, 1, 1, 0, 0, 0],
+        [0, 0, 1, 4, 1, 1, 0, 0],
+        [0, 1, 4, 3, 4, 1, 1, 0],
+        [1, 1, 1, 4, 1, 1, 1, 1],
+        [2, 2, 5, 5, 5, 2, 2, 2],
         [2, 2, 2, 2, 2, 2, 2, 2],
       ],
-      colors: { 1: '#6B4FBD', 2: '#3D2A7A', 3: '#FFE066' },
+      colors: { 1: '#7C5DD3', 2: '#1F0F4A', 3: '#FFD93D', 4: '#FFE066', 5: '#FFCD3C' },
     },
   ];
 
@@ -84,11 +88,23 @@
     if (typeof window === 'undefined' || !window.location) return null;
     try { return new URLSearchParams(window.location.search).get(name); } catch (_) { return null; }
   }
+  function lsGet(key) {
+    try { return localStorage.getItem(key); } catch (_) { return null; }
+  }
+  function lsSet(key, value) {
+    try { if (value == null) localStorage.removeItem(key); else localStorage.setItem(key, value); } catch (_) {}
+  }
   // Returns the highest-tier unlocked skin (later items in SKINS are rarer).
+  // Resolution order: URL preview > dev override > auto-unlocked.
   function getActiveSkin() {
     const preview = urlParam('skin');
     if (preview) {
       const match = SKINS.find((s) => s.id === preview);
+      if (match) return match;
+    }
+    const dev = lsGet('clawd-dev-skin');
+    if (dev) {
+      const match = SKINS.find((s) => s.id === dev);
       if (match) return match;
     }
     const stats = read();
@@ -98,11 +114,50 @@
   }
   function getActiveSkinColor() { return getActiveSkin().color; }
   function getActiveEyeColor()  { return getActiveSkin().eyeColor || DARK_EYE; }
-  // Returns the active hat (or null if none unlocked).
+  function isGodModeActive() {
+    const hat = getActiveHat();
+    return !!(hat && hat.godMode);
+  }
+  // Score multiplier for whatever cosmetic is active. Wizard = 2x; default = 1x.
+  function getScoreMultiplier() {
+    return isGodModeActive() ? 2 : 1;
+  }
+  // Dev API — persists overrides in localStorage so devs can iterate without
+  // grinding unlocks.
+  function devSetSkin(id) {
+    if (id == null) lsSet('clawd-dev-skin', null);
+    else lsSet('clawd-dev-skin', String(id));
+  }
+  function devSetHat(id) {
+    if (id == null) lsSet('clawd-dev-hat', null);
+    else lsSet('clawd-dev-hat', String(id));
+  }
+  function devSetGames(n) {
+    const s = read();
+    s.totalGames = Math.max(0, Math.floor(Number(n) || 0));
+    write(s);
+    return s;
+  }
+  function devClear() {
+    lsSet('clawd-dev-skin', null);
+    lsSet('clawd-dev-hat', null);
+  }
+  function devOverrides() {
+    return { skin: lsGet('clawd-dev-skin'), hat: lsGet('clawd-dev-hat') };
+  }
+  // Returns the active hat (or null if none unlocked / explicitly cleared).
+  // Resolution order: URL preview > dev override > auto-unlocked.
   function getActiveHat() {
     const preview = urlParam('hat');
+    if (preview === '' || preview === 'none') return null;
     if (preview) {
       const match = HATS.find((h) => h.id === preview);
+      if (match) return match;
+    }
+    const dev = lsGet('clawd-dev-hat');
+    if (dev === 'none') return null;
+    if (dev) {
+      const match = HATS.find((h) => h.id === dev);
       if (match) return match;
     }
     const stats = read();
@@ -265,12 +320,19 @@
     getActiveSkinColor: getActiveSkinColor,
     getActiveEyeColor: getActiveEyeColor,
     getActiveHat: getActiveHat,
+    isGodModeActive: isGodModeActive,
+    getScoreMultiplier: getScoreMultiplier,
     drawHat: drawHat,
     drawSparkles: drawSparkles,
     trackSessionStart: trackSessionStart,
     submitScore: submitScore,
     previewToast: previewToast,
     findNewUnlocks: findNewUnlocks,
+    devSetSkin: devSetSkin,
+    devSetHat: devSetHat,
+    devSetGames: devSetGames,
+    devClear: devClear,
+    devOverrides: devOverrides,
     SKINS: SKINS,
     HATS: HATS,
     DEFAULT_COLOR: DEFAULT_COLOR,

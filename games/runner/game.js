@@ -216,7 +216,9 @@
     frameCount++;
 
     // Score increments every 3 frames (~20 pts/sec at 60fps, matching Chrome dino pace)
-    if (++scoreFrame % 3 === 0) score++;
+    if (++scoreFrame % 3 === 0) {
+      score += (window.ClawdStats && window.ClawdStats.getScoreMultiplier()) || 1;
+    }
     scoreEl.textContent = String(score).padStart(5, '0');
 
     // Speed up every 300 pts

@@ -233,6 +233,81 @@
       color: var(--gray);
     }
     .next-up b { color: var(--orange); font-weight: normal; }
+    .dev-panel {
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 1rem;
+      border: 1px dashed var(--green);
+      border-radius: 6px;
+      text-align: center;
+    }
+    .dev-panel h3 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      color: var(--green);
+      letter-spacing: 0.08em;
+      margin-bottom: 0.8rem;
+    }
+    .dev-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .dev-row .label {
+      font-family: 'VT323', monospace;
+      font-size: 1rem;
+      color: var(--cream);
+      min-width: 60px;
+      text-align: right;
+    }
+    .dev-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.5rem;
+      padding: 0.4rem 0.55rem;
+      background: transparent;
+      color: var(--cream);
+      border: 1px solid var(--gray);
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .dev-btn.active {
+      background: var(--green);
+      color: var(--navy);
+      border-color: var(--green);
+    }
+    .dev-btn .sw {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+    }
+    .dev-input {
+      font-family: 'VT323', monospace;
+      font-size: 1rem;
+      background: transparent;
+      color: var(--cream);
+      border: 1px solid var(--gray);
+      border-radius: 3px;
+      padding: 0.3rem 0.5rem;
+      width: 70px;
+      text-align: center;
+    }
+    .dev-clear {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.5rem;
+      padding: 0.5rem 0.8rem;
+      background: var(--red);
+      color: var(--cream);
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
     /* Intro splash */
     .splash {
       position: fixed;
@@ -380,6 +455,24 @@
       <div class="unlocks" id="unlocks"></div>
       <p class="next-up" id="next-up"></p>
     </section>
+
+    <section class="dev-panel" id="dev-panel" hidden>
+      <h3>🛠️ DEV PANEL</h3>
+      <div class="dev-row">
+        <span class="label">skin:</span>
+        <div id="dev-skins" class="dev-row" style="margin-bottom:0;"></div>
+      </div>
+      <div class="dev-row">
+        <span class="label">hat:</span>
+        <div id="dev-hats" class="dev-row" style="margin-bottom:0;"></div>
+      </div>
+      <div class="dev-row">
+        <span class="label">games:</span>
+        <input type="number" min="0" id="dev-games" class="dev-input" placeholder="0">
+        <button id="dev-set-games" class="dev-btn">SET</button>
+      </div>
+      <button id="dev-clear" class="dev-clear">CLEAR ALL OVERRIDES</button>
+    </section>
   </main>
 
   <footer>
@@ -397,7 +490,7 @@
     </p>
   </footer>
 
-  <script src="assets/clawd-stats.js?v=8"></script>
+  <script src="assets/clawd-stats.js?v=9"></script>
   <script>
     (function () {
       'use strict';
@@ -492,6 +585,71 @@
       } else {
         nextEl.textContent = 'all unlocked. nice.';
       }
+    })();
+
+    // Dev panel: visible when ?dev=1 is in the URL. Lets you click any skin or
+    // hat (locked or not), set your totalGames count, and clear overrides.
+    (function () {
+      'use strict';
+      if (!window.ClawdStats) return;
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('dev') !== '1') return;
+      const panel = document.getElementById('dev-panel');
+      panel.hidden = false;
+
+      const overrides = window.ClawdStats.devOverrides();
+      const skinsEl = document.getElementById('dev-skins');
+      const hatsEl  = document.getElementById('dev-hats');
+
+      function renderRow(host, items, current, kind) {
+        host.innerHTML = '';
+        items.forEach((item) => {
+          const btn = document.createElement('button');
+          btn.className = 'dev-btn';
+          if (item.id === current) btn.classList.add('active');
+          const sw = document.createElement('span');
+          sw.className = 'sw';
+          sw.style.background = (kind === 'skin') ? item.color : (item.colors && item.colors[1]) || '#fff';
+          btn.appendChild(sw);
+          const label = document.createElement('span');
+          label.textContent = item.name;
+          btn.appendChild(label);
+          btn.addEventListener('click', () => {
+            if (kind === 'skin') window.ClawdStats.devSetSkin(item.id);
+            else                 window.ClawdStats.devSetHat(item.id);
+            renderRow(host, items, item.id, kind);
+          });
+          host.appendChild(btn);
+        });
+        // "Clear this" sentinel
+        const clear = document.createElement('button');
+        clear.className = 'dev-btn';
+        clear.textContent = (kind === 'hat') ? 'no hat' : 'auto';
+        if (!current) clear.classList.add('active');
+        clear.addEventListener('click', () => {
+          if (kind === 'skin') window.ClawdStats.devSetSkin(null);
+          else                 window.ClawdStats.devSetHat(kind === 'hat' ? 'none' : null);
+          renderRow(host, items, null, kind);
+        });
+        host.appendChild(clear);
+      }
+
+      renderRow(skinsEl, window.ClawdStats.SKINS, overrides.skin, 'skin');
+      renderRow(hatsEl,  window.ClawdStats.HATS,  overrides.hat,  'hat');
+
+      const gamesInput = document.getElementById('dev-games');
+      gamesInput.value = window.ClawdStats.read().totalGames || 0;
+      document.getElementById('dev-set-games').addEventListener('click', () => {
+        const n = parseInt(gamesInput.value, 10);
+        if (Number.isFinite(n)) {
+          window.ClawdStats.devSetGames(n);
+          window.location.reload();
+        }
+      });
+      document.getElementById('dev-clear').addEventListener('click', () => {
+        window.ClawdStats.devClear();
+        window.location.reload();
+      });
     })();
   </script>
 

@@ -167,7 +167,7 @@
 
     snake.unshift(newHead);
     if (willGrow) {
-      score += 10;
+      score += 10 * ((window.ClawdStats && window.ClawdStats.getScoreMultiplier()) || 1);
       tickFrames = Math.max(TICK_MIN, tickFrames - TICK_DECAY);
       playSound('eat');
       if (snake.length >= COLS * ROWS) {
