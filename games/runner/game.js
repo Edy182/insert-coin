@@ -260,7 +260,7 @@
   }
 
   // === Confetti (high-score celebration) ===
-  const CONFETTI_COLORS = ['#FF8A1F', '#F5EFE0', '#3FCB7A', '#FFB6E1', '#4ED8E5', '#FFCD3C'];
+  const CONFETTI_COLORS = ['#d97757', '#faf9f5', '#788c5d', '#e8a4b8', '#6a9bcc', '#d4a85f'];
   let confetti = [];
   function burstConfetti() {
     for (let i = 0; i < 80; i++) {
@@ -300,7 +300,7 @@
 
   // === Draw ===
   function draw() {
-    const bg  = nightMode ? '#0B1426' : '#F5EFE0';
+    const bg  = nightMode ? '#141413' : '#faf9f5';
     const gnd = nightMode ? '#3A5A7A' : '#8E9DAA';
     const cld = nightMode ? '#1C3A5A' : '#EAE3D0';
 
@@ -330,7 +330,7 @@
 
     // Ready overlay — wait for the first jump/duck
     if (!gameStarted && !gameOver) {
-      ctx.fillStyle    = '#FF8A1F';
+      ctx.fillStyle    = '#d97757';
       ctx.font         = '20px "Press Start 2P", monospace';
       ctx.textAlign    = 'center';
       ctx.fillText('READY!', W / 2, H / 2 - 6);
@@ -338,7 +338,7 @@
       ctx.font      = '14px "VT323", monospace';
       ctx.fillText('Press SPACE or tap to start', W / 2, H / 2 + 18);
       if (isFirstPlay) {
-        ctx.fillStyle = '#FF8A1F';
+        ctx.fillStyle = '#d97757';
         ctx.font = '12px "VT323", monospace';
         ctx.fillText('↑/SPACE jump  ·  ↓ duck', W / 2, H / 2 + 40);
       }
@@ -348,11 +348,11 @@
     if (gameOver) {
       ctx.fillStyle = 'rgba(11, 20, 38, 0.85)';
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle    = '#FF8A1F';
+      ctx.fillStyle    = '#d97757';
       ctx.font         = '24px "Press Start 2P", monospace';
       ctx.textAlign    = 'center';
       ctx.fillText('STACK OVERFLOW', W / 2, H / 2 - 10);
-      ctx.fillStyle = '#F5EFE0';
+      ctx.fillStyle = '#faf9f5';
       ctx.font      = '14px "VT323", monospace';
       ctx.fillText(`Final score: ${score}`, W / 2, H / 2 + 20);
       ctx.fillText('Press SPACE or tap to retry', W / 2, H / 2 + 40);
@@ -362,8 +362,8 @@
   // Clawd standing — 12×9 grid at P=3 = 36×27px
   function drawClawd(x, y) {
     const P = 3;
-    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#D77757';
-    const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
+    const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const _ = null;
     const grid = [
@@ -396,8 +396,8 @@
   // Clawd ducking — 12×4 grid at P=3 = 36×12px
   function drawClawdDuck(x, y) {
     const P = 3;
-    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#D77757';
-    const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
+    const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const _ = null;
     const grid = [

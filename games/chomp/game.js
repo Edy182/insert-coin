@@ -53,10 +53,10 @@
   // Personalities: 'direct' chases player, 'ambush' targets 4 tiles ahead,
   // 'random' adds variance, 'scared' chases when far but flees when close.
   const GHOST_SPAWNS = [
-    { col:  9, row:  9, color: '#E5564B', releaseAt:   0, personality: 'direct', corner: { c: 17, r:  1 }, name: 'NullPointer' },       // red
-    { col:  8, row: 10, color: '#FFB6E1', releaseAt: 240, personality: 'ambush', corner: { c:  1, r:  1 }, name: 'OffByOne' },          // pink
-    { col:  9, row: 10, color: '#4ED8E5', releaseAt: 480, personality: 'random', corner: { c: 17, r: 19 }, name: 'RaceCondition' },     // cyan
-    { col: 10, row: 10, color: '#FFB851', releaseAt: 720, personality: 'scared', corner: { c:  1, r: 19 }, name: 'TimeoutException' }, // amber
+    { col:  9, row:  9, color: '#c1574b', releaseAt:   0, personality: 'direct', corner: { c: 17, r:  1 }, name: 'NullPointer' },       // red
+    { col:  8, row: 10, color: '#e8a4b8', releaseAt: 240, personality: 'ambush', corner: { c:  1, r:  1 }, name: 'OffByOne' },          // pink
+    { col:  9, row: 10, color: '#6a9bcc', releaseAt: 480, personality: 'random', corner: { c: 17, r: 19 }, name: 'RaceCondition' },     // cyan
+    { col: 10, row: 10, color: '#d4a85f', releaseAt: 720, personality: 'scared', corner: { c:  1, r: 19 }, name: 'TimeoutException' }, // amber
   ];
 
   // === Maze layout (original design) ===
@@ -509,7 +509,7 @@
   }
 
   // === Confetti (high-score celebration) ===
-  const CONFETTI_COLORS = ['#FF8A1F', '#F5EFE0', '#3FCB7A', '#FFB6E1', '#4ED8E5', '#FFCD3C'];
+  const CONFETTI_COLORS = ['#d97757', '#faf9f5', '#788c5d', '#e8a4b8', '#6a9bcc', '#d4a85f'];
   let confetti = [];
   function burstConfetti() {
     for (let i = 0; i < 80; i++) {
@@ -568,7 +568,7 @@
   // === Draw ===
   function draw() {
     // Background — Claude navy (matches Runner night mode)
-    ctx.fillStyle = '#0B1426';
+    ctx.fillStyle = '#141413';
     ctx.fillRect(0, 0, W, H);
 
     // Maze
@@ -580,13 +580,13 @@
         if (cell === CELL_WALL) {
           drawWall(px, py, c, r);
         } else if (cell === CELL_DOT) {
-          ctx.fillStyle = '#F5EFE0';
+          ctx.fillStyle = '#faf9f5';
           ctx.beginPath();
           ctx.arc(px + TILE / 2, py + TILE / 2, 4, 0, Math.PI * 2);
           ctx.fill();
         } else if (cell === CELL_PELLET) {
           const pulse = (Math.sin(frameCount * 0.15) + 1) * 0.5;
-          ctx.fillStyle = '#FF8A1F';
+          ctx.fillStyle = '#d97757';
           ctx.beginPath();
           ctx.arc(px + TILE / 2, py + TILE / 2, 4 + pulse * 6, 0, Math.PI * 2);
           ctx.fill();
@@ -605,7 +605,7 @@
     // Score popups float upward and fade
     for (const p of scorePopups) {
       const alpha = Math.min(1, p.frames / 60);
-      ctx.fillStyle = `rgba(255, 138, 31, ${alpha})`;
+      ctx.fillStyle = `rgba(217, 119, 87, ${alpha})`;
       ctx.font = '12px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText(p.text, p.x, p.y);
@@ -618,15 +618,15 @@
 
     // Ready overlay — shown until first input
     if (!gameStarted && !gameOver) {
-      ctx.fillStyle = '#FF8A1F';
+      ctx.fillStyle = '#d97757';
       ctx.font = '20px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText('READY!', W / 2, H / 2 + 50);
-      ctx.fillStyle = '#F5EFE0';
+      ctx.fillStyle = '#faf9f5';
       ctx.font = '12px "VT323", monospace';
       ctx.fillText('Press ARROW to start', W / 2, H / 2 + 72);
       if (isFirstPlay) {
-        ctx.fillStyle = '#FF8A1F';
+        ctx.fillStyle = '#d97757';
         ctx.font = '12px "VT323", monospace';
         ctx.fillText('Eat dots  ·  dodge bugs  ·  power pellets fight back', W / 2, H / 2 + 94);
       }
@@ -643,15 +643,15 @@
       const panelH = 88;
       ctx.fillStyle = 'rgba(11, 20, 38, 0.92)';
       ctx.fillRect(0, H / 2 - panelH / 2, W, panelH);
-      ctx.strokeStyle = '#E5564B';
+      ctx.strokeStyle = '#c1574b';
       ctx.lineWidth = 2;
       ctx.strokeRect(0, H / 2 - panelH / 2, W, panelH);
 
-      ctx.fillStyle = '#E5564B';
+      ctx.fillStyle = '#c1574b';
       ctx.font = '22px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText('CAUGHT!', W / 2, H / 2 - 8);
-      ctx.fillStyle = '#F5EFE0';
+      ctx.fillStyle = '#faf9f5';
       ctx.font = '12px "Press Start 2P", monospace';
       ctx.fillText(`by ${lastCaughtBy}`, W / 2, H / 2 + 20);
     }
@@ -660,16 +660,16 @@
     if (gameOver) {
       ctx.fillStyle = 'rgba(11, 20, 38, 0.88)';
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#FF8A1F';
+      ctx.fillStyle = '#d97757';
       ctx.font = '20px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText(win ? 'MAZE CLEAR!' : 'STACK OVERFLOW', W / 2, H / 2 - 18);
       if (!win && lastCaughtBy) {
-        ctx.fillStyle = '#E5564B';
+        ctx.fillStyle = '#c1574b';
         ctx.font = '10px "Press Start 2P", monospace';
         ctx.fillText(`Caught by ${lastCaughtBy}`, W / 2, H / 2 + 6);
       }
-      ctx.fillStyle = '#F5EFE0';
+      ctx.fillStyle = '#faf9f5';
       ctx.font = '14px "VT323", monospace';
       ctx.fillText(`Score: ${score}`, W / 2, H / 2 + 30);
       ctx.fillText('Press SPACE to retry', W / 2, H / 2 + 50);
@@ -688,8 +688,8 @@
   let clawdSprite = null;
   let clawdSpriteKey = null;
   function getClawdSprite() {
-    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#D77757';
-    const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
+    const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const key = O + '|' + B + '|' + (outline || '');
     if (clawdSprite && clawdSpriteKey === key) return clawdSprite;
@@ -741,8 +741,8 @@
 
   // Tiny Clawd icon for the lives indicator.
   function drawMiniClawd(cx, cy) {
-    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#D77757';
-    const B = '#1A0808';
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
+    const B = '#141413';
     ctx.fillStyle = O;
     ctx.fillRect(cx - 6, cy - 4, 12, 8);
     ctx.fillStyle = B;
@@ -768,9 +768,9 @@
     let G, Wh, B;
     if (frightenedTimer > 0) {
       const flashing = frightenedTimer < FRIGHTENED_FLASH && Math.floor(frightenedTimer / 8) % 2 === 0;
-      G  = flashing ? '#F5EFE0' : '#2A4FB8';
-      Wh = flashing ? '#2A4FB8' : '#F5EFE0';
-      B  = flashing ? '#2A4FB8' : '#E5564B';
+      G  = flashing ? '#faf9f5' : '#2A4FB8';
+      Wh = flashing ? '#2A4FB8' : '#faf9f5';
+      B  = flashing ? '#2A4FB8' : '#c1574b';
     } else {
       G  = g.color;
       Wh = '#FFFFFF';

@@ -5,20 +5,23 @@
 
   const STATS_KEY = 'clawd-stats';
   const DEFAULTS = { totalGames: 0, dailiesDone: 0 };
-  // Official Clawd body color from the Claude Code CLI mascot — rgb(215,119,87).
-  const DEFAULT_COLOR = '#D77757';
+  // Official Anthropic brand orange (Crail) — also the Clawd body color.
+  const DEFAULT_COLOR = '#d97757';
 
   // Body recolors. Highest-unlocked tier auto-applies. The shape of Clawd stays
   // identical — only the body color changes.
-  const DARK_EYE  = '#1A0808';
-  const LIGHT_EYE = '#F5EFE0';
+  const DARK_EYE  = '#141413';  // Anthropic dark
+  const LIGHT_EYE = '#faf9f5';  // Anthropic light
+  // Skin colors drawn from the Anthropic palette — body recolors stay within
+  // the brand family for visual cohesion.
   const SKINS = [
     { id: 'classic', name: 'CLASSIC', color: DEFAULT_COLOR, eyeColor: DARK_EYE,  requires: () => true,                 unlockHint: 'default' },
-    { id: 'cyan',    name: 'CYAN',    color: '#4ED8E5',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 2,   unlockHint: '2 games' },
-    { id: 'pink',    name: 'PINK',    color: '#FFB6E1',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 4,   unlockHint: '4 games' },
-    { id: 'gold',    name: 'GOLD',    color: '#FFCD3C',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 7,   unlockHint: '7 · rare' },
-    { id: 'white',   name: 'WHITE',   color: '#FAFAFA',     eyeColor: DARK_EYE,  outlineColor: '#1A0808', requires: (s) => s.totalGames >= 10,  unlockHint: '10 · rare' },
-    { id: 'black',   name: 'BLACK',   color: '#000000',     eyeColor: LIGHT_EYE, outlineColor: '#F5EFE0', requires: (s) => s.totalGames >= 15,  unlockHint: '15 · rare' },
+    { id: 'blue',    name: 'BLUE',    color: '#6a9bcc',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 2,   unlockHint: '2 games' },
+    { id: 'pink',    name: 'PINK',    color: '#e8a4b8',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 4,   unlockHint: '4 games' },
+    { id: 'sage',    name: 'SAGE',    color: '#788c5d',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 6,   unlockHint: '6 games' },
+    { id: 'gold',    name: 'GOLD',    color: '#d4a85f',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 9,   unlockHint: '9 · rare' },
+    { id: 'cream',   name: 'CREAM',   color: '#faf9f5',     eyeColor: DARK_EYE,  outlineColor: '#141413', requires: (s) => s.totalGames >= 12,  unlockHint: '12 · rare' },
+    { id: 'onyx',    name: 'ONYX',    color: '#141413',     eyeColor: LIGHT_EYE, outlineColor: '#faf9f5', requires: (s) => s.totalGames >= 16,  unlockHint: '16 · rare' },
   ];
 
   // Hat overlays. Highest-tier unlocked auto-applies.
@@ -33,7 +36,7 @@
         [1, 1, 1, 1, 1],
         [1, 3, 1, 3, 1],
       ],
-      colors: { 1: '#FFCD3C', 3: '#E5564B' },
+      colors: { 1: '#d4a85f', 3: '#c1574b' },
     },
     {
       // Modeled pixel-by-pixel on the reference image: tall purple cone with
@@ -59,7 +62,7 @@
         [0, 2, 2, 2, 2, 2, 2, 2, 0],
         [2, 2, 2, 2, 2, 2, 2, 2, 2],
       ],
-      colors: { 1: '#6B4FBD', 2: '#2D1B5E', 3: '#FFCD3C' },
+      colors: { 1: '#6B4FBD', 2: '#2D1B5E', 3: '#d4a85f' },
     },
   ];
 

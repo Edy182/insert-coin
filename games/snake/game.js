@@ -74,8 +74,8 @@
   let clawdSprite = null;
   let clawdSpriteKey = null;
   function getClawdSprite() {
-    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#D77757';
-    const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#1A0808';
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
+    const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const key = O + '|' + B + '|' + (outline || '');
     if (clawdSprite && clawdSpriteKey === key) return clawdSprite;
@@ -133,7 +133,7 @@
     requestAnimationFrame(loop);
   }
 
-  const FOOD_COLORS = ['#FF8A1F', '#F5EFE0', '#3FCB7A', '#FFB6E1', '#4ED8E5', '#FFCD3C'];
+  const FOOD_COLORS = ['#d97757', '#faf9f5', '#788c5d', '#e8a4b8', '#6a9bcc', '#d4a85f'];
 
   function spawnFood() {
     let c, r, tries = 0;
@@ -210,7 +210,7 @@
   }
 
   // === Confetti (high-score celebration) ===
-  const CONFETTI_COLORS = ['#FF8A1F', '#F5EFE0', '#3FCB7A', '#FFB6E1', '#4ED8E5', '#FFCD3C'];
+  const CONFETTI_COLORS = ['#d97757', '#faf9f5', '#788c5d', '#e8a4b8', '#6a9bcc', '#d4a85f'];
   let confetti = [];
   function burstConfetti() {
     for (let i = 0; i < 80; i++) {
@@ -250,7 +250,7 @@
 
   // === Draw ===
   function draw() {
-    ctx.fillStyle = '#0B1426';
+    ctx.fillStyle = '#141413';
     ctx.fillRect(0, 0, W, H);
 
     // Subtle checker grid so movement reads clearly
@@ -275,15 +275,15 @@
 
     // Ready overlay — wait for the first arrow key
     if (!gameStarted && !gameOver) {
-      ctx.fillStyle = '#FF8A1F';
+      ctx.fillStyle = '#d97757';
       ctx.font = '20px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText('READY!', W / 2, H / 2 + 40);
-      ctx.fillStyle = '#F5EFE0';
+      ctx.fillStyle = '#faf9f5';
       ctx.font = '12px "VT323", monospace';
       ctx.fillText('Press ARROW to start', W / 2, H / 2 + 64);
       if (isFirstPlay) {
-        ctx.fillStyle = '#FF8A1F';
+        ctx.fillStyle = '#d97757';
         ctx.font = '12px "VT323", monospace';
         ctx.fillText('Eat fruit  ·  don\'t bite yourself', W / 2, H / 2 + 86);
       }
@@ -293,11 +293,11 @@
     if (gameOver) {
       ctx.fillStyle = 'rgba(11, 20, 38, 0.88)';
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#FF8A1F';
+      ctx.fillStyle = '#d97757';
       ctx.font = '20px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText(win ? 'BOARD CLEAR!' : 'STACK OVERFLOW', W / 2, H / 2 - 10);
-      ctx.fillStyle = '#F5EFE0';
+      ctx.fillStyle = '#faf9f5';
       ctx.font = '14px "VT323", monospace';
       ctx.fillText(`Score: ${score}`, W / 2, H / 2 + 20);
       ctx.fillText('Press SPACE to retry', W / 2, H / 2 + 40);
@@ -328,7 +328,7 @@
       ctx.arc(cx, cy, radius + 1, 0, Math.PI * 2);
       ctx.fill();
     }
-    ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#D77757';
+    ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.fill();
