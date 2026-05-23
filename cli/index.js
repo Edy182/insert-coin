@@ -24,9 +24,9 @@ const SITE =
   process.env.CLAWD_BYTES_URL ||
   'https://insert-coin-arcade.vercel.app';
 const GAMES = [
-  { key: 'r', label: 'DINOCLAWD',  path: '/games/runner/',  blurb: 'endless runner · dodge cacti and pteros' },
-  { key: 'c', label: 'CLAWDMAN',   path: '/games/chomp/',   blurb: 'maze chase · eat the bugs back' },
-  { key: 's', label: 'CLAWD SNAKE', path: '/games/snake/',  blurb: 'snake · don\'t bite yourself' },
+  { key: 'd', label: 'DINO',    path: '/games/runner/', blurb: 'endless runner · dodge cacti and pteros' },
+  { key: 'm', label: 'MAC-PAN', path: '/games/chomp/',  blurb: 'maze chase · eat the bugs back' },
+  { key: 's', label: 'SNAKE',   path: '/games/snake/',  blurb: 'snake · don\'t bite yourself' },
 ];
 
 const O = (s) => `\x1b[38;5;208m${s}\x1b[0m`; // orange

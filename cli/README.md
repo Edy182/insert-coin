@@ -4,9 +4,9 @@ Launch the [Insert Coin](https://insert-coin-arcade.vercel.app) browser arcade f
 
 Three pixel games starring Clawd, a friendly pixel-art crab:
 
-- **Dino Clawd** — endless runner
-- **Clawd Man** — maze chase
-- **Clawd Snake** — classic snake
+- **Dino** — endless runner
+- **Mac-Pan** — maze chase
+- **Snake** — classic snake
 
 ```bash
 npx insert-coin-arcade

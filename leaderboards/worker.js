@@ -6,15 +6,15 @@
 
 const ALLOWED_GAMES = new Set(['runner', 'chomp', 'snake']);
 const ALLOWED_ORIGINS = new Set([
-  'https://clawdbytes.com',
-  'https://www.clawdbytes.com',
+  'https://insert-coin-arcade.vercel.app',
+  'http://localhost:8001',
   'http://localhost:8080',
   'http://127.0.0.1:8080',
 ]);
 const TOP_N = 10;
 
 function corsHeaders(origin) {
-  const allowOrigin = ALLOWED_ORIGINS.has(origin) ? origin : 'https://clawdbytes.com';
+  const allowOrigin = ALLOWED_ORIGINS.has(origin) ? origin : 'https://insert-coin-arcade.vercel.app';
   return {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',

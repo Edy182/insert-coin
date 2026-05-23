@@ -45,7 +45,7 @@
   function shareCard() {
     const tier = scoreTier(score);
     const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
-    return `🦀 Dino Clawd — ${todayISO}\n${score} pts ${squares}\nInsert Coin`;
+    return `🦀 Dino — ${todayISO}\n${score} pts ${squares}\nInsert Coin`;
   }
 
   // === Constants ===
@@ -724,7 +724,16 @@
     e.preventDefault();
     duck(false);
   }, { passive: false });
-  canvas.addEventListener('mousedown', () => jump());
+  // Left click = jump; right click held = duck.
+  canvas.addEventListener('mousedown', e => {
+    if (e.button === 0) jump();
+    else if (e.button === 2) { e.preventDefault(); duck(true); }
+  });
+  canvas.addEventListener('mouseup', e => {
+    if (e.button === 2) duck(false);
+  });
+  canvas.addEventListener('mouseleave', () => duck(false));
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
 
   restartBtn.addEventListener('click', reset);
   muteBtn.addEventListener('click', () => {

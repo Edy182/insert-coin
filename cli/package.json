@@ -17,10 +17,10 @@
     "claude-code"
   ],
   "license": "MIT",
-  "homepage": "https://clawdbytes.com",
+  "homepage": "https://github.com/Edy182/insert-coin",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Edy182/clawd-bytes.git",
+    "url": "https://github.com/Edy182/insert-coin.git",
     "directory": "cli"
   },
   "author": "Edgar / Josue Duarte",
