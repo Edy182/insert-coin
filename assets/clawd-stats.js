@@ -37,7 +37,7 @@
     },
     {
       // Fantasia-style sorcerer's hat: tall midnight-blue cone with a bent
-      // tip and a prominent yellow star front-and-center.
+      // tip and four bright yellow pinprick stars scattered across the body.
       id: 'wizard',
       name: 'WIZARD HAT',
       requires: (s) => s.totalGames >= 15,
@@ -49,10 +49,12 @@
         [0, 0, 0, 0, 0, 1, 1, 0],
         [0, 0, 0, 0, 1, 1, 0, 0],
         [0, 0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 0, 1, 3, 1, 0, 0],
         [0, 0, 1, 1, 1, 1, 0, 0],
-        [0, 1, 1, 3, 1, 1, 1, 0],
-        [1, 1, 3, 3, 3, 1, 1, 1],
-        [1, 1, 1, 3, 1, 1, 1, 1],
+        [0, 0, 1, 3, 1, 1, 1, 0],
+        [0, 1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 3, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 3, 1, 1],
         [2, 2, 2, 2, 2, 2, 2, 2],
       ],
       colors: { 1: '#1E40AF', 2: '#0F1F5A', 3: '#FFE066' },

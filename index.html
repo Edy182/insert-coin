@@ -19,29 +19,31 @@
       --gray: #7E8C99;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
     body {
       background: var(--navy);
       color: var(--cream);
       font-family: 'Inter', sans-serif;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
     header {
-      padding: 1.75rem 1rem 1.25rem;
+      padding: 0.7rem 1rem 0.55rem;
       text-align: center;
       border-bottom: 2px solid var(--orange);
+      flex-shrink: 0;
     }
     h1 {
       font-family: 'Press Start 2P', monospace;
-      font-size: clamp(1.1rem, 4vw, 2rem);
+      font-size: clamp(1rem, 3vw, 1.5rem);
       color: var(--orange);
       letter-spacing: 0.05em;
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.25rem;
     }
     .tagline {
       font-family: 'VT323', monospace;
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       color: var(--gray);
     }
     main {
@@ -49,26 +51,27 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 2.5rem 1rem;
+      justify-content: center;
+      padding: 0.8rem 1rem;
       width: 100%;
-      gap: 2.5rem;
+      gap: 0.9rem;
+      overflow: hidden;
+      min-height: 0;
     }
     .games-grid {
       width: 100%;
-      max-width: 900px;
+      max-width: 720px;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 1rem;
+      gap: 0.7rem;
     }
     .game-card {
-      width: 200px;
-    }
-    .game-card {
+      width: 160px;
       background: rgba(255, 138, 31, 0.08);
       border: 2px solid var(--orange);
       border-radius: 6px;
-      padding: 1.25rem 1rem;
+      padding: 0.7rem 0.6rem;
       text-align: center;
       transition: transform 0.15s ease, background 0.15s ease;
       position: relative;
@@ -78,14 +81,9 @@
       transform: translateY(-3px);
       background: rgba(255, 138, 31, 0.18);
     }
-    .game-card.coming-soon {
-      border-color: var(--gray);
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
     .game-card .sprite {
-      width: 56px; height: 56px;
-      margin: 0 auto 0.75rem;
+      width: 48px; height: 48px;
+      margin: 0 auto 0.5rem;
       background: var(--orange);
       border-radius: 4px;
       image-rendering: pixelated;
@@ -98,149 +96,145 @@
       height: 72%;
       shape-rendering: crispEdges;
     }
-    .game-card.coming-soon .sprite { background: var(--gray); }
-    .game-card.coming-soon .sprite svg { opacity: 0.75; }
     .game-card h2 {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.68rem;
+      font-size: 0.6rem;
       color: var(--cream);
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.5rem;
     }
     .game-card .play-btn {
       display: inline-block;
-      padding: 0.45rem 0.9rem;
+      padding: 0.35rem 0.7rem;
       background: var(--orange);
       color: var(--navy);
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       text-decoration: none;
       border-radius: 4px;
       font-weight: bold;
     }
-    .game-card.coming-soon .play-btn {
-      background: var(--gray);
-      color: var(--navy);
-      pointer-events: none;
-    }
     footer {
-      padding: 2rem;
+      padding: 0.5rem 1rem;
       text-align: center;
       border-top: 1px solid var(--gray);
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       color: var(--gray);
+      flex-shrink: 0;
     }
     footer a {
       color: var(--orange);
       text-decoration: none;
-      margin: 0 0.5rem;
+      margin: 0 0.3rem;
     }
     .disclaimer {
-      max-width: 600px;
-      margin: 0 auto 1rem;
-      font-size: 0.75rem;
-      line-height: 1.5;
+      font-size: 0.7rem;
+      line-height: 1.3;
     }
     .build-badge {
-      max-width: 600px;
-      margin: 0.75rem auto 0;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--gray);
-      letter-spacing: 0.02em;
+      margin-top: 0.2rem;
     }
     .build-badge .accent { color: var(--orange); }
+    .footer-links { margin-top: 0.2rem; font-size: 0.75rem; }
     .about {
       max-width: 600px;
       margin: 0 auto;
       padding: 0 1rem;
       text-align: center;
-      font-size: 0.95rem;
-      line-height: 1.55;
+      font-size: 0.8rem;
+      line-height: 1.4;
       color: var(--cream);
     }
-    .about p { margin-bottom: 0.85rem; }
+    .about p { margin-bottom: 0.25rem; }
     .about .meta {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--gray);
     }
     .about .meta a {
       color: var(--orange);
       text-decoration: none;
-      margin: 0 0.4rem;
+      margin: 0 0.3rem;
+    }
+    /* Hide about + profile when dev panel is active to keep no-scroll. */
+    body.dev-on .about,
+    body.dev-on .profile {
+      display: none;
+    }
+    /* Mobile / short viewports: allow normal scroll. */
+    @media (max-height: 640px), (max-width: 600px) {
+      body { overflow: auto; height: auto; min-height: 100vh; }
+      main { overflow: visible; }
     }
     .profile {
       width: 100%;
-      max-width: 600px;
+      max-width: 700px;
       margin: 0 auto;
-      padding: 1rem;
+      padding: 0.5rem 0.8rem;
       text-align: center;
       border: 1px dashed rgba(255, 138, 31, 0.4);
       border-radius: 6px;
     }
     .profile h3 {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.65rem;
+      font-size: 0.5rem;
       color: var(--orange);
       letter-spacing: 0.08em;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.35rem;
     }
     .profile .stats {
       font-family: 'VT323', monospace;
-      font-size: 1.05rem;
+      font-size: 0.85rem;
       color: var(--cream);
-      margin-bottom: 1rem;
+      margin-bottom: 0.35rem;
     }
     .profile .stats span { color: var(--orange); }
     .unlocks {
       display: flex;
-      gap: 0.6rem;
+      gap: 0.3rem;
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.35rem;
     }
     .unlock {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      gap: 0.35rem;
-      padding: 0.55rem 0.7rem;
+      gap: 0.25rem;
+      padding: 0.25rem 0.4rem;
       border: 1px solid var(--gray);
-      border-radius: 4px;
-      min-width: 86px;
+      border-radius: 3px;
     }
     .unlock.active {
       background: rgba(255, 138, 31, 0.18);
       border-color: var(--orange);
     }
-    .unlock.locked { opacity: 0.45; }
+    .unlock.locked { opacity: 0.4; }
     .unlock .swatch {
-      width: 22px;
-      height: 22px;
-      border-radius: 3px;
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
       image-rendering: pixelated;
     }
     .unlock .label {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.5rem;
+      font-size: 0.42rem;
       color: var(--cream);
       letter-spacing: 0.04em;
     }
-    .unlock .hint {
-      font-family: 'VT323', monospace;
-      font-size: 0.85rem;
-      color: var(--gray);
-    }
+    .unlock .hint { display: none; }
     .unlock.active .label { color: var(--orange); }
     .next-up {
       font-family: 'VT323', monospace;
-      font-size: 1rem;
+      font-size: 0.8rem;
       color: var(--gray);
     }
     .next-up b { color: var(--orange); font-weight: normal; }
     .dev-panel {
       width: 100%;
-      max-width: 700px;
+      max-width: 760px;
       margin: 0 auto;
-      padding: 1rem;
+      padding: 0.55rem 0.7rem;
       border: 1px dashed var(--green);
       border-radius: 6px;
       text-align: center;
@@ -248,30 +242,30 @@
     }
     .dev-panel h3 {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.6rem;
+      font-size: 0.5rem;
       color: var(--green);
       letter-spacing: 0.08em;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.35rem;
     }
     .dev-row {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
-      margin-bottom: 0.75rem;
+      gap: 0.3rem;
+      margin-bottom: 0.35rem;
     }
     .dev-row .label {
       font-family: 'VT323', monospace;
-      font-size: 1rem;
+      font-size: 0.85rem;
       color: var(--cream);
-      min-width: 60px;
+      min-width: 40px;
       text-align: right;
     }
     .dev-btn {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.5rem;
-      padding: 0.4rem 0.55rem;
+      font-size: 0.42rem;
+      padding: 0.28rem 0.4rem;
       background: transparent;
       color: var(--cream);
       border: 1px solid var(--gray);
@@ -279,7 +273,7 @@
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.25rem;
     }
     .dev-btn.active {
       background: var(--green);
@@ -287,25 +281,25 @@
       border-color: var(--green);
     }
     .dev-btn .sw {
-      width: 14px;
-      height: 14px;
+      width: 10px;
+      height: 10px;
       border-radius: 2px;
     }
     .dev-input {
       font-family: 'VT323', monospace;
-      font-size: 1rem;
+      font-size: 0.85rem;
       background: transparent;
       color: var(--cream);
       border: 1px solid var(--gray);
       border-radius: 3px;
-      padding: 0.3rem 0.5rem;
-      width: 70px;
+      padding: 0.2rem 0.4rem;
+      width: 60px;
       text-align: center;
     }
     .dev-clear {
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.5rem;
-      padding: 0.5rem 0.8rem;
+      font-size: 0.42rem;
+      padding: 0.35rem 0.7rem;
       background: var(--red);
       color: var(--cream);
       border: none;
@@ -314,10 +308,10 @@
     }
     .dev-close {
       position: absolute;
-      top: 0.5rem;
+      top: 0.35rem;
       right: 0.5rem;
       font-family: 'VT323', monospace;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       background: transparent;
       color: var(--gray);
       border: 1px solid var(--gray);
@@ -386,7 +380,6 @@
 
   <header>
     <h1>CLAWD BYTES</h1>
-    <p class="tagline">retro games for the AI dev community</p>
   </header>
 
   <main>
@@ -477,8 +470,7 @@
     </div>
 
     <section class="about">
-      <p>Three pixel games starring Clawd, the Claude Code crab mascot, built on weekends by a dev who got attached to the little crab on their terminal.</p>
-      <p>All original code, MIT licensed. An independent fan project, not affiliated with Anthropic.</p>
+      <p>Three pixel games starring Clawd. Built on weekends, MIT licensed. Independent fan project, not affiliated with Anthropic.</p>
       <p class="meta">
         <a href="https://github.com/Edy182/clawd-bytes">GitHub</a>·
         <a href="#">Discord</a>·
@@ -496,24 +488,16 @@
   </main>
 
   <footer>
-    <p class="disclaimer">
-      Clawd Bytes is an independent fan project.<br>
-      Not affiliated with or endorsed by Anthropic.
-    </p>
-    <p class="build-badge">
-      <span class="accent">▸</span> built with Claude Code, one weekend at a time
-    </p>
-    <p>
+    <p class="build-badge"><span class="accent">▸</span> built with Claude Code · independent fan project · not affiliated with Anthropic</p>
+    <p class="footer-links">
       <a href="https://github.com/[your-handle]/clawd-bytes">GitHub</a> ·
       <a href="https://discord.gg/[your-invite]">Discord</a> ·
-      <a href="https://twitter.com/clawdbytes">@clawdbytes</a>
-    </p>
-    <p style="margin-top:0.8rem;">
-      <a href="#" id="dev-toggle" style="color: var(--gray); font-size: 0.7rem;">🛠 dev mode: <span id="dev-state">off</span></a>
+      <a href="https://twitter.com/clawdbytes">@clawdbytes</a> ·
+      <a href="#" id="dev-toggle">🛠 dev: <span id="dev-state">off</span></a>
     </p>
   </footer>
 
-  <script src="assets/clawd-stats.js?v=12"></script>
+  <script src="assets/clawd-stats.js?v=13"></script>
   <script>
     (function () {
       'use strict';
@@ -634,6 +618,7 @@
       }
 
       if (!devOn) return;
+      document.body.classList.add('dev-on');
       const panel = document.getElementById('dev-panel');
       panel.hidden = false;
       const close = document.getElementById('dev-close');
