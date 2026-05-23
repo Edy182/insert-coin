@@ -694,13 +694,14 @@
     }
   }
 
-  // Walls — cream against pure black, matching the Claude Radio dot-matrix
-  // aesthetic. The maze reads like the ASCII environment from the welcome
-  // screen: monochrome silhouettes, only Clawd carries color.
+  // Walls — wireframe outline against pure black, like the ASCII furniture
+  // silhouettes in the Claude Radio welcome screen. Hollow squares instead of
+  // solid blocks so the maze breathes and only Clawd carries color.
   function drawWall(px, py, c, r) {
-    ctx.fillStyle = '#faf9f5';
-    const inset = 2;
-    ctx.fillRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2);
+    ctx.strokeStyle = '#b0aea5';
+    ctx.lineWidth = 1.5;
+    const inset = 4;
+    ctx.strokeRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2);
   }
 
   // Pre-render Clawd sprite once into an offscreen canvas, then blit it scaled.
