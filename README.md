@@ -2,6 +2,15 @@
 
 A collection of retro browser games starring Clawd, a friendly pixel-art crab — built for the Claude Code community and AI dev culture. Independent fan project, not affiliated with Anthropic.
 
+## Local development
+
+```bash
+npm install      # one-time, installs Vite as dev dependency
+npm run dev      # serves on http://localhost:8001 with hot reload + no-cache headers
+```
+
+Edit any HTML / CSS / JS file and the browser refreshes automatically. Production deploys (Vercel, Cloudflare Pages) serve the raw files directly — no build step.
+
 ## What this is
 
 Not just one game — an **arcade ecosystem**. The strategy is to ship a single playable game first (Clawd Runner), then add more games every 4-6 weeks to build a defensible catalog. Single brand, multiple games, growing community.
