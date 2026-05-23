@@ -40,13 +40,13 @@
   const COLS  = 19;
   const ROWS  = 21;
   const SPEED = 3;
-  const GHOST_SPEED = 2;
-  const LIVES_START = 3;
+  const GHOST_SPEED = 1.7;
+  const LIVES_START = 5;
 
   // Mode timing — chase/scatter rhythm gives the player breathing room.
-  const CHASE_FRAMES      = 1200; // 20s at 60fps
-  const SCATTER_FRAMES    = 300;  // 5s
-  const FRIGHTENED_FRAMES = 360;  // 6s of "ghosts flee" after a power pellet
+  const CHASE_FRAMES      = 1000; // ~17s of chase
+  const SCATTER_FRAMES    = 420;  // 7s of scatter (longer breather)
+  const FRIGHTENED_FRAMES = 540;  // 9s of "ghosts flee" after a power pellet
   const FRIGHTENED_FLASH  = 120;  // last 2s flash white as warning
 
   // Ghost spawn config: col, row, color, releaseAt frames, personality, scatter corner.
@@ -497,7 +497,7 @@
       localStorage.setItem('clawd-chomp-high', String(highScore));
       highScoreEl.textContent = String(highScore).padStart(5, '0');
     }
-    if (beatHigh || win) burstConfetti();
+    if (win) burstConfetti();
     if (window.ClawdStats) window.ClawdStats.submitScore({ game: 'chomp', score: score, dailyMode: dailyMode, dateISO: todayISO });
     restartBtn.classList.remove('hidden');
     if (dailyMode) shareBtn.classList.remove('hidden');
