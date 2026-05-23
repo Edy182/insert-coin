@@ -6,7 +6,7 @@
 
 const ALLOWED_GAMES = new Set(['runner', 'chomp', 'snake']);
 const ALLOWED_ORIGINS = new Set([
-  'https://insert-coin-arcade.vercel.app',
+  'https://insert-coin-sigma-sand.vercel.app',
   'http://localhost:8001',
   'http://localhost:8080',
   'http://127.0.0.1:8080',
@@ -14,7 +14,7 @@ const ALLOWED_ORIGINS = new Set([
 const TOP_N = 10;
 
 function corsHeaders(origin) {
-  const allowOrigin = ALLOWED_ORIGINS.has(origin) ? origin : 'https://insert-coin-arcade.vercel.app';
+  const allowOrigin = ALLOWED_ORIGINS.has(origin) ? origin : 'https://insert-coin-sigma-sand.vercel.app';
   return {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',

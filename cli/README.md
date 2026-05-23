@@ -1,6 +1,6 @@
 # insert-coin-arcade
 
-Launch the [Insert Coin](https://insert-coin-arcade.vercel.app) browser arcade from your terminal.
+Launch the [Insert Coin](https://insert-coin-sigma-sand.vercel.app) browser arcade from your terminal.
 
 Three pixel games starring Clawd, a friendly pixel-art crab:
 
@@ -23,7 +23,7 @@ insert-coin
 
 ## Pointing at a different URL
 
-By default the launcher opens `https://insert-coin-arcade.vercel.app`. Override that with:
+By default the launcher opens `https://insert-coin-sigma-sand.vercel.app`. Override that with:
 
 ```bash
 insert-coin --local                 # uses http://localhost:8001

@@ -22,7 +22,7 @@ const SITE =
   (args.includes('--local') ? 'http://localhost:8001' : null) ||
   process.env.INSERT_COIN_URL ||
   process.env.CLAWD_BYTES_URL ||
-  'https://insert-coin-arcade.vercel.app';
+  'https://insert-coin-sigma-sand.vercel.app';
 const GAMES = [
   { key: 'd', label: 'DINO',    path: '/games/runner/', blurb: 'endless runner · dodge cacti and pteros' },
   { key: 'm', label: 'MAC-PAN', path: '/games/chomp/',  blurb: 'maze chase · eat the bugs back' },
