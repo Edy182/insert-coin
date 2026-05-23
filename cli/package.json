@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Launch the Insert Coin browser arcade from your terminal. Three pixel games starring Clawd, a friendly crab. Independent fan project, not affiliated with Anthropic.",
   "bin": {
+    "insert-coin-arcade": "index.js",
     "insert-coin": "index.js"
   },
   "engines": {
