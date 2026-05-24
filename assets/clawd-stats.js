@@ -5,8 +5,8 @@
 
   const STATS_KEY = 'clawd-stats';
   const DEFAULTS = { totalGames: 0, dailiesDone: 0 };
-  // Vibrant orange tone — testing a brighter, more saturated body color.
-  const DEFAULT_COLOR = '#ee6f1a';
+  // Official Anthropic brand orange (Crail) — also the Clawd body color.
+  const DEFAULT_COLOR = '#d97757';
 
   // v1 launch ships classic Clawd only. Skin packs + hats arrive as
   // post-launch content drops. Flip LAUNCH_MODE to 'all' to enable the
@@ -20,7 +20,7 @@
   // Skin colors drawn from the Anthropic palette — body recolors stay within
   // the brand family for visual cohesion.
   const SKINS = [
-    { id: 'classic', name: 'CLASSIC', color: DEFAULT_COLOR, eyeColor: DARK_EYE,  requires: () => true,                 unlockHint: 'default' }, // body uses DEFAULT_COLOR — currently bright orange test
+    { id: 'classic', name: 'CLASSIC', color: DEFAULT_COLOR, eyeColor: DARK_EYE,  requires: () => true,                 unlockHint: 'default' },
     { id: 'blue',    name: 'BLUE',    color: '#6a9bcc',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 2,   unlockHint: '2 games' },
     { id: 'pink',    name: 'PINK',    color: '#e8a4b8',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 4,   unlockHint: '4 games' },
     { id: 'sage',    name: 'SAGE',    color: '#788c5d',     eyeColor: DARK_EYE,  requires: (s) => s.totalGames >= 6,   unlockHint: '6 games' },
