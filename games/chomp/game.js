@@ -845,8 +845,8 @@
       sctx.lineJoin = 'round';
       const eyeY = 2 * P + pad + P;
       const r = 2;
-      const leftCx  = 3 * P + pad + P / 2;
-      const rightCx = 9 * P + pad + P / 2;
+      const leftCx  = 4 * P + pad + P / 2;
+      const rightCx = 8 * P + pad + P / 2;
       // Left ">" — tip points right (toward center)
       sctx.beginPath();
       sctx.moveTo(leftCx - r, eyeY - r);

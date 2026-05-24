@@ -482,17 +482,46 @@
 
       <a href="games/snake/" class="game-card available">
         <div class="sprite">
-          <!-- Classic Snake-game silhouette: chunky orthogonal S-shape body
-               with thick black outline + small apple pellet at top-right. -->
+          <!-- Pixel-by-pixel match to reference: discrete 1.6x1.6 cells on
+               a 2-unit pitch in a 14x14 viewBox, leaving 0.4-unit gaps
+               between adjacent cells. Coiled-snake silhouette inside an
+               open frame with a tail extending left at the bottom. -->
           <svg viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges">
-            <!-- S-body: single polygon traced clockwise around 5 connected
-                 segments (top bar → left drop → middle bar → right drop →
-                 bottom bar). Filled terracotta, stroked black. -->
-            <polygon points="1,1 10,1 10,4 4,4 4,5 10,5 10,12 1,12 1,9 7,9 7,8 1,8"
-                     fill="#d97757" stroke="#1A0808" stroke-width="1" stroke-linejoin="miter"/>
-            <!-- Apple pellet (food): black border + red center -->
-            <rect x="11" y="2" width="3" height="3" fill="#1A0808"/>
-            <rect x="12" y="3" width="1" height="1" fill="#c44d3a"/>
+            <!-- Row 0: top bar (6 cells, design cols 1-6) -->
+            <rect x="2.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="4.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="6.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="8.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="10.2" y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="12.2" y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <!-- Row 1: left + right columns -->
+            <rect x="2.2"  y="2.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="12.2" y="2.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <!-- Row 2: left + inner pair (cols 3-4) + right -->
+            <rect x="2.2"  y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="6.2"  y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="8.2"  y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="12.2" y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <!-- Row 3: left + inner col 5 + right -->
+            <rect x="2.2"  y="6.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="10.2" y="6.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="12.2" y="6.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <!-- Row 4: left horizontal sweep (cols 1-4) + right -->
+            <rect x="2.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="4.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="6.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="8.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="12.2" y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
+            <!-- Row 5: only right column -->
+            <rect x="12.2" y="10.2" width="1.6" height="1.6" fill="#d97757"/>
+            <!-- Row 6: bottom bar extends 1 cell left of top bar -->
+            <rect x="0.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="2.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="4.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="6.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="8.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="10.2" y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+            <rect x="12.2" y="12.2" width="1.6" height="1.6" fill="#d97757"/>
           </svg>
         </div>
         <h2>SNAKE</h2>

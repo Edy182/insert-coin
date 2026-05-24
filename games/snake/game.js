@@ -419,8 +419,9 @@
     if (gameOver) {
       // Left eye gets ">" (tip points right toward center)
       // Right eye gets "<" (tip points left toward center)
-      drawXEyeMark(x + 6,  y + 9, true);
-      drawXEyeMark(x + 16, y + 9, false);
+      // Spread outward (5/19) so the marks don't crowd the face center.
+      drawXEyeMark(x + 5,  y + 9, true);
+      drawXEyeMark(x + 19, y + 9, false);
     } else {
       ctx.fillStyle = '#1A0808';
       const eyeSize = 5;
@@ -445,7 +446,7 @@
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     const ax = Math.round(cx), ay = Math.round(cy);
-    const r = 4;
+    const r = 3;
     ctx.beginPath();
     if (pointsRight) {
       ctx.moveTo(ax - r, ay - r);
