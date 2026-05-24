@@ -812,27 +812,26 @@
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(src, Math.round(cx - w / 2), Math.round(cy - h / 2), w, h);
 
+    // Chomp wedge — only when moving horizontally (vertical chomp would look
+    // like Clawd's head is splitting open). Integer-rounded coords + matching
+    // bg color = no antialiased pixel fringe.
     const dir = player.dir;
-    if (gameStarted && (dir.dx !== 0 || dir.dy !== 0)) {
+    if (gameStarted && dir.dx !== 0) {
       const openAmount = Math.max(0, Math.sin((player.mouth / 20) * Math.PI));
       const half = h / 2;
-      const open = openAmount * half * 0.85;
-      const depth = half + 1;
+      const open = Math.round(openAmount * half * 0.85);
+      const depth = Math.round(half + 1);
+      const axCenter = Math.round(cx);
+      const ayCenter = Math.round(cy);
       ctx.fillStyle = '#141413';
       ctx.beginPath();
-      ctx.moveTo(cx, cy);
+      ctx.moveTo(axCenter, ayCenter);
       if (dir.dx > 0) {
-        ctx.lineTo(cx + depth, cy - open);
-        ctx.lineTo(cx + depth, cy + open);
-      } else if (dir.dx < 0) {
-        ctx.lineTo(cx - depth, cy - open);
-        ctx.lineTo(cx - depth, cy + open);
-      } else if (dir.dy > 0) {
-        ctx.lineTo(cx - open, cy + depth);
-        ctx.lineTo(cx + open, cy + depth);
+        ctx.lineTo(axCenter + depth, ayCenter - open);
+        ctx.lineTo(axCenter + depth, ayCenter + open);
       } else {
-        ctx.lineTo(cx - open, cy - depth);
-        ctx.lineTo(cx + open, cy - depth);
+        ctx.lineTo(axCenter - depth, ayCenter - open);
+        ctx.lineTo(axCenter - depth, ayCenter + open);
       }
       ctx.closePath();
       ctx.fill();
