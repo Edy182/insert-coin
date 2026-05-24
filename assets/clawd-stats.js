@@ -131,7 +131,20 @@
   }
   function getActiveSkinColor()    { return getActiveSkin().color; }
   function getActiveEyeColor()     { return getActiveSkin().eyeColor || DARK_EYE; }
-  function getActiveOutlineColor() { return getActiveSkin().outlineColor || null; }
+  // Returns the explicit outlineColor of the active skin if it has one
+  // (ONYX, CREAM), otherwise a derived darker shade (0.42x) of the body
+  // color. Always returns a string so every skin gets an outline — gives
+  // Clawd more visual punch without changing his actual body color.
+  function getActiveOutlineColor() {
+    const skin = getActiveSkin();
+    if (skin.outlineColor) return skin.outlineColor;
+    const c = skin.color;
+    const r = Math.round(parseInt(c.slice(1, 3), 16) * 0.42);
+    const g = Math.round(parseInt(c.slice(3, 5), 16) * 0.42);
+    const b = Math.round(parseInt(c.slice(5, 7), 16) * 0.42);
+    const hh = (v) => v.toString(16).padStart(2, '0');
+    return '#' + hh(r) + hh(g) + hh(b);
+  }
   function isGodModeActive() {
     const hat = getActiveHat();
     return !!(hat && hat.godMode);

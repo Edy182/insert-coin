@@ -467,14 +467,25 @@
     }
   }
 
-  // Clawd standing — 12×9 grid at P=3 = 36×27px
+  // Clawd standing — 12×9 grid at P=3 = 36×27px. Dead variant uses X-shaped
+  // eyes (knocked-out look) when the player crashes into an obstacle.
   function drawClawd(x, y) {
     const P = 3;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const _ = null;
-    const grid = [
+    const grid = gameOver ? [
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,B,O,B,O,O,O,B,O,B,_ ],
+      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
+      [ _,O,B,O,B,O,O,O,B,O,B,_ ],
+      [ O,O,O,O,O,O,O,O,O,O,O,O ],
+      [ O,O,O,O,O,O,O,O,O,O,O,O ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
+    ] : [
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,B,O,O,O,O,O,B,O,_ ],

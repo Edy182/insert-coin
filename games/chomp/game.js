@@ -777,27 +777,46 @@
     const P = 2, _ = null;
     // Moving: simplified circular body, no arm protrusions or legs (so they
     // don't look like ears next to the chomp wedge). Stopped: full sprite.
-    const grid = moving ? [
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
-      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-    ] : [
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
-      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
-      [ O,O,O,O,O,O,O,O,O,O,O,O ],
-      [ O,O,O,O,O,O,O,O,O,O,O,O ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
-    ];
+    // Dead variant: full sprite + X-shaped eyes (knocked-out look).
+    let grid;
+    if (mouthPhase === -1) {
+      // Dead — X eyes overlay the regular B eye cells
+      grid = [
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,O,B,O,B,O,O,O,B,O,B,_ ],
+        [ _,O,O,B,O,O,O,O,O,B,O,_ ],
+        [ _,O,B,O,B,O,O,O,B,O,B,_ ],
+        [ O,O,O,O,O,O,O,O,O,O,O,O ],
+        [ O,O,O,O,O,O,O,O,O,O,O,O ],
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,_,O,_,O,_,_,_,O,_,O,_ ],
+      ];
+    } else if (moving) {
+      grid = [
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,O,O,B,O,O,O,O,O,B,O,_ ],
+        [ _,O,O,B,O,O,O,O,O,B,O,_ ],
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      ];
+    } else {
+      grid = [
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,O,O,B,O,O,O,O,O,B,O,_ ],
+        [ _,O,O,B,O,O,O,O,O,B,O,_ ],
+        [ O,O,O,O,O,O,O,O,O,O,O,O ],
+        [ O,O,O,O,O,O,O,O,O,O,O,O ],
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+        [ _,_,O,_,O,_,_,_,O,_,O,_ ],
+      ];
+    }
 
     const pad = outline ? 1 : 0;
     const canvas = document.createElement('canvas');
@@ -846,11 +865,14 @@
   // correctly. Wedge is built from 1-px vertical rects (no AA fringe).
   function drawClawd(cx, cy) {
     const dir = player.dir;
-    const moving = gameStarted && (dir.dx !== 0 || dir.dy !== 0);
+    const dead = catchFlash > 0;  // Clawd just got caught — show X eyes
+    const moving = !dead && gameStarted && (dir.dx !== 0 || dir.dy !== 0);
 
     // Pick mouth phase from player.mouth (0-19 cycle), sin curve, 5 steps.
+    // Dead state uses phase=-1 (knocked-out X-eye sprite).
     let phase = 0;
-    if (moving) {
+    if (dead) phase = -1;
+    else if (moving) {
       const openness = Math.max(0, Math.sin((player.mouth / 20) * Math.PI));
       phase = Math.min(4, Math.round(openness * 4));
     }
