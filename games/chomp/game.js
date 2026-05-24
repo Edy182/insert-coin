@@ -772,19 +772,19 @@
     if (clawdSpriteCache[key]) return clawdSpriteCache[key];
 
     const P = 2, _ = null;
-    // 4x4 X-eye pattern at rows 0-3 (replaces regular eyes at rows 2-3),
-    // diagonal strokes meeting at a 2x2 center. Reads cleaner than a sparse
-    // 5-cell X.
+    // 5x5 X-eye pattern (9 cells per eye, single-pixel diagonal strokes
+    // meeting at a center pixel). Reads as a real X with clear diagonals
+    // rather than scattered dots. Spans rows 0-4 of the dead variant —
+    // arms compress to 1 row to fit.
     const grid = dead ? [
-      [ _,B,O,O,B,O,O,B,O,O,B,_ ],
-      [ _,O,B,B,O,O,O,O,B,B,O,_ ],
-      [ _,O,B,B,O,O,O,O,B,B,O,_ ],
-      [ _,B,O,O,B,O,O,B,O,O,B,_ ],
-      [ O,O,O,O,O,O,O,O,O,O,O,O ],
+      [ _,B,O,O,O,B,B,O,O,O,B,_ ],
+      [ _,O,B,O,B,O,O,B,O,B,O,_ ],
+      [ _,O,O,B,O,O,O,O,B,O,O,_ ],
+      [ _,O,B,O,B,O,O,B,O,B,O,_ ],
+      [ _,B,O,O,O,B,B,O,O,O,B,_ ],
       [ O,O,O,O,O,O,O,O,O,O,O,O ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
       [ _,_,O,_,O,_,_,_,O,_,O,_ ],
     ] : [
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
@@ -795,7 +795,6 @@
       [ O,O,O,O,O,O,O,O,O,O,O,O ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
       [ _,_,O,_,O,_,_,_,O,_,O,_ ],
     ];
 

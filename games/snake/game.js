@@ -399,13 +399,13 @@
     ctx.fill();
   }
 
-  // Body segment — full tile rectangle, no inset, no outline. Adjacent
-  // segments touch with zero gap so the body reads as one continuous shape.
+  // Body segment — tile rectangle with 1-px inset so adjacent segments read
+  // as distinct blocks (visible divisions between them).
   function drawBody(c, r, idx, total) {
     const x = c * TILE;
     const y = r * TILE;
     ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
-    ctx.fillRect(x, y, TILE, TILE);
+    ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
   }
 
   // Snake head — rectangular block (no arms/legs, no Clawd sprite). Bigger
@@ -434,22 +434,26 @@
     }
   }
 
-  // 4×4 X-eye pattern (diagonal strokes meeting at a 2×2 center). 2px cells.
+  // 5×5 X-eye pattern (9 cells, single-pixel diagonal strokes meeting at a
+  // center pixel). 2px cells = 10×10 px X visible at game scale.
   function drawXEyeMark(cx, cy) {
     ctx.fillStyle = '#1A0808';
     const s = 2;
-    const ax = Math.round(cx) - 4, ay = Math.round(cy) - 4;
+    const ax = Math.round(cx) - 5, ay = Math.round(cy) - 5;
     // Top corners
     ctx.fillRect(ax,         ay,         s, s);
-    ctx.fillRect(ax + 6,     ay,         s, s);
-    // Inner diagonals
+    ctx.fillRect(ax + 8,     ay,         s, s);
+    // Inner diagonals (row 1)
     ctx.fillRect(ax + 2,     ay + 2,     s, s);
-    ctx.fillRect(ax + 4,     ay + 2,     s, s);
-    ctx.fillRect(ax + 2,     ay + 4,     s, s);
+    ctx.fillRect(ax + 6,     ay + 2,     s, s);
+    // Center
     ctx.fillRect(ax + 4,     ay + 4,     s, s);
-    // Bottom corners
-    ctx.fillRect(ax,         ay + 6,     s, s);
+    // Inner diagonals (row 3)
+    ctx.fillRect(ax + 2,     ay + 6,     s, s);
     ctx.fillRect(ax + 6,     ay + 6,     s, s);
+    // Bottom corners
+    ctx.fillRect(ax,         ay + 8,     s, s);
+    ctx.fillRect(ax + 8,     ay + 8,     s, s);
   }
 
   function loop() {
