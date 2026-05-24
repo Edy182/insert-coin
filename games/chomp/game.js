@@ -802,6 +802,8 @@
 
   // Render Clawd at 1.25× by default. While powered-up (frightened mode active)
   // scale up to 1.8× so the power-pellet effect is visually obvious.
+  // While moving, paint a Pac-Man-style chomp wedge in the direction of motion
+  // (player.mouth cycles 0-19; wedge opens to max at frame 10, closed at 0/19).
   function drawClawd(cx, cy) {
     const src = getClawdSprite();
     const scale = frightenedTimer > 0 ? 1.8 : 1.25;
@@ -809,6 +811,33 @@
     const h = src.height * scale;
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(src, Math.round(cx - w / 2), Math.round(cy - h / 2), w, h);
+
+    const dir = player.dir;
+    if (gameStarted && (dir.dx !== 0 || dir.dy !== 0)) {
+      const openAmount = Math.max(0, Math.sin((player.mouth / 20) * Math.PI));
+      const half = h / 2;
+      const open = openAmount * half * 0.85;
+      const depth = half + 1;
+      ctx.fillStyle = '#141413';
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      if (dir.dx > 0) {
+        ctx.lineTo(cx + depth, cy - open);
+        ctx.lineTo(cx + depth, cy + open);
+      } else if (dir.dx < 0) {
+        ctx.lineTo(cx - depth, cy - open);
+        ctx.lineTo(cx - depth, cy + open);
+      } else if (dir.dy > 0) {
+        ctx.lineTo(cx - open, cy + depth);
+        ctx.lineTo(cx + open, cy + depth);
+      } else {
+        ctx.lineTo(cx - open, cy - depth);
+        ctx.lineTo(cx + open, cy - depth);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+
     if (window.ClawdStats) {
       window.ClawdStats.drawHat(ctx, cx, cy - h / 2, frightenedTimer > 0 ? 4 : 3);
       window.ClawdStats.drawSparkles(ctx, cx, cy, w / 2 + 4);
