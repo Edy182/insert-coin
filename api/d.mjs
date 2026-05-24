@@ -3,6 +3,7 @@
 // (fetched from /api/og). Humans get meta-refreshed into the game's
 // daily mode.
 
+export const runtime = 'edge';
 export const config = { runtime: 'edge' };
 
 const GAME_NAMES = { runner: 'Dino', chomp: 'Mac-Pan', snake: 'Snake' };

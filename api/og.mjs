@@ -4,6 +4,7 @@
 
 import { ImageResponse } from '@vercel/og';
 
+export const runtime = 'edge';
 export const config = { runtime: 'edge' };
 
 // Brand palette
