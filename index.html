@@ -487,41 +487,56 @@
                between adjacent cells. Coiled-snake silhouette inside an
                open frame with a tail extending left at the bottom. -->
           <svg viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges">
-            <!-- Row 0: top bar (6 cells, design cols 1-6) -->
-            <rect x="2.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="4.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="6.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="8.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="10.2" y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="12.2" y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <!-- Row 1: left + right columns -->
-            <rect x="2.2"  y="2.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="12.2" y="2.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <!-- Row 2: left + inner pair (cols 3-4) + right -->
-            <rect x="2.2"  y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="6.2"  y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="8.2"  y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="12.2" y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <!-- Row 3: left + inner col 4 (separated from right frame) + right -->
-            <rect x="2.2"  y="6.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="8.2"  y="6.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="12.2" y="6.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <!-- Row 4: left horizontal sweep (cols 1-4) + right -->
-            <rect x="2.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="4.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="6.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="8.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="12.2" y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
-            <!-- Row 5: only right column -->
-            <rect x="12.2" y="10.2" width="1.6" height="1.6" fill="#d97757"/>
-            <!-- Row 6: bottom bar extends 1 cell left of top bar -->
-            <rect x="0.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="2.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="4.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="6.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="8.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="10.2" y="12.2" width="1.6" height="1.6" fill="#d97757"/>
-            <rect x="12.2" y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+            <!-- Top + side frame + inner spiral: bound to a slower slither
+                 transform so the whole frame drifts gently side-to-side
+                 (snake-characteristic motion). -->
+            <g>
+              <animateTransform attributeName="transform" type="translate"
+                                values="0 0; 0.35 0; 0 0; -0.35 0; 0 0"
+                                dur="1.6s" repeatCount="indefinite"/>
+              <!-- Row 0: top bar (6 cells) -->
+              <rect x="2.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="4.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="6.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="8.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="10.2" y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="12.2" y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <!-- Row 1: left + right columns -->
+              <rect x="2.2"  y="2.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="12.2" y="2.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <!-- Row 2: left + inner pair (cols 3-4) + right -->
+              <rect x="2.2"  y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="6.2"  y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="8.2"  y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="12.2" y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <!-- Row 3: left + inner col 4 (separated from right frame) + right -->
+              <rect x="2.2"  y="6.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="8.2"  y="6.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="12.2" y="6.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <!-- Row 4: left horizontal sweep (cols 1-4) + right -->
+              <rect x="2.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="4.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="6.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="8.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="12.2" y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <!-- Row 5: only right column -->
+              <rect x="12.2" y="10.2" width="1.6" height="1.6" fill="#d97757"/>
+              <!-- Row 6: bottom bar extends 1 cell left of top bar; lagged
+                   slither (opposite phase) so the tail wags counter to the
+                   body — feels more like a snake than a rigid sliding block. -->
+            </g>
+            <g>
+              <animateTransform attributeName="transform" type="translate"
+                                values="0 0; -0.5 0; 0 0; 0.5 0; 0 0"
+                                dur="1.6s" repeatCount="indefinite"/>
+              <rect x="0.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="2.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="4.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="6.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="8.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="10.2" y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="12.2" y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+            </g>
           </svg>
         </div>
         <h2>SNAKE</h2>
