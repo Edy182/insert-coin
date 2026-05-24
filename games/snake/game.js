@@ -446,7 +446,7 @@
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     const ax = Math.round(cx), ay = Math.round(cy);
-    const r = 3;
+    const r = 2;
     ctx.beginPath();
     if (pointsRight) {
       ctx.moveTo(ax - r, ay - r);
