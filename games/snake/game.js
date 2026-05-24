@@ -399,41 +399,67 @@
     ctx.fill();
   }
 
-  // Body segment — plain orange dot that tapers smaller toward the tail tip.
+  // Body segment — uniform-width rectangle (classic Nokia-style snake body).
+  // No tapering, full tile minus a 1-px inset so segments read as distinct.
   function drawBody(c, r, idx, total) {
-    const cx = c * TILE + TILE / 2;
-    const cy = r * TILE + TILE / 2;
-    // t = 0 right behind head, 1 at the tail tip
-    const t = (total <= 1) ? 0 : (idx - 1) / (total - 1);
-    const radius = 8 - t * 3.5; // 8px → 4.5px
-    // Body matches the head color. Skins with an outlineColor (ONYX, CREAM)
-    // also paint a contrast ring so the snake stays visible on dark bg.
+    const x = c * TILE;
+    const y = r * TILE;
+    const color = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     if (outline) {
       ctx.fillStyle = outline;
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius + 1, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
+      ctx.fillStyle = color;
+      ctx.fillRect(x + 2, y + 2, TILE - 4, TILE - 4);
+    } else {
+      ctx.fillStyle = color;
+      ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
     }
-    ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.fill();
   }
 
-  // Clawd head — pre-rendered 12×9 sprite scaled 1.25× via drawImage with smoothing off.
+  // Snake head — rectangular block with two black eye dots, in Clawd color.
+  // Eye positions depend on movement direction so the snake "looks" forward.
   function drawClawdHead(c, r) {
-    const cx = c * TILE + TILE / 2;
-    const cy = r * TILE + TILE / 2;
-    const src = getClawdSprite();
-    const scale = 1.25;
-    const w = src.width * scale;
-    const h = src.height * scale;
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(src, Math.round(cx - w / 2), Math.round(cy - h / 2), w, h);
+    const x = c * TILE;
+    const y = r * TILE;
+    const color = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
+    const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
+    if (outline) {
+      ctx.fillStyle = outline;
+      ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
+      ctx.fillStyle = color;
+      ctx.fillRect(x + 2, y + 2, TILE - 4, TILE - 4);
+    } else {
+      ctx.fillStyle = color;
+      ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
+    }
+    // Eye dots — placement shifts toward the forward edge so the head looks
+    // like it's facing in the direction of motion.
+    ctx.fillStyle = '#1A0808';
+    const eyeSize = 3;
+    const inset = 5;
+    let ax, ay, bx, by;
+    if (dir.dc === 1) {        // moving right — eyes on right side
+      ax = x + TILE - inset - eyeSize; ay = y + inset;
+      bx = x + TILE - inset - eyeSize; by = y + TILE - inset - eyeSize;
+    } else if (dir.dc === -1) { // moving left
+      ax = x + inset;                  ay = y + inset;
+      bx = x + inset;                  by = y + TILE - inset - eyeSize;
+    } else if (dir.dr === 1) {  // moving down
+      ax = x + inset;                  ay = y + TILE - inset - eyeSize;
+      bx = x + TILE - inset - eyeSize; by = y + TILE - inset - eyeSize;
+    } else {                    // moving up (default before start)
+      ax = x + inset;                  ay = y + inset;
+      bx = x + TILE - inset - eyeSize; by = y + inset;
+    }
+    ctx.fillRect(ax, ay, eyeSize, eyeSize);
+    ctx.fillRect(bx, by, eyeSize, eyeSize);
+
     if (window.ClawdStats) {
-      window.ClawdStats.drawHat(ctx, cx, cy - h / 2, 3);
-      window.ClawdStats.drawSparkles(ctx, cx, cy, w / 2 + 4);
+      const cx = x + TILE / 2;
+      const cy = y + TILE / 2;
+      window.ClawdStats.drawHat(ctx, cx, y, 3);
+      window.ClawdStats.drawSparkles(ctx, cx, cy, TILE / 2 + 4);
     }
   }
 

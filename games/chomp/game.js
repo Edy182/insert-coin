@@ -856,7 +856,7 @@
     }
 
     const src = getClawdSprite(moving, phase);
-    const scale = frightenedTimer > 0 ? 1.8 : 1.25;
+    const scale = frightenedTimer > 0 ? 1.45 : 1.25;
     const w = src.width * scale;
     const h = src.height * scale;
 
