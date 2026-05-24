@@ -759,23 +759,35 @@
     ctx.fillRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2);
   }
 
-  // Pre-render Clawd sprite once into an offscreen canvas, then blit it scaled.
-  // Lets us scale by any factor and stay crisp (imageSmoothingEnabled=false).
-  let clawdSprite = null;
-  let clawdSpriteKey = null;
-  function getClawdSprite() {
+  // Pre-render Clawd sprite. Cached per (moving state, mouth phase, colors).
+  // The chomp wedge is BAKED INTO the sprite bitmap via destination-out
+  // compositing — when drawImage scales/rotates/flips the sprite, the wedge
+  // transforms as one consistent bitmap with the body. No overlay-vs-bitmap
+  // pixel mismatch under browser CSS scaling = no fringe pixel.
+  const clawdSpriteCache = {};
+  function getClawdSprite(moving, mouthPhase) {
+    moving = !!moving;
+    mouthPhase = mouthPhase | 0;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
-    const key = O + '|' + B + '|' + (outline || '');
-    if (clawdSprite && clawdSpriteKey === key) return clawdSprite;
+    const key = (moving ? 'm' : 's') + mouthPhase + '|' + O + '|' + B + '|' + (outline || '');
+    if (clawdSpriteCache[key]) return clawdSpriteCache[key];
+
     const P = 2, _ = null;
-    const pad = outline ? 1 : 0;
-    clawdSprite = document.createElement('canvas');
-    clawdSprite.width  = 12 * P + 2 * pad;
-    clawdSprite.height = 9  * P + 2 * pad;
-    const sctx = clawdSprite.getContext('2d');
-    const grid = [
+    // Moving: simplified circular body, no arm protrusions or legs (so they
+    // don't look like ears next to the chomp wedge). Stopped: full sprite.
+    const grid = moving ? [
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
+      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+    ] : [
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,B,O,O,O,O,O,B,O,_ ],
@@ -786,6 +798,13 @@
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,_,O,_,O,_,_,_,O,_,O,_ ],
     ];
+
+    const pad = outline ? 1 : 0;
+    const canvas = document.createElement('canvas');
+    canvas.width  = 12 * P + 2 * pad;
+    canvas.height = grid.length * P + 2 * pad;
+    const sctx = canvas.getContext('2d');
+
     if (outline) {
       sctx.fillStyle = outline;
       const offs = [[-1,0],[1,0],[0,-1],[0,1]];
@@ -796,8 +815,28 @@
     grid.forEach((row, r) => row.forEach((col, c) => {
       if (col) { sctx.fillStyle = col; sctx.fillRect(c*P + pad, r*P + pad, P, P); }
     }));
-    clawdSpriteKey = key;
-    return clawdSprite;
+
+    // Bake the chomp wedge into the sprite bitmap. Apex at sprite center,
+    // base at the right edge. Direction (left/up/down) is handled later via
+    // rotation/flip at drawImage time, so we only ever bake the right-facing
+    // version.
+    if (moving && mouthPhase > 0) {
+      const w = canvas.width;
+      const cy = canvas.height / 2;
+      const openMax = canvas.height * 0.25;
+      const open = (mouthPhase / 4) * openMax;
+      sctx.globalCompositeOperation = 'destination-out';
+      sctx.beginPath();
+      sctx.moveTo(w / 2, cy);
+      sctx.lineTo(w + 1, cy - open);
+      sctx.lineTo(w + 1, cy + open);
+      sctx.closePath();
+      sctx.fill();
+      sctx.globalCompositeOperation = 'source-over';
+    }
+
+    clawdSpriteCache[key] = canvas;
+    return canvas;
   }
 
   // Render Clawd at 1.25× by default. While powered-up (frightened mode active)
@@ -806,13 +845,21 @@
   // along the +x axis of the rotated context, so right/left/up/down all chomp
   // correctly. Wedge is built from 1-px vertical rects (no AA fringe).
   function drawClawd(cx, cy) {
-    const src = getClawdSprite();
+    const dir = player.dir;
+    const moving = gameStarted && (dir.dx !== 0 || dir.dy !== 0);
+
+    // Pick mouth phase from player.mouth (0-19 cycle), sin curve, 5 steps.
+    let phase = 0;
+    if (moving) {
+      const openness = Math.max(0, Math.sin((player.mouth / 20) * Math.PI));
+      phase = Math.min(4, Math.round(openness * 4));
+    }
+
+    const src = getClawdSprite(moving, phase);
     const scale = frightenedTimer > 0 ? 1.8 : 1.25;
     const w = src.width * scale;
     const h = src.height * scale;
-    ctx.imageSmoothingEnabled = false;
 
-    const dir = player.dir;
     let rotation = 0;
     let flipH = false;
     if (dir.dx < 0)       flipH = true;            // Moving left
@@ -823,35 +870,9 @@
     ctx.translate(Math.round(cx), Math.round(cy));
     if (rotation) ctx.rotate(rotation);
     if (flipH)    ctx.scale(-1, 1);
+    ctx.imageSmoothingEnabled = false;
     ctx.drawImage(src, Math.round(-w / 2), Math.round(-h / 2), w, h);
     ctx.restore();
-
-    // Chomp wedge — 2-px-wide stepped columns (chunkier than 1-px = no thin
-    // sliver artifacts under browser CSS scaling). Depth proportional to open
-    // and extended 2px past the sprite edge so the wedge always wraps fully
-    // around the boundary into bg.
-    if (gameStarted && (dir.dx !== 0 || dir.dy !== 0)) {
-      const openAmount = Math.max(0, Math.sin((player.mouth / 20) * Math.PI));
-      const half = h / 2;
-      const maxOpen = Math.round(half * 0.85);
-      const open = Math.round(openAmount * maxOpen);
-      const maxDepth = Math.round(half + 3);
-      const depth = Math.min(maxDepth, open * 2 + 2);
-      if (open >= 3 && depth >= 4) {
-        const ax = Math.round(cx);
-        const ay = Math.round(cy);
-        const step = 2;
-        ctx.fillStyle = '#141413';
-        for (let i = 0; i < depth; i += step) {
-          const sh = Math.round(open * (i + step) / depth);
-          if (sh < 1) continue;
-          if (dir.dx > 0)      ctx.fillRect(ax + i,         ay - sh,         step, sh * 2);
-          else if (dir.dx < 0) ctx.fillRect(ax - i - step,  ay - sh,         step, sh * 2);
-          else if (dir.dy > 0) ctx.fillRect(ax - sh,        ay + i,          sh * 2, step);
-          else                 ctx.fillRect(ax - sh,        ay - i - step,   sh * 2, step);
-        }
-      }
-    }
 
     if (window.ClawdStats) {
       window.ClawdStats.drawHat(ctx, cx, cy - h / 2, frightenedTimer > 0 ? 4 : 3);
