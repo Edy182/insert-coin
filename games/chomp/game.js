@@ -840,7 +840,7 @@
     // X crosses). Baked into the sprite canvas via stroked paths.
     if (dead) {
       sctx.strokeStyle = B;
-      sctx.lineWidth = 1.25;
+      sctx.lineWidth = 1.5;
       sctx.lineCap = 'round';
       sctx.lineJoin = 'round';
       const eyeY = 2 * P + pad + P;
