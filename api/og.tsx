@@ -56,7 +56,7 @@ export default function handler(req: Request) {
   const clawdW = 12 * P;
   const clawdH = 9 * P;
 
-  const clawdPixels: React.ReactNode[] = [];
+  const clawdPixels: any[] = [];
   CLAWD_GRID.forEach((row, r) => {
     row.forEach((col, c) => {
       if (col) {
