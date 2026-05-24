@@ -78,7 +78,7 @@
   let gameStarted;
 
   function reset() {
-    player = { x: 80, y: GROUND_Y - 27, w: 36, h: 27, vy: 0, grounded: true, ducking: false };
+    player = { x: 80, y: GROUND_Y - 36, w: 48, h: 36, vy: 0, grounded: true, ducking: false };
     obstacles   = [];
     clouds      = [];
     groundOffset = 0;
@@ -174,7 +174,7 @@
     if (gameOver) return;
 
     // Duck state drives player height
-    player.h = player.ducking ? 12 : 27;
+    player.h = player.ducking ? 16 : 36;
 
     // Physics
     player.vy += GRAVITY;
@@ -467,9 +467,9 @@
     }
   }
 
-  // Clawd standing — 12×9 grid at P=3 = 36×27px
+  // Clawd standing — 12×9 grid at P=4 = 48×36px
   function drawClawd(x, y) {
-    const P = 3;
+    const P = 4;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
@@ -501,9 +501,9 @@
     }
   }
 
-  // Clawd ducking — 12×4 grid at P=3 = 36×12px
+  // Clawd ducking — 12×4 grid at P=4 = 48×16px
   function drawClawdDuck(x, y) {
-    const P = 3;
+    const P = 4;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
