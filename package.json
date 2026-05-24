@@ -7,6 +7,9 @@
     "dev": "vite",
     "_build_note": "production deploys serve the raw HTML/JS files directly; no build step needed yet"
   },
+  "dependencies": {
+    "@vercel/og": "^0.6.4"
+  },
   "devDependencies": {
     "vite": "^5.4.10"
   }

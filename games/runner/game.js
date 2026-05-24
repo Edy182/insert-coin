@@ -45,9 +45,18 @@
   function shareCard() {
     const tier = scoreTier(score);
     const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
-    const rank = leaderboardResult && leaderboardResult.rank;
+    const rank  = leaderboardResult && leaderboardResult.rank;
+    const total = leaderboardResult && leaderboardResult.list && leaderboardResult.list.length;
     const rankLine = rank ? `\nrank #${rank} ${dailyMode ? 'today' : 'all-time'}` : '';
-    return `🦀 Dino — ${todayISO}\n${score} pts ${squares}${rankLine}\nInsert Coin`;
+    // Share URL pastes into Twitter/Discord/Slack and unfurls with a
+    // Clawd preview (OG image rendered by /api/og).
+    const host = (typeof location !== 'undefined' && location.host) || 'insert-coin.vercel.app';
+    const params = new URLSearchParams({ g: 'runner', s: String(score) });
+    if (rank)       params.set('r',  String(rank));
+    if (total)      params.set('n',  String(total));
+    if (dailyMode)  params.set('dt', todayISO);
+    const url = `https://${host}/d?${params.toString()}`;
+    return `🕹️ INSERT COIN — Dino${dailyMode ? ` daily ${todayISO}` : ''}\n${score} pts ${squares}${rankLine}\n${url}`;
   }
 
   // === Constants ===

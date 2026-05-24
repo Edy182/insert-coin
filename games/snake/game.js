@@ -46,9 +46,16 @@
   function shareCard() {
     const tier = scoreTier(score);
     const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
-    const rank = leaderboardResult && leaderboardResult.rank;
+    const rank  = leaderboardResult && leaderboardResult.rank;
+    const total = leaderboardResult && leaderboardResult.list && leaderboardResult.list.length;
     const rankLine = rank ? `\nrank #${rank} ${dailyMode ? 'today' : 'all-time'}` : '';
-    return `🦀 Snake — ${todayISO}\n${score} pts ${squares}${rankLine}\nInsert Coin`;
+    const host = (typeof location !== 'undefined' && location.host) || 'insert-coin.vercel.app';
+    const params = new URLSearchParams({ g: 'snake', s: String(score) });
+    if (rank)       params.set('r',  String(rank));
+    if (total)      params.set('n',  String(total));
+    if (dailyMode)  params.set('dt', todayISO);
+    const url = `https://${host}/d?${params.toString()}`;
+    return `🕹️ INSERT COIN — Snake${dailyMode ? ` daily ${todayISO}` : ''}\n${score} pts ${squares}${rankLine}\n${url}`;
   }
 
   // === Constants ===

@@ -3,7 +3,11 @@
   "framework": null,
   "buildCommand": "",
   "outputDirectory": ".",
-  "installCommand": "",
+  "installCommand": "npm install --omit=dev",
+  "rewrites": [
+    { "source": "/d", "destination": "/api/d" },
+    { "source": "/og.png", "destination": "/api/og" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
