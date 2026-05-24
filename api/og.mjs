@@ -9,8 +9,16 @@
 
 import { ImageResponse } from '@vercel/og';
 
-export const runtime = 'edge';
-export const config = { runtime: 'edge' };
+// Run on Vercel's default Node-based runtime (Fluid Compute) rather than
+// Edge. The bundler was rejecting @vercel/og as an "unsupported module"
+// when the function was classified as Edge in this non-Next project —
+// @vercel/og's Edge entry isn't reachable through Vercel's Edge allowlist
+// for non-Next builds. The Node entry (index.node.js) works in regular
+// Node functions and the wasm modules bundle fine there.
+//
+// Vercel's session notes literally recommend Fluid Compute over Edge now
+// ("Edge Functions are not recommended ... Instead use Fluid Compute"),
+// so this is the documented path forward.
 
 // Brand palette
 const ORANGE = '#d97757';
