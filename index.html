@@ -482,28 +482,24 @@
 
       <a href="games/snake/" class="game-card available">
         <div class="sprite">
-          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="shape-rendering: geometricPrecision">
-            <path d="M 78 20
-                     C 96 18 94 38 75 36
-                     C 50 36 48 56 65 58
-                     C 88 60 85 82 55 82
-                     C 25 82 22 64 32 60"
-                  stroke="#d97757"
-                  stroke-width="14"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"/>
-            <circle cx="78" cy="20" r="3" fill="#1A0808"/>
-            <g>
-              <animate attributeName="opacity"
-                       values="0;1;0"
-                       keyTimes="0;0.55;0.78"
-                       dur="2.2s"
-                       calcMode="discrete"
-                       repeatCount="indefinite"/>
-              <line x1="86" y1="18" x2="96" y2="10" stroke="#d97757" stroke-width="2.5" stroke-linecap="round"/>
-              <line x1="86" y1="22" x2="96" y2="28" stroke="#d97757" stroke-width="2.5" stroke-linecap="round"/>
+          <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <g fill="#d97757">
+              <circle cx="1.5" cy="6" r="1.4">
+                <animate attributeName="cy" values="5.8;6.2;5.8" dur="0.7s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="4" cy="6" r="1.7">
+                <animate attributeName="cy" values="6.2;5.8;6.2" dur="0.7s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="6.8" cy="6" r="2">
+                <animate attributeName="cy" values="5.8;6.2;5.8" dur="0.7s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="9.8" cy="6" r="2.3">
+                <animate attributeName="cy" values="6.2;5.8;6.2" dur="0.7s" repeatCount="indefinite"/>
+              </circle>
             </g>
+            <circle cx="10.4" cy="5" r="0.45" fill="#1A0808">
+              <animate attributeName="cy" values="4.8;5.2;4.8" dur="0.7s" repeatCount="indefinite"/>
+            </circle>
           </svg>
         </div>
         <h2>SNAKE</h2>
