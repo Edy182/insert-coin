@@ -3,7 +3,7 @@
   "framework": null,
   "outputDirectory": ".",
   "rewrites": [
-    { "source": "/d", "destination": "/api/d" },
+    { "source": "/d", "destination": "/api/og?fmt=html" },
     { "source": "/og.png", "destination": "/api/og" }
   ],
   "headers": [
