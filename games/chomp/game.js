@@ -928,6 +928,7 @@
     if (freq2 !== null) osc.frequency.linearRampToValueAtTime(freq2, t + duration);
     gain.gain.setValueAtTime(volume, t);
     gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    osc.onended = () => { try { osc.disconnect(); gain.disconnect(); } catch (_) {} };
     osc.start(t);
     osc.stop(t + duration + 0.01);
   }
