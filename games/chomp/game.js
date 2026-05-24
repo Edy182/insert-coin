@@ -844,7 +844,7 @@
       sctx.lineCap = 'round';
       sctx.lineJoin = 'round';
       const eyeY = 2 * P + pad + P;
-      const r = 3;
+      const r = 2;
       const leftCx  = 3 * P + pad + P / 2;
       const rightCx = 9 * P + pad + P / 2;
       // Left ">" — tip points right (toward center)
@@ -872,9 +872,10 @@
   // correctly. Wedge is built from 1-px vertical rects (no AA fringe).
   // Simple sprite render — no rotation, no chomp animation (deferred to
   // post-launch when a real frame-based mouth animation is built). Dead
-  // state (catchFlash > 0) swaps to the X-eyes sprite.
+  // state shows the chevron-eyes sprite during the entire respawn period
+  // (until the new life begins) AND on game-over-by-loss.
   function drawClawd(cx, cy) {
-    const dead = catchFlash > 0;
+    const dead = respawnTimer > 0 || (gameOver && !win);
     const src = getClawdSprite(dead);
     const scale = frightenedTimer > 0 ? 2.0 : 1.5;
     const w = src.width * scale;

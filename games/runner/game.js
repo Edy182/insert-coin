@@ -515,7 +515,7 @@
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       const eyeY = y + 2 * P + P;
-      const r = 5;
+      const r = 4;
       const leftCx  = x + 3 * P + P / 2;
       const rightCx = x + 9 * P + P / 2;
       // Left ">" — tip points right (toward center)
