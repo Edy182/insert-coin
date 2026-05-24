@@ -483,7 +483,7 @@
   // monitor's refresh rate. Without this, 144Hz monitors run the game 2.4×
   // too fast and 30Hz throttled tabs run it half-speed. Render still
   // happens at native refresh rate (smooth visuals, deterministic logic).
-  const FIXED_DT = 1000 / 90;
+  const FIXED_DT = 1000 / 120;
   const MAX_STEPS_PER_FRAME = 5;
   let _lastFrameTime = null;
   let _timeAccum = 0;
