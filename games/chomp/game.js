@@ -826,41 +826,29 @@
     ctx.drawImage(src, Math.round(-w / 2), Math.round(-h / 2), w, h);
     ctx.restore();
 
-    // Chomp wedge in pure screen-space integer pixels. Depth is proportional
-    // to open so the wedge is always a balanced triangle (no thin stick of
-    // 1-px-tall cells sticking out when the mouth is barely open). Skip the
-    // draw entirely when open is too small to render meaningfully.
+    // Chomp wedge — 2-px-wide stepped columns (chunkier than 1-px = no thin
+    // sliver artifacts under browser CSS scaling). Depth proportional to open
+    // and extended 2px past the sprite edge so the wedge always wraps fully
+    // around the boundary into bg.
     if (gameStarted && (dir.dx !== 0 || dir.dy !== 0)) {
       const openAmount = Math.max(0, Math.sin((player.mouth / 20) * Math.PI));
       const half = h / 2;
       const maxOpen = Math.round(half * 0.85);
       const open = Math.round(openAmount * maxOpen);
-      const maxDepth = Math.round(half + 1);
-      const depth = Math.min(maxDepth, open * 2);
-      if (open >= 3 && depth >= 3) {
+      const maxDepth = Math.round(half + 3);
+      const depth = Math.min(maxDepth, open * 2 + 2);
+      if (open >= 3 && depth >= 4) {
         const ax = Math.round(cx);
         const ay = Math.round(cy);
+        const step = 2;
         ctx.fillStyle = '#141413';
-        if (dir.dx > 0) {
-          for (let i = 0; i < depth; i++) {
-            const sh = Math.round(open * (i + 1) / depth);
-            if (sh >= 1) ctx.fillRect(ax + i, ay - sh, 1, sh * 2);
-          }
-        } else if (dir.dx < 0) {
-          for (let i = 0; i < depth; i++) {
-            const sh = Math.round(open * (i + 1) / depth);
-            if (sh >= 1) ctx.fillRect(ax - i - 1, ay - sh, 1, sh * 2);
-          }
-        } else if (dir.dy > 0) {
-          for (let i = 0; i < depth; i++) {
-            const sh = Math.round(open * (i + 1) / depth);
-            if (sh >= 1) ctx.fillRect(ax - sh, ay + i, sh * 2, 1);
-          }
-        } else {
-          for (let i = 0; i < depth; i++) {
-            const sh = Math.round(open * (i + 1) / depth);
-            if (sh >= 1) ctx.fillRect(ax - sh, ay - i - 1, sh * 2, 1);
-          }
+        for (let i = 0; i < depth; i += step) {
+          const sh = Math.round(open * (i + step) / depth);
+          if (sh < 1) continue;
+          if (dir.dx > 0)      ctx.fillRect(ax + i,         ay - sh,         step, sh * 2);
+          else if (dir.dx < 0) ctx.fillRect(ax - i - step,  ay - sh,         step, sh * 2);
+          else if (dir.dy > 0) ctx.fillRect(ax - sh,        ay + i,          sh * 2, step);
+          else                 ctx.fillRect(ax - sh,        ay - i - step,   sh * 2, step);
         }
       }
     }
