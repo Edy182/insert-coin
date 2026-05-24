@@ -815,7 +815,7 @@
     const dir = player.dir;
     let rotation = 0;
     let flipH = false;
-    if (dir.dx < 0)       flipH = true;          // Moving left
+    if (dir.dx < 0)       flipH = true;            // Moving left
     else if (dir.dy > 0)  rotation = Math.PI / 2;  // Moving down
     else if (dir.dy < 0)  rotation = -Math.PI / 2; // Moving up
 
@@ -824,7 +824,11 @@
     if (rotation) ctx.rotate(rotation);
     if (flipH)    ctx.scale(-1, 1);
     ctx.drawImage(src, Math.round(-w / 2), Math.round(-h / 2), w, h);
+    ctx.restore();
 
+    // Chomp wedge in pure screen-space integer pixels (no rotation matrix =
+    // no subpixel fringe). Each direction has its own branch with fillRect
+    // calls that are always pixel-aligned.
     if (gameStarted && (dir.dx !== 0 || dir.dy !== 0)) {
       const openAmount = Math.max(0, Math.sin((player.mouth / 20) * Math.PI));
       const half = h / 2;
@@ -832,18 +836,32 @@
       const open = Math.round(openAmount * maxOpen);
       const depth = Math.round(half + 1);
       if (open >= 1) {
+        const ax = Math.round(cx);
+        const ay = Math.round(cy);
         ctx.fillStyle = '#141413';
-        // Stair-step triangle: one vertical 1-px column per x, height linearly
-        // grows from 0 at the apex to (open*2) at the base. Pure rects = no
-        // antialiased diagonal fringe.
-        for (let x = 0; x < depth; x++) {
-          const sliceHalf = Math.round(open * (x + 1) / depth);
-          if (sliceHalf >= 1) ctx.fillRect(x, -sliceHalf, 1, sliceHalf * 2);
+        if (dir.dx > 0) {
+          for (let i = 0; i < depth; i++) {
+            const sh = Math.round(open * (i + 1) / depth);
+            if (sh >= 1) ctx.fillRect(ax + i, ay - sh, 1, sh * 2);
+          }
+        } else if (dir.dx < 0) {
+          for (let i = 0; i < depth; i++) {
+            const sh = Math.round(open * (i + 1) / depth);
+            if (sh >= 1) ctx.fillRect(ax - i - 1, ay - sh, 1, sh * 2);
+          }
+        } else if (dir.dy > 0) {
+          for (let i = 0; i < depth; i++) {
+            const sh = Math.round(open * (i + 1) / depth);
+            if (sh >= 1) ctx.fillRect(ax - sh, ay + i, sh * 2, 1);
+          }
+        } else {
+          for (let i = 0; i < depth; i++) {
+            const sh = Math.round(open * (i + 1) / depth);
+            if (sh >= 1) ctx.fillRect(ax - sh, ay - i - 1, sh * 2, 1);
+          }
         }
       }
     }
-
-    ctx.restore();
 
     if (window.ClawdStats) {
       window.ClawdStats.drawHat(ctx, cx, cy - h / 2, frightenedTimer > 0 ? 4 : 3);
