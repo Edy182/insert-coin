@@ -792,9 +792,35 @@
     }
   }
 
-  function loop() {
-    update();
-    if (confetti.length > 0) updateConfetti();
+  // Fixed-timestep loop: run game logic at exactly 60Hz regardless of the
+  // monitor's refresh rate. Without this, 144Hz monitors run the game 2.4×
+  // too fast and 30Hz throttled tabs run it half-speed. Render still
+  // happens at native refresh rate (smooth visuals, deterministic logic).
+  const FIXED_DT = 1000 / 60;
+  const MAX_STEPS_PER_FRAME = 5; // safety cap against spiral of death
+  let _lastFrameTime = null;
+  let _timeAccum = 0;
+
+  function loop(now) {
+    if (typeof now !== 'number') now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    if (_lastFrameTime === null) {
+      _lastFrameTime = now;
+      if (!gameOver || confetti.length > 0) requestAnimationFrame(loop);
+      return;
+    }
+    const frameMs = Math.min(now - _lastFrameTime, 250);
+    _lastFrameTime = now;
+    _timeAccum += frameMs;
+
+    let steps = 0;
+    while (_timeAccum >= FIXED_DT && steps < MAX_STEPS_PER_FRAME) {
+      update();
+      if (confetti.length > 0) updateConfetti();
+      _timeAccum -= FIXED_DT;
+      steps++;
+    }
+    if (_timeAccum >= FIXED_DT * MAX_STEPS_PER_FRAME) _timeAccum = 0; // drop backlog instead of spiral
+
     draw();
     if (confetti.length > 0) drawConfetti();
     if (!gameOver || confetti.length > 0) requestAnimationFrame(loop);

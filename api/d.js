@@ -1,19 +1,14 @@
-// /d (rewritten to /api/d) — the URL that goes into share cards. Returns
-// a tiny HTML page with OG/Twitter meta tags so Twitter, Discord, iMessage,
-// Slack, etc. unfurl with a Clawd preview (fetched from /api/og).
-// Humans hitting the URL get meta-refreshed straight into the game's
+// /d (rewritten to /api/d). Returns minimal HTML with Open Graph + Twitter
+// meta tags so the link unfurls in social apps with a Clawd preview
+// (fetched from /api/og). Humans get meta-refreshed into the game's
 // daily mode.
 
 export const config = { runtime: 'edge' };
 
-const GAME_NAMES: Record<string, string> = {
-  runner: 'Dino',
-  chomp:  'Mac-Pan',
-  snake:  'Snake',
-};
+const GAME_NAMES = { runner: 'Dino', chomp: 'Mac-Pan', snake: 'Snake' };
 
-function esc(s: string): string {
-  return s
+function esc(s) {
+  return String(s)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -21,7 +16,7 @@ function esc(s: string): string {
     .replace(/'/g, '&#39;');
 }
 
-export default function handler(req: Request) {
+export default function handler(req) {
   const url = new URL(req.url);
   const game  = (url.searchParams.get('g')  || 'runner').toLowerCase();
   const score = url.searchParams.get('s')  || '0';
@@ -29,10 +24,9 @@ export default function handler(req: Request) {
   const total = url.searchParams.get('n')  || '';
   const date  = url.searchParams.get('dt') || '';
 
-  const gameName = GAME_NAMES[game] ?? 'Game';
+  const gameName = GAME_NAMES[game] || 'Game';
   const isDaily  = !!date;
 
-  // Build the og:image URL that points at /api/og with the same params
   const ogUrl = new URL(`https://${url.host}/api/og`);
   ogUrl.search = url.search;
 
@@ -50,8 +44,6 @@ export default function handler(req: Request) {
 <meta charset="UTF-8">
 <title>${esc(title)} — Insert Coin</title>
 <meta name="description" content="${esc(desc)}">
-
-<!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
@@ -60,13 +52,10 @@ export default function handler(req: Request) {
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="${esc(canonical)}">
 <meta property="og:site_name" content="Insert Coin">
-
-<!-- Twitter card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(desc)}">
 <meta name="twitter:image" content="${esc(ogUrl.toString())}">
-
 <link rel="canonical" href="${esc(canonical)}">
 <meta http-equiv="refresh" content="0; url=${esc(playUrl)}">
 <style>
