@@ -826,16 +826,18 @@
     ctx.drawImage(src, Math.round(-w / 2), Math.round(-h / 2), w, h);
     ctx.restore();
 
-    // Chomp wedge in pure screen-space integer pixels (no rotation matrix =
-    // no subpixel fringe). Each direction has its own branch with fillRect
-    // calls that are always pixel-aligned.
+    // Chomp wedge in pure screen-space integer pixels. Depth is proportional
+    // to open so the wedge is always a balanced triangle (no thin stick of
+    // 1-px-tall cells sticking out when the mouth is barely open). Skip the
+    // draw entirely when open is too small to render meaningfully.
     if (gameStarted && (dir.dx !== 0 || dir.dy !== 0)) {
       const openAmount = Math.max(0, Math.sin((player.mouth / 20) * Math.PI));
       const half = h / 2;
       const maxOpen = Math.round(half * 0.85);
       const open = Math.round(openAmount * maxOpen);
-      const depth = Math.round(half + 1);
-      if (open >= 1) {
+      const maxDepth = Math.round(half + 1);
+      const depth = Math.min(maxDepth, open * 2);
+      if (open >= 3 && depth >= 3) {
         const ax = Math.round(cx);
         const ay = Math.round(cy);
         ctx.fillStyle = '#141413';

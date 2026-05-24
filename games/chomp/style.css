@@ -71,9 +71,9 @@ h1 {
   background: #000000;
   border: 2px solid var(--gray);
   border-radius: 8px;
-  image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
+  image-rendering: pixelated;
 }
 
 .controls {
