@@ -78,7 +78,7 @@
   let gameStarted;
 
   function reset() {
-    player = { x: 80, y: GROUND_Y - 27, w: 36, h: 27, vy: 0, grounded: true, ducking: false };
+    player = { x: 80, y: GROUND_Y - 36, w: 48, h: 36, vy: 0, grounded: true, ducking: false };
     obstacles   = [];
     clouds      = [];
     groundOffset = 0;
@@ -174,7 +174,7 @@
     if (gameOver) return;
 
     // Duck state drives player height
-    player.h = player.ducking ? 12 : 27;
+    player.h = player.ducking ? 16 : 36;
 
     // Physics
     player.vy += GRAVITY;
@@ -467,11 +467,11 @@
     }
   }
 
-  // Clawd standing — 12×9 grid at P=3 = 36×27px (legs back to 1 row, the
-  // original size). On gameOver, the dead variant draws a 5×5 X-shape eye
-  // on each side (knocked-out look) — diagonal strokes with a center pixel.
+  // Clawd standing — 12×9 grid at P=4 = 48×36px (bumped from P=3 for more
+  // visual presence). On gameOver, the dead variant draws chevron ">" "<"
+  // marks instead of pupils (knocked-out look matching the toy reference).
   function drawClawd(x, y) {
-    const P = 3;
+    const P = 4;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
@@ -507,24 +507,29 @@
     grid.forEach((row, r) => row.forEach((col, c) => {
       if (col) { ctx.fillStyle = col; ctx.fillRect(x + c*P, y + r*P, P, P); }
     }));
-    // X eyes: stroked diagonals when crashed (real connected lines, not
-    // scattered pixel dots).
+    // Knocked-out eyes: two chevrons ">" and "<" pointing inward toward
+    // each other (matching the reference toy art — they're NOT crossed Xs).
     if (gameOver) {
       ctx.strokeStyle = B;
       ctx.lineWidth = 3;
       ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
       const eyeY = y + 2 * P + P;
-      const reach = 5;
+      const r = 5;
       const leftCx  = x + 3 * P + P / 2;
       const rightCx = x + 9 * P + P / 2;
-      [leftCx, rightCx].forEach((ex) => {
-        ctx.beginPath();
-        ctx.moveTo(ex - reach, eyeY - reach);
-        ctx.lineTo(ex + reach, eyeY + reach);
-        ctx.moveTo(ex + reach, eyeY - reach);
-        ctx.lineTo(ex - reach, eyeY + reach);
-        ctx.stroke();
-      });
+      // Left ">" — tip points right (toward center)
+      ctx.beginPath();
+      ctx.moveTo(leftCx - r, eyeY - r);
+      ctx.lineTo(leftCx + r, eyeY);
+      ctx.lineTo(leftCx - r, eyeY + r);
+      ctx.stroke();
+      // Right "<" — tip points left (toward center)
+      ctx.beginPath();
+      ctx.moveTo(rightCx + r, eyeY - r);
+      ctx.lineTo(rightCx - r, eyeY);
+      ctx.lineTo(rightCx + r, eyeY + r);
+      ctx.stroke();
     }
     if (window.ClawdStats) {
       window.ClawdStats.drawHat(ctx, x + 6 * P, y, P);
@@ -532,9 +537,9 @@
     }
   }
 
-  // Clawd ducking — 12×4 grid at P=3 = 36×12px
+  // Clawd ducking — 12×4 grid at P=4 = 48×16px (matches standing scale)
   function drawClawdDuck(x, y) {
-    const P = 3;
+    const P = 4;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();

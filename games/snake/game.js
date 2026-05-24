@@ -417,8 +417,10 @@
     ctx.fillRect(x, y, TILE, TILE);
 
     if (gameOver) {
-      drawXEyeMark(x + 6,  y + 9);
-      drawXEyeMark(x + 16, y + 9);
+      // Left eye gets ">" (tip points right toward center)
+      // Right eye gets "<" (tip points left toward center)
+      drawXEyeMark(x + 6,  y + 9, true);
+      drawXEyeMark(x + 16, y + 9, false);
     } else {
       ctx.fillStyle = '#1A0808';
       const eyeSize = 5;
@@ -434,20 +436,26 @@
     }
   }
 
-  // X-eye mark: stroked diagonals (real connected lines, not scattered
-  // pixel dots) so the X reads as bold knocked-out marks like the
-  // reference toy art.
-  function drawXEyeMark(cx, cy) {
+  // Knocked-out chevron eye: ">" when pointsRight, "<" otherwise. Matches
+  // the reference toy art — two angle brackets pointing inward, NOT crossed
+  // Xs. Each eye is a single 3-point path with a shared center vertex.
+  function drawXEyeMark(cx, cy, pointsRight) {
     ctx.strokeStyle = '#1A0808';
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     const ax = Math.round(cx), ay = Math.round(cy);
     const r = 5;
     ctx.beginPath();
-    ctx.moveTo(ax - r, ay - r);
-    ctx.lineTo(ax + r, ay + r);
-    ctx.moveTo(ax + r, ay - r);
-    ctx.lineTo(ax - r, ay + r);
+    if (pointsRight) {
+      ctx.moveTo(ax - r, ay - r);
+      ctx.lineTo(ax + r, ay);
+      ctx.lineTo(ax - r, ay + r);
+    } else {
+      ctx.moveTo(ax + r, ay - r);
+      ctx.lineTo(ax - r, ay);
+      ctx.lineTo(ax + r, ay + r);
+    }
     ctx.stroke();
   }
 

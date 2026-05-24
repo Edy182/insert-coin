@@ -835,24 +835,30 @@
       if (col) { sctx.fillStyle = col; sctx.fillRect(c*P + pad, r*P + pad, P, P); }
     }));
 
-    // X eyes: stroked diagonals (actual connected lines, not scattered
-    // pixel cells). Baked into the sprite canvas so they scale uniformly.
+    // Knocked-out eyes: two chevron marks ">" and "<" pointing inward
+    // toward each other (matching the reference toy art — they're NOT full
+    // X crosses). Baked into the sprite canvas via stroked paths.
     if (dead) {
       sctx.strokeStyle = B;
       sctx.lineWidth = 2;
       sctx.lineCap = 'round';
-      const eyeY = 2 * P + pad + P;        // vertical center of original eye rows
-      const reach = 3;                      // X radius in source px
+      sctx.lineJoin = 'round';
+      const eyeY = 2 * P + pad + P;
+      const r = 3;
       const leftCx  = 3 * P + pad + P / 2;
       const rightCx = 9 * P + pad + P / 2;
-      [leftCx, rightCx].forEach((ex) => {
-        sctx.beginPath();
-        sctx.moveTo(ex - reach, eyeY - reach);
-        sctx.lineTo(ex + reach, eyeY + reach);
-        sctx.moveTo(ex + reach, eyeY - reach);
-        sctx.lineTo(ex - reach, eyeY + reach);
-        sctx.stroke();
-      });
+      // Left ">" — tip points right (toward center)
+      sctx.beginPath();
+      sctx.moveTo(leftCx - r, eyeY - r);
+      sctx.lineTo(leftCx + r, eyeY);
+      sctx.lineTo(leftCx - r, eyeY + r);
+      sctx.stroke();
+      // Right "<" — tip points left (toward center)
+      sctx.beginPath();
+      sctx.moveTo(rightCx + r, eyeY - r);
+      sctx.lineTo(rightCx - r, eyeY);
+      sctx.lineTo(rightCx + r, eyeY + r);
+      sctx.stroke();
     }
 
     clawdSpriteCache[key] = canvas;
@@ -870,7 +876,7 @@
   function drawClawd(cx, cy) {
     const dead = catchFlash > 0;
     const src = getClawdSprite(dead);
-    const scale = frightenedTimer > 0 ? 1.8 : 1.25;
+    const scale = frightenedTimer > 0 ? 2.0 : 1.5;
     const w = src.width * scale;
     const h = src.height * scale;
     ctx.imageSmoothingEnabled = false;
