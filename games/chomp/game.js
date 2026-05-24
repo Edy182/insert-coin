@@ -802,40 +802,48 @@
 
   // Render Clawd at 1.25× by default. While powered-up (frightened mode active)
   // scale up to 1.8× so the power-pellet effect is visually obvious.
-  // While moving, paint a Pac-Man-style chomp wedge in the direction of motion
-  // (player.mouth cycles 0-19; wedge opens to max at frame 10, closed at 0/19).
+  // Sprite rotates/flips to match movement direction; chomp wedge always opens
+  // along the +x axis of the rotated context, so right/left/up/down all chomp
+  // correctly. Wedge is built from 1-px vertical rects (no AA fringe).
   function drawClawd(cx, cy) {
     const src = getClawdSprite();
     const scale = frightenedTimer > 0 ? 1.8 : 1.25;
     const w = src.width * scale;
     const h = src.height * scale;
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(src, Math.round(cx - w / 2), Math.round(cy - h / 2), w, h);
 
-    // Chomp wedge — only when moving horizontally (vertical chomp would look
-    // like Clawd's head is splitting open). Integer-rounded coords + matching
-    // bg color = no antialiased pixel fringe.
     const dir = player.dir;
-    if (gameStarted && dir.dx !== 0) {
+    let rotation = 0;
+    let flipH = false;
+    if (dir.dx < 0)       flipH = true;          // Moving left
+    else if (dir.dy > 0)  rotation = Math.PI / 2;  // Moving down
+    else if (dir.dy < 0)  rotation = -Math.PI / 2; // Moving up
+
+    ctx.save();
+    ctx.translate(Math.round(cx), Math.round(cy));
+    if (rotation) ctx.rotate(rotation);
+    if (flipH)    ctx.scale(-1, 1);
+    ctx.drawImage(src, Math.round(-w / 2), Math.round(-h / 2), w, h);
+
+    if (gameStarted && (dir.dx !== 0 || dir.dy !== 0)) {
       const openAmount = Math.max(0, Math.sin((player.mouth / 20) * Math.PI));
       const half = h / 2;
-      const open = Math.round(openAmount * half * 0.85);
+      const maxOpen = Math.round(half * 0.85);
+      const open = Math.round(openAmount * maxOpen);
       const depth = Math.round(half + 1);
-      const axCenter = Math.round(cx);
-      const ayCenter = Math.round(cy);
-      ctx.fillStyle = '#141413';
-      ctx.beginPath();
-      ctx.moveTo(axCenter, ayCenter);
-      if (dir.dx > 0) {
-        ctx.lineTo(axCenter + depth, ayCenter - open);
-        ctx.lineTo(axCenter + depth, ayCenter + open);
-      } else {
-        ctx.lineTo(axCenter - depth, ayCenter - open);
-        ctx.lineTo(axCenter - depth, ayCenter + open);
+      if (open >= 1) {
+        ctx.fillStyle = '#141413';
+        // Stair-step triangle: one vertical 1-px column per x, height linearly
+        // grows from 0 at the apex to (open*2) at the base. Pure rects = no
+        // antialiased diagonal fringe.
+        for (let x = 0; x < depth; x++) {
+          const sliceHalf = Math.round(open * (x + 1) / depth);
+          if (sliceHalf >= 1) ctx.fillRect(x, -sliceHalf, 1, sliceHalf * 2);
+        }
       }
-      ctx.closePath();
-      ctx.fill();
     }
+
+    ctx.restore();
 
     if (window.ClawdStats) {
       window.ClawdStats.drawHat(ctx, cx, cy - h / 2, frightenedTimer > 0 ? 4 : 3);

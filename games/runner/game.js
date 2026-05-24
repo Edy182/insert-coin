@@ -352,9 +352,9 @@
   function draw() {
     // Claude-Radio-style monochrome environment: dark canvas, cream silhouettes
     // for the world, ONLY Clawd carries color. Day/night still flips the bg.
-    const bg  = nightMode ? '#141413' : '#cbc8bd';
-    const gnd = nightMode ? '#b0aea5' : '#4a4842';
-    const cld = nightMode ? '#5c5a52' : '#8e8c83';
+    const bg  = nightMode ? '#141413' : '#faf9f5';
+    const gnd = nightMode ? '#b0aea5' : '#5c5a52';
+    const cld = nightMode ? '#5c5a52' : '#b0aea5';
 
     // Background
     ctx.fillStyle = bg;
