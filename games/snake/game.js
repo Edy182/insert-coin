@@ -43,19 +43,31 @@
     if (s >= 10)  return 1;
     return 0;
   }
+  const LAUNCH_DATE_ISO = '2026-05-24';
+  function dailyNumber() {
+    const launch = Date.parse(LAUNCH_DATE_ISO + 'T00:00:00Z');
+    const today  = Date.parse(todayISO + 'T00:00:00Z');
+    return Math.max(1, Math.floor((today - launch) / 86400000) + 1);
+  }
+
   function shareCard() {
-    const tier = scoreTier(score);
-    const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
     const rank  = leaderboardResult && leaderboardResult.rank;
     const total = leaderboardResult && leaderboardResult.list && leaderboardResult.list.length;
-    const rankLine = rank ? `\nrank #${rank} ${dailyMode ? 'today' : 'all-time'}` : '';
-    const host = (typeof location !== 'undefined' && location.host) || 'insert-coin.vercel.app';
+    // Narrative track: snake length as 🟩 segments + 🍎 apples eaten + 💀 if dead.
+    // Cap at 18 segments total so the card stays compact.
+    const apples = Math.max(0, snake.length - 3); // initial length is 3
+    const bodyShown = Math.min(snake.length, 12);
+    const applesShown = Math.min(apples, 6);
+    const trackStr = '🟩'.repeat(bodyShown) + '🍎'.repeat(applesShown) + (gameOver && !win ? '💀' : (win ? '🏆' : ''));
+    const rankLine = rank ? ` · #${rank}${total ? `/${total}` : ''} ${dailyMode ? 'today' : 'all-time'}` : '';
+    const PROD_HOST = 'insert-coin.vercel.app';
     const params = new URLSearchParams({ g: 'snake', s: String(score) });
     if (rank)       params.set('r',  String(rank));
     if (total)      params.set('n',  String(total));
     if (dailyMode)  params.set('dt', todayISO);
-    const url = `https://${host}/d?${params.toString()}`;
-    return `🕹️ INSERT COIN — Snake${dailyMode ? ` daily ${todayISO}` : ''}\n${score} pts ${squares}${rankLine}\n${url}`;
+    const url = `https://${PROD_HOST}/d?${params.toString()}`;
+    const dailyLabel = dailyMode ? `daily #${dailyNumber()}` : 'all-time';
+    return `🕹️ INSERT COIN · Snake ${dailyLabel}\n${score} pts${rankLine}\n${trackStr}\n${url}`;
   }
 
   // === Constants ===
@@ -471,7 +483,7 @@
   // monitor's refresh rate. Without this, 144Hz monitors run the game 2.4×
   // too fast and 30Hz throttled tabs run it half-speed. Render still
   // happens at native refresh rate (smooth visuals, deterministic logic).
-  const FIXED_DT = 1000 / 60;
+  const FIXED_DT = 1000 / 90;
   const MAX_STEPS_PER_FRAME = 5;
   let _lastFrameTime = null;
   let _timeAccum = 0;

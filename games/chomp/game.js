@@ -29,19 +29,31 @@
     if (s >= 100)  return 1;
     return 0;
   }
+  const LAUNCH_DATE_ISO = '2026-05-24';
+  function dailyNumber() {
+    const launch = Date.parse(LAUNCH_DATE_ISO + 'T00:00:00Z');
+    const today  = Date.parse(todayISO + 'T00:00:00Z');
+    return Math.max(1, Math.floor((today - launch) / 86400000) + 1);
+  }
+
   function shareCard() {
-    const tier = scoreTier(score);
-    const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
     const rank  = leaderboardResult && leaderboardResult.rank;
     const total = leaderboardResult && leaderboardResult.list && leaderboardResult.list.length;
-    const rankLine = rank ? `\nrank #${rank} ${dailyMode ? 'today' : 'all-time'}` : '';
-    const host = (typeof location !== 'undefined' && location.host) || 'insert-coin.vercel.app';
+    // Narrative track: 👻 per ghost eaten, then a finish marker. Loss
+    // reveals which ghost was the killer — comment-bait per the share
+    // strategy ("jajaja te mató NullPointer otra vez").
+    const ghosts = '👻'.repeat(Math.min(ghostsEatenTotal, 12));
+    const ending = win ? '🏆' : (gameOver && lastCaughtBy ? `💀 ${lastCaughtBy}` : (gameOver ? '💀' : ''));
+    const trackStr = ghosts + ending;
+    const rankLine = rank ? ` · #${rank}${total ? `/${total}` : ''} ${dailyMode ? 'today' : 'all-time'}` : '';
+    const PROD_HOST = 'insert-coin.vercel.app';
     const params = new URLSearchParams({ g: 'chomp', s: String(score) });
     if (rank)       params.set('r',  String(rank));
     if (total)      params.set('n',  String(total));
     if (dailyMode)  params.set('dt', todayISO);
-    const url = `https://${host}/d?${params.toString()}`;
-    return `🕹️ INSERT COIN — Mac-Pan${dailyMode ? ` daily ${todayISO}` : ''}\n${score} pts ${squares}${rankLine}\n${url}`;
+    const url = `https://${PROD_HOST}/d?${params.toString()}`;
+    const dailyLabel = dailyMode ? `daily #${dailyNumber()}` : 'all-time';
+    return `🕹️ INSERT COIN · Mac-Pan ${dailyLabel}\n${score} pts${rankLine}\n${trackStr}\n${url}`;
   }
 
   // === Constants ===
@@ -167,6 +179,7 @@
   let catchFlash;    // frames remaining for the red-flash catch feedback
   let frightenedTimer; // > 0 means ghosts are fleeing after a power pellet
   let ghostsEatenInRound; // 1-4, scoring multiplier within a single frightened round
+  let ghostsEatenTotal;   // cumulative across the whole run — used by share card narrative
   let eatFreezeTimer; // brief freeze of all gameplay after eating a ghost (drama)
   let scorePopups; // floating "+200" labels that fade out
   let shieldFlash;      // frames of cream flash after activating the shield
@@ -223,6 +236,7 @@
     catchFlash = 0;
     frightenedTimer = 0;
     ghostsEatenInRound = 0;
+    ghostsEatenTotal = 0;
     eatFreezeTimer = 0;
     scorePopups = [];
     shieldFlash = 0;
@@ -505,6 +519,7 @@
       if (catcher) {
         if (frightenedTimer > 0 && !catcher.eaten) {
           ghostsEatenInRound = Math.min(ghostsEatenInRound + 1, 4);
+          ghostsEatenTotal++;
           const pts = 200 * Math.pow(2, ghostsEatenInRound - 1);
           score += pts;
           catcher.eaten = true;
@@ -967,7 +982,7 @@
   // monitor's refresh rate. Without this, 144Hz monitors run the game 2.4×
   // too fast and 30Hz throttled tabs run it half-speed. Render still
   // happens at native refresh rate (smooth visuals, deterministic logic).
-  const FIXED_DT = 1000 / 60;
+  const FIXED_DT = 1000 / 90;
   const MAX_STEPS_PER_FRAME = 5;
   let _lastFrameTime = null;
   let _timeAccum = 0;

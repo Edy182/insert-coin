@@ -42,21 +42,33 @@
     if (s >= 100)  return 1;
     return 0;
   }
+  // Days since the public launch baseline — used as the daily # à la Wordle.
+  const LAUNCH_DATE_ISO = '2026-05-24';
+  function dailyNumber() {
+    const launch = Date.parse(LAUNCH_DATE_ISO + 'T00:00:00Z');
+    const today  = Date.parse(todayISO + 'T00:00:00Z');
+    return Math.max(1, Math.floor((today - launch) / 86400000) + 1);
+  }
+
   function shareCard() {
-    const tier = scoreTier(score);
-    const squares = '🟧'.repeat(tier) + '⬛'.repeat(5 - tier);
     const rank  = leaderboardResult && leaderboardResult.rank;
     const total = leaderboardResult && leaderboardResult.list && leaderboardResult.list.length;
-    const rankLine = rank ? `\nrank #${rank} ${dailyMode ? 'today' : 'all-time'}` : '';
-    // Share URL pastes into Twitter/Discord/Slack and unfurls with a
-    // Clawd preview (OG image rendered by /api/og).
-    const host = (typeof location !== 'undefined' && location.host) || 'insert-coin.vercel.app';
+    // Narrative emoji track: each dodged obstacle as its emoji, capped at
+    // 15 events so the card stays compact. Final 💀 if crashed.
+    const MAX_EVENTS = 15;
+    const trackEvents = runEvents.slice(-MAX_EVENTS);
+    const trackStr = trackEvents.map(e => e === 'ptero' ? '🦇' : '🌵').join('') + (gameOver ? '💀' : '');
+    const rankLine = rank ? ` · #${rank}${total ? `/${total}` : ''} ${dailyMode ? 'today' : 'all-time'}` : '';
+    // Share URL — hardcoded to production canonical so preview-deploy
+    // URLs (which expire) don't end up in the wild.
+    const PROD_HOST = 'insert-coin.vercel.app';
     const params = new URLSearchParams({ g: 'runner', s: String(score) });
     if (rank)       params.set('r',  String(rank));
     if (total)      params.set('n',  String(total));
     if (dailyMode)  params.set('dt', todayISO);
-    const url = `https://${host}/d?${params.toString()}`;
-    return `🕹️ INSERT COIN — Dino${dailyMode ? ` daily ${todayISO}` : ''}\n${score} pts ${squares}${rankLine}\n${url}`;
+    const url = `https://${PROD_HOST}/d?${params.toString()}`;
+    const dailyLabel = dailyMode ? `daily #${dailyNumber()}` : 'all-time';
+    return `🕹️ INSERT COIN · Dino ${dailyLabel}\n${score} pts${rankLine}\n${trackStr}\n${url}`;
   }
 
   // === Constants ===
@@ -79,6 +91,7 @@
   let score, scoreFrame, gameOver, gameSpeed, lastSpawn;
   let shieldFlash = 0;
   let obstaclesDodged = 0;
+  let runEvents = []; // 'cactus'|'ptero' per obstacle dodged, in order — feeds the share card narrative track
   let comboPopup = null; // { text, frames }
   let comboFlash = 0;    // frames of cream border pulse on combo trigger
   let leaderboardResult = null; // { rank, list } from Worker after submit
@@ -102,6 +115,7 @@
     lastSpawn      = 0;
     shieldFlash    = 0;
     obstaclesDodged = 0;
+    runEvents = [];
     comboPopup     = null;
     comboFlash     = 0;
     leaderboardResult = null;
@@ -219,6 +233,7 @@
     for (let i = obstacles.length - 1; i >= 0; i--) {
       obstacles[i].x -= gameSpeed;
       if (obstacles[i].x + obstacles[i].w < 0) {
+        runEvents.push(obstacles[i].type === 'ptero' ? 'ptero' : 'cactus');
         obstacles.splice(i, 1);
         obstaclesDodged++;
         if (obstaclesDodged % 10 === 0) {
@@ -796,7 +811,7 @@
   // monitor's refresh rate. Without this, 144Hz monitors run the game 2.4×
   // too fast and 30Hz throttled tabs run it half-speed. Render still
   // happens at native refresh rate (smooth visuals, deterministic logic).
-  const FIXED_DT = 1000 / 60;
+  const FIXED_DT = 1000 / 90;
   const MAX_STEPS_PER_FRAME = 5; // safety cap against spiral of death
   let _lastFrameTime = null;
   let _timeAccum = 0;
