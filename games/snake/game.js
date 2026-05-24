@@ -399,64 +399,57 @@
     ctx.fill();
   }
 
-  // Body segment — uniform-width rectangle (classic Nokia-style snake body).
-  // No tapering, full tile minus a 1-px inset so segments read as distinct.
+  // Body segment — full tile rectangle, no inset, no outline. Adjacent
+  // segments touch with zero gap so the body reads as one continuous shape.
   function drawBody(c, r, idx, total) {
     const x = c * TILE;
     const y = r * TILE;
-    const color = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
-    const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
-    if (outline) {
-      ctx.fillStyle = outline;
-      ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
-      ctx.fillStyle = color;
-      ctx.fillRect(x + 2, y + 2, TILE - 4, TILE - 4);
-    } else {
-      ctx.fillStyle = color;
-      ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
-    }
+    ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
+    ctx.fillRect(x, y, TILE, TILE);
   }
 
-  // Snake head — full Clawd sprite (keeps the little arms/legs that give
-  // Clawd character). Body stays rectangular Nokia-style. On gameOver, the
-  // eyes get overlaid with X marks (knocked-out look).
+  // Snake head — rectangular block (no arms/legs, no Clawd sprite). Bigger
+  // eye dots when alive; 4×4 X-eye marks when gameOver (knocked-out look).
   function drawClawdHead(c, r) {
-    const cx = c * TILE + TILE / 2;
-    const cy = r * TILE + TILE / 2;
-    const src = getClawdSprite();
-    const scale = 1.25;
-    const w = src.width * scale;
-    const h = src.height * scale;
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(src, Math.round(cx - w / 2), Math.round(cy - h / 2), w, h);
+    const x = c * TILE;
+    const y = r * TILE;
+    ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
+    ctx.fillRect(x, y, TILE, TILE);
 
     if (gameOver) {
-      // X eyes overlay at the original eye positions (cols 3 and 9, rows 2-3)
-      // Eye in sprite at canvas (3*2+pad ... but pad cancels with center calc).
-      // Use the scaled offsets from sprite center.
-      const eyeOffsetX = 6.25;   // ~ (col 3 center - sprite center) * scale
-      const eyeOffsetY = -3.75;  // ~ (row 2.5 center - sprite center) * scale
-      drawXEyeMark(cx - eyeOffsetX, cy + eyeOffsetY);
-      drawXEyeMark(cx + eyeOffsetX, cy + eyeOffsetY);
+      drawXEyeMark(x + 6,  y + 9);
+      drawXEyeMark(x + 16, y + 9);
+    } else {
+      ctx.fillStyle = '#1A0808';
+      const eyeSize = 5;
+      ctx.fillRect(x + 4,                 y + 6, eyeSize, eyeSize);
+      ctx.fillRect(x + TILE - 4 - eyeSize, y + 6, eyeSize, eyeSize);
     }
 
     if (window.ClawdStats) {
-      window.ClawdStats.drawHat(ctx, cx, cy - h / 2, 3);
-      window.ClawdStats.drawSparkles(ctx, cx, cy, w / 2 + 4);
+      const cx = x + TILE / 2;
+      const cy = y + TILE / 2;
+      window.ClawdStats.drawHat(ctx, cx, y, 3);
+      window.ClawdStats.drawSparkles(ctx, cx, cy, TILE / 2 + 4);
     }
   }
 
-  // Knocked-out X-eye mark. 5 small black squares forming an X pattern,
-  // centered at (cx, cy).
+  // 4×4 X-eye pattern (diagonal strokes meeting at a 2×2 center). 2px cells.
   function drawXEyeMark(cx, cy) {
     ctx.fillStyle = '#1A0808';
     const s = 2;
-    const ax = Math.round(cx), ay = Math.round(cy);
-    ctx.fillRect(ax - 3, ay - 3, s, s);
-    ctx.fillRect(ax + 1, ay - 3, s, s);
-    ctx.fillRect(ax - 1, ay - 1, s, s);
-    ctx.fillRect(ax - 3, ay + 1, s, s);
-    ctx.fillRect(ax + 1, ay + 1, s, s);
+    const ax = Math.round(cx) - 4, ay = Math.round(cy) - 4;
+    // Top corners
+    ctx.fillRect(ax,         ay,         s, s);
+    ctx.fillRect(ax + 6,     ay,         s, s);
+    // Inner diagonals
+    ctx.fillRect(ax + 2,     ay + 2,     s, s);
+    ctx.fillRect(ax + 4,     ay + 2,     s, s);
+    ctx.fillRect(ax + 2,     ay + 4,     s, s);
+    ctx.fillRect(ax + 4,     ay + 4,     s, s);
+    // Bottom corners
+    ctx.fillRect(ax,         ay + 6,     s, s);
+    ctx.fillRect(ax + 6,     ay + 6,     s, s);
   }
 
   function loop() {

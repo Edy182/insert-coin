@@ -759,64 +759,45 @@
     ctx.fillRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2);
   }
 
-  // Pre-render Clawd sprite. Cached per (moving state, mouth phase, colors).
-  // The chomp wedge is BAKED INTO the sprite bitmap via destination-out
-  // compositing — when drawImage scales/rotates/flips the sprite, the wedge
-  // transforms as one consistent bitmap with the body. No overlay-vs-bitmap
-  // pixel mismatch under browser CSS scaling = no fringe pixel.
+  // Pre-render Clawd sprite. Two variants: regular and "dead" (X-eyes for
+  // when the player just got caught by a ghost). Cache by (dead, colors).
+  // Legs span 2 rows now (slightly longer than the original sprite).
   const clawdSpriteCache = {};
-  function getClawdSprite(moving, mouthPhase) {
-    moving = !!moving;
-    mouthPhase = mouthPhase | 0;
+  function getClawdSprite(dead) {
+    dead = !!dead;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
-    const key = (moving ? 'm' : 's') + mouthPhase + '|' + O + '|' + B + '|' + (outline || '');
+    const key = (dead ? 'd' : 'a') + '|' + O + '|' + B + '|' + (outline || '');
     if (clawdSpriteCache[key]) return clawdSpriteCache[key];
 
     const P = 2, _ = null;
-    // Moving: simplified circular body, no arm protrusions or legs (so they
-    // don't look like ears next to the chomp wedge). Stopped: full sprite.
-    // Dead variant: full sprite + X-shaped eyes (knocked-out look).
-    let grid;
-    if (mouthPhase === -1) {
-      // Dead — X eyes overlay the regular B eye cells
-      grid = [
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,O,B,O,B,O,O,O,B,O,B,_ ],
-        [ _,O,O,B,O,O,O,O,O,B,O,_ ],
-        [ _,O,B,O,B,O,O,O,B,O,B,_ ],
-        [ O,O,O,O,O,O,O,O,O,O,O,O ],
-        [ O,O,O,O,O,O,O,O,O,O,O,O ],
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,_,O,_,O,_,_,_,O,_,O,_ ],
-      ];
-    } else if (moving) {
-      grid = [
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,O,O,B,O,O,O,O,O,B,O,_ ],
-        [ _,O,O,B,O,O,O,O,O,B,O,_ ],
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      ];
-    } else {
-      grid = [
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,O,O,B,O,O,O,O,O,B,O,_ ],
-        [ _,O,O,B,O,O,O,O,O,B,O,_ ],
-        [ O,O,O,O,O,O,O,O,O,O,O,O ],
-        [ O,O,O,O,O,O,O,O,O,O,O,O ],
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-        [ _,_,O,_,O,_,_,_,O,_,O,_ ],
-      ];
-    }
+    // 4x4 X-eye pattern at rows 0-3 (replaces regular eyes at rows 2-3),
+    // diagonal strokes meeting at a 2x2 center. Reads cleaner than a sparse
+    // 5-cell X.
+    const grid = dead ? [
+      [ _,B,O,O,B,O,O,B,O,O,B,_ ],
+      [ _,O,B,B,O,O,O,O,B,B,O,_ ],
+      [ _,O,B,B,O,O,O,O,B,B,O,_ ],
+      [ _,B,O,O,B,O,O,B,O,O,B,_ ],
+      [ O,O,O,O,O,O,O,O,O,O,O,O ],
+      [ O,O,O,O,O,O,O,O,O,O,O,O ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
+      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
+    ] : [
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
+      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
+      [ O,O,O,O,O,O,O,O,O,O,O,O ],
+      [ O,O,O,O,O,O,O,O,O,O,O,O ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
+      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
+    ];
 
     const pad = outline ? 1 : 0;
     const canvas = document.createElement('canvas');
@@ -835,25 +816,6 @@
       if (col) { sctx.fillStyle = col; sctx.fillRect(c*P + pad, r*P + pad, P, P); }
     }));
 
-    // Bake the chomp wedge into the sprite bitmap. Apex at sprite center,
-    // base at the right edge. Direction (left/up/down) is handled later via
-    // rotation/flip at drawImage time, so we only ever bake the right-facing
-    // version.
-    if (moving && mouthPhase > 0) {
-      const w = canvas.width;
-      const cy = canvas.height / 2;
-      const openMax = canvas.height * 0.25;
-      const open = (mouthPhase / 4) * openMax;
-      sctx.globalCompositeOperation = 'destination-out';
-      sctx.beginPath();
-      sctx.moveTo(w / 2, cy);
-      sctx.lineTo(w + 1, cy - open);
-      sctx.lineTo(w + 1, cy + open);
-      sctx.closePath();
-      sctx.fill();
-      sctx.globalCompositeOperation = 'source-over';
-    }
-
     clawdSpriteCache[key] = canvas;
     return canvas;
   }
@@ -863,39 +825,17 @@
   // Sprite rotates/flips to match movement direction; chomp wedge always opens
   // along the +x axis of the rotated context, so right/left/up/down all chomp
   // correctly. Wedge is built from 1-px vertical rects (no AA fringe).
+  // Simple sprite render — no rotation, no chomp animation (deferred to
+  // post-launch when a real frame-based mouth animation is built). Dead
+  // state (catchFlash > 0) swaps to the X-eyes sprite.
   function drawClawd(cx, cy) {
-    const dir = player.dir;
-    const dead = catchFlash > 0;  // Clawd just got caught — show X eyes
-    const moving = !dead && gameStarted && (dir.dx !== 0 || dir.dy !== 0);
-
-    // Pick mouth phase from player.mouth (0-19 cycle), sin curve, 5 steps.
-    // Dead state uses phase=-1 (knocked-out X-eye sprite).
-    let phase = 0;
-    if (dead) phase = -1;
-    else if (moving) {
-      const openness = Math.max(0, Math.sin((player.mouth / 20) * Math.PI));
-      phase = Math.min(4, Math.round(openness * 4));
-    }
-
-    const src = getClawdSprite(moving, phase);
-    const scale = frightenedTimer > 0 ? 1.45 : 1.25;
+    const dead = catchFlash > 0;
+    const src = getClawdSprite(dead);
+    const scale = frightenedTimer > 0 ? 1.8 : 1.25;
     const w = src.width * scale;
     const h = src.height * scale;
-
-    let rotation = 0;
-    let flipH = false;
-    if (dir.dx < 0)       flipH = true;            // Moving left
-    else if (dir.dy > 0)  rotation = Math.PI / 2;  // Moving down
-    else if (dir.dy < 0)  rotation = -Math.PI / 2; // Moving up
-
-    ctx.save();
-    ctx.translate(Math.round(cx), Math.round(cy));
-    if (rotation) ctx.rotate(rotation);
-    if (flipH)    ctx.scale(-1, 1);
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(src, Math.round(-w / 2), Math.round(-h / 2), w, h);
-    ctx.restore();
-
+    ctx.drawImage(src, Math.round(cx - w / 2), Math.round(cy - h / 2), w, h);
     if (window.ClawdStats) {
       window.ClawdStats.drawHat(ctx, cx, cy - h / 2, frightenedTimer > 0 ? 4 : 3);
       window.ClawdStats.drawSparkles(ctx, cx, cy, w / 2 + 4);

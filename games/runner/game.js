@@ -78,7 +78,7 @@
   let gameStarted;
 
   function reset() {
-    player = { x: 80, y: GROUND_Y - 27, w: 36, h: 27, vy: 0, grounded: true, ducking: false };
+    player = { x: 80, y: GROUND_Y - 30, w: 36, h: 30, vy: 0, grounded: true, ducking: false };
     obstacles   = [];
     clouds      = [];
     groundOffset = 0;
@@ -174,7 +174,7 @@
     if (gameOver) return;
 
     // Duck state drives player height
-    player.h = player.ducking ? 12 : 27;
+    player.h = player.ducking ? 12 : 30;
 
     // Physics
     player.vy += GRAVITY;
@@ -467,8 +467,9 @@
     }
   }
 
-  // Clawd standing — 12×9 grid at P=3 = 36×27px. Dead variant uses X-shaped
-  // eyes (knocked-out look) when the player crashes into an obstacle.
+  // Clawd standing — 12×10 grid at P=3 = 36×30px. Legs span 2 rows (slightly
+  // longer than before). Dead variant uses a 4×4 X-shape eye on each side
+  // (knocked-out look) when the player crashes into an obstacle.
   function drawClawd(x, y) {
     const P = 3;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
@@ -476,14 +477,15 @@
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const _ = null;
     const grid = gameOver ? [
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,B,O,B,O,O,O,B,O,B,_ ],
-      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
-      [ _,O,B,O,B,O,O,O,B,O,B,_ ],
+      [ _,B,O,O,B,O,O,B,O,O,B,_ ],
+      [ _,O,B,B,O,O,O,O,B,B,O,_ ],
+      [ _,O,B,B,O,O,O,O,B,B,O,_ ],
+      [ _,B,O,O,B,O,O,B,O,O,B,_ ],
       [ O,O,O,O,O,O,O,O,O,O,O,O ],
       [ O,O,O,O,O,O,O,O,O,O,O,O ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
       [ _,_,O,_,O,_,_,_,O,_,O,_ ],
     ] : [
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
@@ -494,6 +496,7 @@
       [ O,O,O,O,O,O,O,O,O,O,O,O ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
       [ _,_,O,_,O,_,_,_,O,_,O,_ ],
     ];
     if (outline) {
