@@ -100,18 +100,21 @@
   let grid;
   let spawnCol, spawnRow;
   let totalDots;
+  let dotCells;       // [{c, r, kind}] — only dot/pellet cells, for fast iter
+  let wallLayerCanvas; // pre-rendered wall layer (static)
 
   function parseMaze() {
     grid = [];
     totalDots = 0;
+    dotCells = [];
     for (let r = 0; r < ROWS; r++) {
       const row = [];
       for (let c = 0; c < COLS; c++) {
         const ch = MAZE_STRINGS[r][c];
         switch (ch) {
           case 'W': row.push(CELL_WALL); break;
-          case '.': row.push(CELL_DOT); totalDots++; break;
-          case 'o': row.push(CELL_PELLET); totalDots++; break;
+          case '.': row.push(CELL_DOT); totalDots++; dotCells.push({ c, r, kind: CELL_DOT }); break;
+          case 'o': row.push(CELL_PELLET); totalDots++; dotCells.push({ c, r, kind: CELL_PELLET }); break;
           case '_': row.push(CELL_PATH); break;
           case 'S':
             row.push(CELL_PATH);
@@ -123,6 +126,21 @@
         }
       }
       grid.push(row);
+    }
+    // Pre-render the static wall layer once. Per-frame draw blits this
+    // single bitmap instead of iterating 19x21=399 cells.
+    wallLayerCanvas = document.createElement('canvas');
+    wallLayerCanvas.width  = W;
+    wallLayerCanvas.height = H;
+    const wctx = wallLayerCanvas.getContext('2d');
+    wctx.fillStyle = '#3a3835';
+    const inset = 2;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (grid[r][c] === CELL_WALL) {
+          wctx.fillRect(c * TILE + inset, r * TILE + inset, TILE - inset * 2, TILE - inset * 2);
+        }
+      }
     }
   }
 
@@ -598,27 +616,31 @@
     ctx.fillStyle = '#141413';
     ctx.fillRect(0, 0, W, H);
 
-    // Maze
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const cell = grid[r][c];
-        const px = c * TILE;
-        const py = r * TILE;
-        if (cell === CELL_WALL) {
-          drawWall(px, py, c, r);
-        } else if (cell === CELL_DOT) {
-          ctx.fillStyle = '#faf9f5';
-          ctx.beginPath();
-          ctx.arc(px + TILE / 2, py + TILE / 2, 4, 0, Math.PI * 2);
-          ctx.fill();
-        } else if (cell === CELL_PELLET) {
-          // Pulsing cream pellet — drives the eye without competing with Clawd.
-          const pulse = (Math.sin(frameCount * 0.15) + 1) * 0.5;
-          ctx.fillStyle = '#faf9f5';
-          ctx.beginPath();
-          ctx.arc(px + TILE / 2, py + TILE / 2, 4 + pulse * 6, 0, Math.PI * 2);
-          ctx.fill();
-        }
+    // Walls: blit the pre-rendered static layer (1 drawImage instead of
+    // iterating 399 cells with fillRect per frame).
+    if (wallLayerCanvas) ctx.drawImage(wallLayerCanvas, 0, 0);
+
+    // Dots + pellets: iterate the dotCells list (only cells that have
+    // a dot/pellet, ~150 entries) instead of the full 399-cell grid.
+    // Skip eaten cells (still in list but grid is now CELL_PATH).
+    const pulse = (Math.sin(frameCount * 0.15) + 1) * 0.5;
+    const pelletRadius = 4 + pulse * 6;
+    ctx.fillStyle = '#faf9f5';
+    for (let i = 0; i < dotCells.length; i++) {
+      const d = dotCells[i];
+      const cell = grid[d.r][d.c];
+      if (cell === CELL_DOT) {
+        const px = d.c * TILE + TILE / 2;
+        const py = d.r * TILE + TILE / 2;
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (cell === CELL_PELLET) {
+        const px = d.c * TILE + TILE / 2;
+        const py = d.r * TILE + TILE / 2;
+        ctx.beginPath();
+        ctx.arc(px, py, pelletRadius, 0, Math.PI * 2);
+        ctx.fill();
       }
     }
 
@@ -854,32 +876,21 @@
 
   // Ghost — 12×12 grid at P=2 = 24×24 px. Rounded top, eyes, wavy feet.
   // Renders blue (with end-of-timer flash) when frightened, or eyes-only when eaten.
-  function drawGhost(g) {
-    const P = 2;
-    const x = g.x - 12, y = g.y - 12;
-
-    if (g.eaten) {
-      // Two simple white dots — eyes traveling back to the house
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(g.x - 6, g.y - 2, 3, 4);
-      ctx.fillRect(g.x + 3, g.y - 2, 3, 4);
-      return;
-    }
-
-    // Body color: frightened blue, flashing white in the last ~2s of the timer.
+  // Ghost sprite cache. Each (color, state) combo is rendered once to an
+  // offscreen canvas, then drawGhost blits it per frame — replaces ~144
+  // fillRects + 144 array allocations per ghost per frame with a single
+  // drawImage call. With 4 ghosts at 60fps, that's the difference between
+  // ~34,560 ops/sec and ~240 ops/sec.
+  const ghostSpriteCache = {};
+  function getGhostSprite(color, state) {
+    const key = color + '|' + state;
+    if (ghostSpriteCache[key]) return ghostSpriteCache[key];
     let G, Wh, B;
-    if (frightenedTimer > 0) {
-      const flashing = frightenedTimer < FRIGHTENED_FLASH && Math.floor(frightenedTimer / 8) % 2 === 0;
-      G  = flashing ? '#faf9f5' : '#2A4FB8';
-      Wh = flashing ? '#2A4FB8' : '#faf9f5';
-      B  = flashing ? '#2A4FB8' : '#c1574b';
-    } else {
-      G  = g.color;
-      Wh = '#FFFFFF';
-      B  = '#0A1F3D';
-    }
-    const _ = null;
-    [
+    if (state === 'flash') { G = '#faf9f5'; Wh = '#2A4FB8'; B = '#2A4FB8'; }
+    else if (state === 'frightened') { G = '#2A4FB8'; Wh = '#faf9f5'; B = '#c1574b'; }
+    else { G = color; Wh = '#FFFFFF'; B = '#0A1F3D'; }
+    const P = 2, _ = null;
+    const grid = [
       [ _,_,_,G,G,G,G,G,G,_,_,_ ],
       [ _,_,G,G,G,G,G,G,G,G,_,_ ],
       [ _,G,G,G,G,G,G,G,G,G,G,_ ],
@@ -892,9 +903,32 @@
       [ G,G,G,G,G,G,G,G,G,G,G,G ],
       [ G,G,G,G,G,G,G,G,G,G,G,G ],
       [ G,G,_,G,G,_,G,G,_,G,G,_ ],
-    ].forEach((row, r) => row.forEach((col, c) => {
-      if (col) { ctx.fillStyle = col; ctx.fillRect(x + c*P, y + r*P, P, P); }
+    ];
+    const canvas = document.createElement('canvas');
+    canvas.width = 12 * P;
+    canvas.height = 12 * P;
+    const sctx = canvas.getContext('2d');
+    grid.forEach((row, r) => row.forEach((col, c) => {
+      if (col) { sctx.fillStyle = col; sctx.fillRect(c * P, r * P, P, P); }
     }));
+    ghostSpriteCache[key] = canvas;
+    return canvas;
+  }
+
+  function drawGhost(g) {
+    if (g.eaten) {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(g.x - 6, g.y - 2, 3, 4);
+      ctx.fillRect(g.x + 3, g.y - 2, 3, 4);
+      return;
+    }
+    let state = 'normal';
+    if (frightenedTimer > 0) {
+      const flashing = frightenedTimer < FRIGHTENED_FLASH && Math.floor(frightenedTimer / 8) % 2 === 0;
+      state = flashing ? 'flash' : 'frightened';
+    }
+    const sprite = getGhostSprite(g.color, state);
+    ctx.drawImage(sprite, Math.round(g.x - 12), Math.round(g.y - 12));
   }
 
   function loop() {
