@@ -399,22 +399,26 @@
     ctx.fill();
   }
 
-  // Body segment — full-tile rectangle so adjacent segments form a continuous
-  // rectangular body (no gaps, no tapering). Uniform width head-to-tail = clean
-  // snake silhouette. Outline-skins (ONYX, CREAM) paint a 1px contrast border.
+  // Body segment — plain orange dot that tapers smaller toward the tail tip.
   function drawBody(c, r, idx, total) {
-    const x = c * TILE;
-    const y = r * TILE;
+    const cx = c * TILE + TILE / 2;
+    const cy = r * TILE + TILE / 2;
+    // t = 0 right behind head, 1 at the tail tip
+    const t = (total <= 1) ? 0 : (idx - 1) / (total - 1);
+    const radius = 8 - t * 3.5; // 8px → 4.5px
+    // Body matches the head color. Skins with an outlineColor (ONYX, CREAM)
+    // also paint a contrast ring so the snake stays visible on dark bg.
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     if (outline) {
       ctx.fillStyle = outline;
-      ctx.fillRect(x, y, TILE, TILE);
-      ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
-      ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
-    } else {
-      ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
-      ctx.fillRect(x, y, TILE, TILE);
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius + 1, 0, Math.PI * 2);
+      ctx.fill();
     }
+    ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   // Clawd head — pre-rendered 12×9 sprite scaled 1.25× via drawImage with smoothing off.
