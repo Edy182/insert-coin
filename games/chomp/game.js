@@ -42,26 +42,27 @@
   const COLS  = 19;
   const ROWS  = 21;
   const SPEED = 3;
-  const GHOST_SPEED = 2.0;
+  const GHOST_SPEED = 1.75;  // was 2.0 — gives player a comfortable speed margin (3 vs 1.75)
   const LIVES_START = 8;
 
   // Mode timing — chase/scatter rhythm gives the player breathing room.
-  const CHASE_FRAMES      = 900;  // 15s of chase
-  const SCATTER_FRAMES    = 540;  // 9s of scatter (long breather)
-  const FRIGHTENED_FRAMES = 780;  // 13s of "ghosts flee" after a power pellet
-  const FRIGHTENED_FLASH  = 120;  // last 2s flash white as warning
+  // Tuned for winnability: shorter chase bursts, longer scatter breathers,
+  // much longer frightened windows to chain power pellets and rest.
+  const CHASE_FRAMES      = 720;   // 12s chase (was 15s)
+  const SCATTER_FRAMES    = 720;   // 12s scatter (was 9s)
+  const FRIGHTENED_FRAMES = 1080;  // 18s frightened (was 13s)
+  const FRIGHTENED_FLASH  = 120;   // last 2s flash white as warning
 
   // Ghost spawn config: col, row, color, releaseAt frames, personality, scatter corner.
   // Personalities: 'direct' chases player, 'ambush' targets 4 tiles ahead,
   // 'random' adds variance, 'scared' chases when far but flees when close.
-  // Each ghost's color encodes behavior — keeping them colored makes
-  // their personalities readable at a glance during play. Clawd is still
-  // the protagonist; the ghosts are the colored antagonist cast.
+  // Releases staggered wider — 4th ghost arrives at 18s instead of 12s,
+  // giving the early-game more breathing room before all 4 are loose.
   const GHOST_SPAWNS = [
-    { col:  9, row:  9, color: '#c1574b', releaseAt:   0, personality: 'direct', corner: { c: 17, r:  1 }, name: 'NullPointer' },       // red
-    { col:  8, row: 10, color: '#e8a4b8', releaseAt: 240, personality: 'ambush', corner: { c:  1, r:  1 }, name: 'OffByOne' },          // pink
-    { col:  9, row: 10, color: '#6a9bcc', releaseAt: 480, personality: 'random', corner: { c: 17, r: 19 }, name: 'RaceCondition' },     // cyan
-    { col: 10, row: 10, color: '#d4a85f', releaseAt: 720, personality: 'scared', corner: { c:  1, r: 19 }, name: 'TimeoutException' }, // amber
+    { col:  9, row:  9, color: '#c1574b', releaseAt:    0, personality: 'direct', corner: { c: 17, r:  1 }, name: 'NullPointer' },       // red
+    { col:  8, row: 10, color: '#e8a4b8', releaseAt:  360, personality: 'ambush', corner: { c:  1, r:  1 }, name: 'OffByOne' },          // pink
+    { col:  9, row: 10, color: '#6a9bcc', releaseAt:  720, personality: 'random', corner: { c: 17, r: 19 }, name: 'RaceCondition' },     // cyan
+    { col: 10, row: 10, color: '#d4a85f', releaseAt: 1080, personality: 'scared', corner: { c:  1, r: 19 }, name: 'TimeoutException' }, // amber
   ];
 
   // === Maze layout (original design) ===
