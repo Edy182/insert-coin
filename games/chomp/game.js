@@ -906,10 +906,9 @@
     osc.stop(t + duration + 0.01);
   }
 
-  // Mac-Pan music — classic-arcade SQUARE wave for the harsh chase texture,
-  // every tick plays melody + octave-below bass simultaneously (dense, urgent),
-  // staccato 80ms notes at 150ms tempo. Sounds nothing like Dino's triangle
-  // pentatonic. E-minor descending phrase → builds chase tension.
+  // Mac-Pan music — classic-arcade SQUARE wave for the harsh chase texture.
+  // Single oscillator per tick (no bass doubling) to keep audio load light;
+  // E-minor descending phrase still reads as chase tension vs Dino's triangle.
   const MUSIC_NOTES = [659, 587, 523, 494, 440, 494, 523, 587];
   let musicIdx = 0, musicTimer = null;
   function startMusic() {
@@ -917,11 +916,9 @@
     getAudioCtx();
     musicTimer = setInterval(() => {
       if (!soundOn) return;
-      const f = MUSIC_NOTES[musicIdx];
-      beep({ freq: f,       type: 'square', duration: 0.08, volume: 0.028 });
-      beep({ freq: f * 0.5, type: 'square', duration: 0.08, volume: 0.022 });
+      beep({ freq: MUSIC_NOTES[musicIdx], type: 'square', duration: 0.1, volume: 0.03 });
       musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
-    }, 150);
+    }, 200);
   }
   function stopMusic() {
     if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }

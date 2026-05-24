@@ -468,9 +468,8 @@
     osc.stop(t + duration + 0.01);
   }
   // Snake music — SAWTOOTH wave in low register (G3 / 196Hz area) for a buzzy,
-  // alien, sneaky texture. Very slow tempo + long sustained notes = hypnotic
-  // slither vibe. Completely different timbre from Dino (triangle) and Mac-Pan
-  // (square): three distinct waveforms = three distinct game identities.
+  // alien texture. Triangle (Dino) / Square (Mac-Pan) / Sawtooth (Snake) keeps
+  // three distinct timbres without overloading the audio context.
   const MUSIC_NOTES = [196, 247, 220, 247, 196, 175, 196, 247];
   let musicIdx = 0, musicTimer = null;
   function startMusic() {
@@ -478,9 +477,9 @@
     getAudioCtx();
     musicTimer = setInterval(() => {
       if (!soundOn) return;
-      beep({ freq: MUSIC_NOTES[musicIdx], type: 'sawtooth', duration: 0.32, volume: 0.024 });
+      beep({ freq: MUSIC_NOTES[musicIdx], type: 'sawtooth', duration: 0.16, volume: 0.025 });
       musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
-    }, 380);
+    }, 240);
   }
   function stopMusic() {
     if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
