@@ -794,16 +794,14 @@
     if (clawdSpriteCache[key]) return clawdSpriteCache[key];
 
     const P = 2, _ = null;
-    // 5x5 X-eye pattern (9 cells per eye, single-pixel diagonal strokes
-    // meeting at a center pixel). Reads as a real X with clear diagonals
-    // rather than scattered dots. Spans rows 0-4 of the dead variant —
-    // arms compress to 1 row to fit.
+    // Alive: full sprite with regular eye cells. Dead: full sprite WITHOUT
+    // the eye cells — X marks are stroked on top with actual diagonal lines.
     const grid = dead ? [
-      [ _,B,O,O,O,B,B,O,O,O,B,_ ],
-      [ _,O,B,O,B,O,O,B,O,B,O,_ ],
-      [ _,O,O,B,O,O,O,O,B,O,O,_ ],
-      [ _,O,B,O,B,O,O,B,O,B,O,_ ],
-      [ _,B,O,O,O,B,B,O,O,O,B,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ O,O,O,O,O,O,O,O,O,O,O,O ],
       [ O,O,O,O,O,O,O,O,O,O,O,O ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
@@ -836,6 +834,26 @@
     grid.forEach((row, r) => row.forEach((col, c) => {
       if (col) { sctx.fillStyle = col; sctx.fillRect(c*P + pad, r*P + pad, P, P); }
     }));
+
+    // X eyes: stroked diagonals (actual connected lines, not scattered
+    // pixel cells). Baked into the sprite canvas so they scale uniformly.
+    if (dead) {
+      sctx.strokeStyle = B;
+      sctx.lineWidth = 2;
+      sctx.lineCap = 'round';
+      const eyeY = 2 * P + pad + P;        // vertical center of original eye rows
+      const reach = 3;                      // X radius in source px
+      const leftCx  = 3 * P + pad + P / 2;
+      const rightCx = 9 * P + pad + P / 2;
+      [leftCx, rightCx].forEach((ex) => {
+        sctx.beginPath();
+        sctx.moveTo(ex - reach, eyeY - reach);
+        sctx.lineTo(ex + reach, eyeY + reach);
+        sctx.moveTo(ex + reach, eyeY - reach);
+        sctx.lineTo(ex - reach, eyeY + reach);
+        sctx.stroke();
+      });
+    }
 
     clawdSpriteCache[key] = canvas;
     return canvas;

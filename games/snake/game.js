@@ -434,26 +434,21 @@
     }
   }
 
-  // 5×5 X-eye pattern (9 cells, single-pixel diagonal strokes meeting at a
-  // center pixel). 2px cells = 10×10 px X visible at game scale.
+  // X-eye mark: stroked diagonals (real connected lines, not scattered
+  // pixel dots) so the X reads as bold knocked-out marks like the
+  // reference toy art.
   function drawXEyeMark(cx, cy) {
-    ctx.fillStyle = '#1A0808';
-    const s = 2;
-    const ax = Math.round(cx) - 5, ay = Math.round(cy) - 5;
-    // Top corners
-    ctx.fillRect(ax,         ay,         s, s);
-    ctx.fillRect(ax + 8,     ay,         s, s);
-    // Inner diagonals (row 1)
-    ctx.fillRect(ax + 2,     ay + 2,     s, s);
-    ctx.fillRect(ax + 6,     ay + 2,     s, s);
-    // Center
-    ctx.fillRect(ax + 4,     ay + 4,     s, s);
-    // Inner diagonals (row 3)
-    ctx.fillRect(ax + 2,     ay + 6,     s, s);
-    ctx.fillRect(ax + 6,     ay + 6,     s, s);
-    // Bottom corners
-    ctx.fillRect(ax,         ay + 8,     s, s);
-    ctx.fillRect(ax + 8,     ay + 8,     s, s);
+    ctx.strokeStyle = '#1A0808';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    const ax = Math.round(cx), ay = Math.round(cy);
+    const r = 5;
+    ctx.beginPath();
+    ctx.moveTo(ax - r, ay - r);
+    ctx.lineTo(ax + r, ay + r);
+    ctx.moveTo(ax + r, ay - r);
+    ctx.lineTo(ax - r, ay + r);
+    ctx.stroke();
   }
 
   function loop() {

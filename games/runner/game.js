@@ -477,11 +477,11 @@
     const outline = window.ClawdStats && window.ClawdStats.getActiveOutlineColor();
     const _ = null;
     const grid = gameOver ? [
-      [ _,B,O,O,O,B,B,O,O,O,B,_ ],
-      [ _,O,B,O,B,O,O,B,O,B,O,_ ],
-      [ _,O,O,B,O,O,O,O,B,O,O,_ ],
-      [ _,O,B,O,B,O,O,B,O,B,O,_ ],
-      [ _,B,O,O,O,B,B,O,O,O,B,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
+      [ O,O,O,O,O,O,O,O,O,O,O,O ],
       [ O,O,O,O,O,O,O,O,O,O,O,O ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
       [ _,O,O,O,O,O,O,O,O,O,O,_ ],
@@ -507,6 +507,25 @@
     grid.forEach((row, r) => row.forEach((col, c) => {
       if (col) { ctx.fillStyle = col; ctx.fillRect(x + c*P, y + r*P, P, P); }
     }));
+    // X eyes: stroked diagonals when crashed (real connected lines, not
+    // scattered pixel dots).
+    if (gameOver) {
+      ctx.strokeStyle = B;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      const eyeY = y + 2 * P + P;
+      const reach = 5;
+      const leftCx  = x + 3 * P + P / 2;
+      const rightCx = x + 9 * P + P / 2;
+      [leftCx, rightCx].forEach((ex) => {
+        ctx.beginPath();
+        ctx.moveTo(ex - reach, eyeY - reach);
+        ctx.lineTo(ex + reach, eyeY + reach);
+        ctx.moveTo(ex + reach, eyeY - reach);
+        ctx.lineTo(ex - reach, eyeY + reach);
+        ctx.stroke();
+      });
+    }
     if (window.ClawdStats) {
       window.ClawdStats.drawHat(ctx, x + 6 * P, y, P);
       window.ClawdStats.drawSparkles(ctx, x + 6 * P, y + 4 * P, 20);
