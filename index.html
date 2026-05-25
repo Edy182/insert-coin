@@ -457,7 +457,7 @@
 
       <a href="games/chomp/" class="game-card available">
         <div class="sprite">
-          <svg viewBox="0 0 10 9" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges">
+          <svg viewBox="0 0 10 9" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" style="width:74%;height:74%">
             <g fill="#d97757">
               <rect x="2" y="0" width="6" height="1"/>
               <rect x="1" y="1" width="8" height="1"/>
@@ -482,48 +482,31 @@
 
       <a href="games/snake/" class="game-card available">
         <div class="sprite">
-          <!-- Same discrete pixel-cell style (1.6 cells on a 2-unit pitch,
-               0.4 gaps) but a NEW silhouette: a snake slithering diagonally
-               up-right, tail at bottom-left, head with eye + flicking tongue
-               at top-right. New animation too: the whole body glides
-               up-right and settles (slither-forward) while the tongue
-               flicks, replacing the old side-to-side wag. -->
-          <svg viewBox="0 0 16 14" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges">
-            <g>
+          <!-- Snake-game icon matching the reference: a green-snake-style
+               hook in Clawd terracotta. Tail with a down-arrow at the
+               bottom-left, body climbs up the left, runs across the top,
+               drops down the right, then the head turns left and opens its
+               mouth toward a red food pellet in the middle. Smooth rounded
+               tube (stroke) rather than discrete cells. Subtle nibble +
+               food pulse animation. -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+            <!-- Body tube -->
+            <path d="M6,20 L6,6.5 L17.5,6.5 L17.5,14 L12.5,14"
+                  fill="none" stroke="#d97757" stroke-width="3"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Tail arrowhead pointing down -->
+            <polygon points="3.7,19.3 8.3,19.3 6,23" fill="#d97757"/>
+            <!-- Head open mouth (fork) reaching toward the food -->
+            <g stroke="#d97757" stroke-width="2.4" stroke-linecap="round" fill="none">
               <animateTransform attributeName="transform" type="translate"
-                                values="0 0; 0.3 -0.3; 0 0; -0.15 0.15; 0 0"
-                                dur="1.7s" repeatCount="indefinite"/>
-              <!-- Diagonal body: bottom-left tail climbing to top-right head -->
-              <!-- r5 tail tip -->
-              <rect x="0.2"  y="11.2" width="1.6" height="1.6" fill="#d97757"/>
-              <!-- r4 -->
-              <rect x="0.2"  y="9.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="2.2"  y="9.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="4.2"  y="9.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <!-- r3 -->
-              <rect x="2.2"  y="7.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="4.2"  y="7.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="6.2"  y="7.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <!-- r2 -->
-              <rect x="4.2"  y="5.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="6.2"  y="5.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="8.2"  y="5.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <!-- r1 -->
-              <rect x="6.2"  y="3.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="8.2"  y="3.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="10.2" y="3.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <!-- r0 head -->
-              <rect x="8.2"  y="1.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="10.2" y="1.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <!-- eye (snout tip) -->
-              <rect x="12.2" y="1.2"  width="1.6" height="1.6" fill="#1A0808"/>
-              <!-- forked tongue flicking out the front, opacity flick -->
-              <g>
-                <animate attributeName="opacity" values="1;1;0.15;1" dur="0.6s" repeatCount="indefinite"/>
-                <rect x="14.2" y="0.4"  width="1.4" height="1.0" fill="#c44d3a"/>
-                <rect x="14.2" y="2.0"  width="1.4" height="1.0" fill="#c44d3a"/>
-              </g>
+                                values="0 0; -0.7 0; 0 0" dur="1.1s" repeatCount="indefinite"/>
+              <path d="M12.6,13.1 L10.8,12.4"/>
+              <path d="M12.6,14.9 L10.8,15.6"/>
             </g>
+            <!-- Food pellet -->
+            <rect x="7.3" y="12.6" width="2.7" height="2.7" rx="0.4" fill="#c44d3a">
+              <animate attributeName="opacity" values="1;0.45;1" dur="1.1s" repeatCount="indefinite"/>
+            </rect>
           </svg>
         </div>
         <h2>SNAKE</h2>
