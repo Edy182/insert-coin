@@ -24,5 +24,6 @@ assets/sprites
 assets/sounds
 assets/ui
 assets/*.png
+!assets/snake-icon.png
 *.psd
 *.aseprite
