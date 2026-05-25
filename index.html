@@ -119,6 +119,7 @@
     }
     .game-card .play-btn {
       display: inline-block;
+      margin-top: 0.7rem;
       padding: 0.4rem 0.85rem;
       background: transparent;
       color: var(--cream);
@@ -480,12 +481,34 @@
 
       <a href="games/snake/" class="game-card available">
         <div class="sprite">
-          <!-- Literal copy of the reference snake icon, recolored pixel-by-
-               pixel (green → Clawd terracotta, outline/red food/shading kept,
-               "SnakeGame" text + background removed). Generated from the
-               source PNG so the winding is exact. -->
-          <img src="assets/snake-icon.png?v=1" alt="Snake" class="snake-img"
-               style="width:92%;height:92%;object-fit:contain;">
+          <!-- Clean vector of the reference winding: solid Clawd terracotta
+               tube (no black outline), crisp edges, head with "ii" eyes and a
+               forked tongue that flicks in and out toward the red food. -->
+          <svg viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+            <path d="M10,4 L5,4 L5,22 L22,22 L22,9 L10,9 L10,16 L16,16"
+                  fill="none" stroke="#d97757" stroke-width="3.4"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- forked tongue: slides out of the mouth and retracts -->
+            <g fill="none" stroke="#c44d3a" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round">
+              <animateTransform attributeName="transform" type="translate"
+                                values="-2.6 0; -2.6 0; 1.2 0; 1.2 0; -2.6 0"
+                                keyTimes="0;0.25;0.5;0.75;1" dur="1.6s" repeatCount="indefinite"/>
+              <path d="M12.4,4 L14,4"/>
+              <path d="M14,4 L15,3.2"/>
+              <path d="M14,4 L15,4.8"/>
+            </g>
+            <!-- head (drawn over the tongue base so it emerges from the mouth) -->
+            <circle cx="10" cy="4" r="2.7" fill="#d97757"/>
+            <!-- eyes "ii" -->
+            <g fill="#1A0808">
+              <rect x="8.7"  y="2.6" width="0.7" height="1.5" rx="0.3"/>
+              <rect x="10.3" y="2.6" width="0.7" height="1.5" rx="0.3"/>
+            </g>
+            <!-- food dot -->
+            <circle cx="17.6" cy="3.7" r="1.3" fill="#c44d3a">
+              <animate attributeName="opacity" values="1;0.5;1" dur="1.1s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
         </div>
         <h2>SNAKE</h2>
         <span class="play-btn">▶ PLAY</span>
