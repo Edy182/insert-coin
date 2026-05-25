@@ -152,15 +152,34 @@
     wallLayerCanvas.width  = W;
     wallLayerCanvas.height = H;
     const wctx = wallLayerCanvas.getContext('2d');
-    wctx.fillStyle = '#5e5b54';
-    const inset = 2;
+    // Bevelled / raised grey wall blocks: flat body + light top-left highlight +
+    // dark bottom-right shadow → raised-tile arcade look, in greyscale.
+    const isWall = (r, c) => r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r][c] === CELL_WALL;
+    wctx.fillStyle = '#1d1d1d';
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
-        if (grid[r][c] === CELL_WALL) {
-          wctx.fillRect(c * TILE + inset, r * TILE + inset, TILE - inset * 2, TILE - inset * 2);
-        }
+        if (grid[r][c] === CELL_WALL) wctx.fillRect(c * TILE, r * TILE, TILE, TILE);
       }
     }
+    wctx.lineWidth = 1.5;
+    const bevelEdges = (top, left, bottom, right) => {
+      wctx.beginPath();
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (grid[r][c] !== CELL_WALL) continue;
+          const x0 = c * TILE, y0 = r * TILE, x1 = x0 + TILE, y1 = y0 + TILE;
+          if (top    && !isWall(r - 1, c)) { wctx.moveTo(x0, y0 + 1); wctx.lineTo(x1, y0 + 1); }
+          if (bottom && !isWall(r + 1, c)) { wctx.moveTo(x0, y1 - 1); wctx.lineTo(x1, y1 - 1); }
+          if (left   && !isWall(r, c - 1)) { wctx.moveTo(x0 + 1, y0); wctx.lineTo(x0 + 1, y1); }
+          if (right  && !isWall(r, c + 1)) { wctx.moveTo(x1 - 1, y0); wctx.lineTo(x1 - 1, y1); }
+        }
+      }
+      wctx.stroke();
+    };
+    wctx.strokeStyle = '#474747'; // highlight: top + left
+    bevelEdges(true, true, false, false);
+    wctx.strokeStyle = '#0d0d0d'; // shadow: bottom + right
+    bevelEdges(false, false, true, true);
   }
 
   // === State ===
