@@ -1042,10 +1042,11 @@
 
   // Mac-Pan music — classic-arcade SQUARE wave for the harsh chase texture.
   // Two moods, switched by the self-rescheduling timer:
-  //  - RELAX (normal): calm wandering melody, soft triangle, slow 250ms.
-  //  - FRIGHT (ghosts fleeing): fast tense chromatic riff, square, 110ms.
-  const RELAX_NOTES  = [392, 523, 659, 587, 523, 440, 523, 587, 659, 784, 659, 587, 523, 440, 392, 330];
-  const FRIGHT_NOTES = [784, 740, 698, 659, 622, 587, 554, 523, 587, 659, 740, 831, 784, 698, 622, 554];
+  //  - NORMAL: the original square-wave chase loop (the one that was liked).
+  //  - FRIGHT (ghosts fleeing): same bouncy shape but in a darker minor key
+  //    and a touch faster (150ms) — dramatic, but not the frantic 110ms riff.
+  const CHASE_NOTES  = [523, 659, 523, 392, 523, 659, 523, 392, 587, 698, 587, 440, 587, 698, 587, 440];
+  const FRIGHT_NOTES = [466, 554, 466, 349, 466, 554, 466, 349, 415, 494, 415, 311, 415, 494, 415, 311];
   let musicIdx = 0, musicTimer = null, musicWasFright = false;
   function startMusic() {
     if (musicTimer || !soundOn) return;
@@ -1056,14 +1057,11 @@
     if (!soundOn) { musicTimer = null; return; }
     const frightened = frightenedTimer > 0;
     if (frightened !== musicWasFright) { musicIdx = 0; musicWasFright = frightened; }
-    const notes = frightened ? FRIGHT_NOTES : RELAX_NOTES;
+    const notes = frightened ? FRIGHT_NOTES : CHASE_NOTES;
     const n = notes[musicIdx % notes.length];
-    if (n) {
-      if (frightened) beep({ freq: n, type: 'square',   duration: 0.09, volume: 0.04 });
-      else            beep({ freq: n, type: 'triangle', duration: 0.16, volume: 0.03 });
-    }
+    if (n) beep({ freq: n, type: 'square', duration: frightened ? 0.1 : 0.11, volume: frightened ? 0.034 : 0.032 });
     musicIdx++;
-    musicTimer = setTimeout(musicStep, frightened ? 110 : 250);
+    musicTimer = setTimeout(musicStep, frightened ? 150 : 175);
   }
   function stopMusic() {
     if (musicTimer) { clearTimeout(musicTimer); musicTimer = null; }

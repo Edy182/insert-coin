@@ -564,13 +564,10 @@
     osc.start(t);
     osc.stop(t + duration + 0.01);
   }
-  // Snake music — SAWTOOTH wave in low register (G3 / 196Hz area) for a buzzy,
-  // alien texture. Triangle (Dino) / Square (Mac-Pan) / Sawtooth (Snake) keeps
-  // three distinct timbres without overloading the audio context.
-  // Snake: slow, hypnotic, eerie. Low sawtooth bass, long legato notes,
-  // sparse with rests (0 = silence) — a creeping minor line that builds
-  // tension rather than energy. Slow 300ms step.
-  const MUSIC_NOTES = [147, 0, 165, 0, 175, 165, 147, 0, 131, 0, 147, 165, 175, 0, 196, 0, 165, 0, 147, 131, 0, 117, 131, 0];
+  // Snake music — mellow SINE wave, mid register, a gentle wandering melody
+  // (not the old buzzy low sawtooth). Sine keeps it distinct from Dino's
+  // triangle and Mac-Pan's square, and reads as calm/smooth.
+  const MUSIC_NOTES = [392, 0, 440, 523, 440, 0, 392, 349, 392, 0, 440, 523, 587, 523, 440, 0];
   let musicIdx = 0, musicTimer = null;
   function startMusic() {
     if (musicTimer || !soundOn) return;
@@ -578,9 +575,9 @@
     musicTimer = setInterval(() => {
       if (!soundOn) return;
       const n = MUSIC_NOTES[musicIdx];
-      if (n) beep({ freq: n, type: 'sawtooth', duration: 0.24, volume: 0.03 });
+      if (n) beep({ freq: n, type: 'sine', duration: 0.22, volume: 0.05 });
       musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
-    }, 300);
+    }, 240);
   }
   function stopMusic() {
     if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
