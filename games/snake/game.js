@@ -542,7 +542,7 @@
   // Snake: slow, hypnotic, eerie. Low sawtooth bass, long legato notes,
   // sparse with rests (0 = silence) — a creeping minor line that builds
   // tension rather than energy. Slow 300ms step.
-  const MUSIC_NOTES = [147, 0, 165, 0, 175, 165, 147, 0, 131, 0, 147, 165, 175, 0, 196, 0];
+  const MUSIC_NOTES = [147, 0, 165, 0, 175, 165, 147, 0, 131, 0, 147, 165, 175, 196, 175, 0, 165, 147, 131, 0, 117, 131, 147, 165, 175, 0, 196, 220, 196, 0, 165, 147];
   let musicIdx = 0, musicTimer = null;
   function startMusic() {
     if (musicTimer || !soundOn) return;
