@@ -867,19 +867,25 @@
     osc.stop(t + duration + 0.01);
   }
 
-  // Runner music — upbeat pentatonic loop
-  // Dino: fast galloping run feel. Bright triangle, staccato, with rests
-  // (0 = silence) that create a bouncing gallop. Fast 140ms step.
-  const MUSIC_NOTES = [392, 0, 523, 659, 392, 0, 784, 659, 440, 0, 587, 698, 440, 0, 880, 784];
-  let musicIdx = 0, musicTimer = null;
+  // Runner music — pool of bright triangle gallop loops; a random one is
+  // picked and re-rolled each time a loop finishes, so it keeps varying.
+  const TRACKS = [
+    [392, 0, 523, 659, 392, 0, 784, 659, 440, 0, 587, 698, 440, 0, 880, 784],
+    [523, 659, 784, 659, 587, 698, 880, 698, 659, 784, 988, 784, 880, 698, 587, 523],
+    [659, 0, 880, 0, 784, 0, 988, 0, 880, 0, 698, 0, 784, 0, 659, 0],
+  ];
+  let mTrack = TRACKS[0], musicIdx = 0, musicTimer = null;
+  function pickTrack() { mTrack = TRACKS[(Math.random() * TRACKS.length) | 0]; musicIdx = 0; }
   function startMusic() {
     if (musicTimer || !soundOn) return;
     getAudioCtx();
+    pickTrack();
     musicTimer = setInterval(() => {
       if (!soundOn) return;
-      const n = MUSIC_NOTES[musicIdx];
+      const n = mTrack[musicIdx];
       if (n) beep({ freq: n, type: 'triangle', duration: 0.09, volume: 0.04 });
-      musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
+      musicIdx++;
+      if (musicIdx >= mTrack.length) pickTrack();
     }, 140);
   }
   function stopMusic() {

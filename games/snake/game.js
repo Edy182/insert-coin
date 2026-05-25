@@ -564,19 +564,26 @@
     osc.start(t);
     osc.stop(t + duration + 0.01);
   }
-  // Snake music — mellow SINE wave, mid register, a gentle wandering melody
-  // (not the old buzzy low sawtooth). Sine keeps it distinct from Dino's
-  // triangle and Mac-Pan's square, and reads as calm/smooth.
-  const MUSIC_NOTES = [392, 0, 440, 523, 440, 0, 392, 349, 392, 0, 440, 523, 587, 523, 440, 0];
-  let musicIdx = 0, musicTimer = null;
+  // Snake music — pool of mellow SINE-wave melodies (mid register), one
+  // picked at random and re-rolled each loop. Sine stays distinct from
+  // Dino's triangle and Mac-Pan's square, calm and smooth (not buzzy).
+  const TRACKS = [
+    [392, 0, 440, 523, 440, 0, 392, 349, 392, 0, 440, 523, 587, 523, 440, 0],
+    [330, 392, 440, 392, 330, 294, 330, 392, 440, 523, 440, 392, 330, 294, 262, 0],
+    [523, 0, 440, 0, 392, 0, 440, 0, 523, 0, 587, 0, 523, 0, 440, 0],
+  ];
+  let mTrack = TRACKS[0], musicIdx = 0, musicTimer = null;
+  function pickTrack() { mTrack = TRACKS[(Math.random() * TRACKS.length) | 0]; musicIdx = 0; }
   function startMusic() {
     if (musicTimer || !soundOn) return;
     getAudioCtx();
+    pickTrack();
     musicTimer = setInterval(() => {
       if (!soundOn) return;
-      const n = MUSIC_NOTES[musicIdx];
+      const n = mTrack[musicIdx];
       if (n) beep({ freq: n, type: 'sine', duration: 0.22, volume: 0.05 });
-      musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
+      musicIdx++;
+      if (musicIdx >= mTrack.length) pickTrack();
     }, 240);
   }
   function stopMusic() {

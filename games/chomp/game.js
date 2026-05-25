@@ -152,7 +152,7 @@
     wallLayerCanvas.width  = W;
     wallLayerCanvas.height = H;
     const wctx = wallLayerCanvas.getContext('2d');
-    wctx.fillStyle = '#3a3835';
+    wctx.fillStyle = '#3a5a8c';
     const inset = 2;
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
@@ -1041,27 +1041,43 @@
   }
 
   // Mac-Pan music — classic-arcade SQUARE wave for the harsh chase texture.
-  // Two moods, switched by the self-rescheduling timer:
-  //  - NORMAL: the original square-wave chase loop (the one that was liked).
-  //  - FRIGHT (ghosts fleeing): same bouncy shape but in a darker minor key
-  //    and a touch faster (150ms) — dramatic, but not the frantic 110ms riff.
-  const CHASE_NOTES  = [523, 659, 523, 392, 523, 659, 523, 392, 587, 698, 587, 440, 587, 698, 587, 440];
-  const FRIGHT_NOTES = [466, 554, 466, 349, 466, 554, 466, 349, 415, 494, 415, 311, 415, 494, 415, 311];
-  let musicIdx = 0, musicTimer = null, musicWasFright = false;
+  // Two pools of melodies, each picked at random and re-rolled every time
+  // a loop finishes so the background music keeps varying:
+  //  - CHASE_TRACKS: normal square-wave maze tunes (175ms).
+  //  - FRIGHT_TRACKS: genuinely different dramatic riffs for fleeing ghosts
+  //    (chromatic descent / tritone pulse / alarm stabs), 150ms.
+  const CHASE_TRACKS = [
+    [523, 659, 523, 392, 523, 659, 523, 392, 587, 698, 587, 440, 587, 698, 587, 440],
+    [392, 440, 494, 523, 587, 523, 494, 440, 392, 440, 494, 587, 659, 587, 523, 440],
+    [523, 392, 659, 523, 587, 440, 698, 587, 523, 392, 659, 784, 698, 587, 523, 440],
+  ];
+  const FRIGHT_TRACKS = [
+    [659, 622, 587, 554, 523, 494, 466, 440, 415, 392, 370, 349, 392, 440, 494, 554],
+    [440, 622, 415, 587, 392, 554, 370, 523, 440, 622, 466, 659, 440, 622, 415, 587],
+    [587, 587, 698, 0, 622, 622, 466, 0, 523, 523, 622, 0, 440, 440, 587, 0],
+  ];
+  let mTrack = CHASE_TRACKS[0], musicIdx = 0, musicTimer = null, musicWasFright = false;
+  function pickTrack(fright) {
+    const pool = fright ? FRIGHT_TRACKS : CHASE_TRACKS;
+    mTrack = pool[(Math.random() * pool.length) | 0];
+    musicIdx = 0;
+  }
   function startMusic() {
     if (musicTimer || !soundOn) return;
     getAudioCtx();
+    musicWasFright = frightenedTimer > 0;
+    pickTrack(musicWasFright);
     musicStep();
   }
   function musicStep() {
     if (!soundOn) { musicTimer = null; return; }
-    const frightened = frightenedTimer > 0;
-    if (frightened !== musicWasFright) { musicIdx = 0; musicWasFright = frightened; }
-    const notes = frightened ? FRIGHT_NOTES : CHASE_NOTES;
-    const n = notes[musicIdx % notes.length];
-    if (n) beep({ freq: n, type: 'square', duration: frightened ? 0.1 : 0.11, volume: frightened ? 0.034 : 0.032 });
+    const fright = frightenedTimer > 0;
+    if (fright !== musicWasFright) { musicWasFright = fright; pickTrack(fright); }
+    const n = mTrack[musicIdx];
+    if (n) beep({ freq: n, type: 'square', duration: fright ? 0.1 : 0.11, volume: fright ? 0.035 : 0.032 });
     musicIdx++;
-    musicTimer = setTimeout(musicStep, frightened ? 150 : 175);
+    if (musicIdx >= mTrack.length) pickTrack(fright);
+    musicTimer = setTimeout(musicStep, fright ? 150 : 175);
   }
   function stopMusic() {
     if (musicTimer) { clearTimeout(musicTimer); musicTimer = null; }

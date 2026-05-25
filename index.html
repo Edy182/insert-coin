@@ -485,28 +485,54 @@
                tube (no black outline), crisp edges, head with "ii" eyes and a
                forked tongue that flicks in and out toward the red food. -->
           <svg viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-            <!-- medium-weight tube, rounded corners -->
-            <path d="M10,4 L5,4 L5,22 L22,22 L22,9 L10,9 L10,16 L16,16"
-                  fill="none" stroke="#d97757" stroke-width="3.1"
-                  stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- body = grid-aligned square cells (pitch 2.9, cell 2.7 = a bit
+                 thicker) tracing the winding; top row has an extra cell so the
+                 head sits more central over the overall shape -->
+            <g fill="#d97757" shape-rendering="crispEdges">
+              <rect x="3.0"  y="3.0"  width="2.7" height="2.7" rx="0.3"/>
+              <rect x="5.9"  y="3.0"  width="2.7" height="2.7" rx="0.3"/>
+              <rect x="8.8"  y="3.0"  width="2.7" height="2.7" rx="0.3"/>
+              <rect x="3.0"  y="5.9"  width="2.7" height="2.7" rx="0.3"/>
+              <rect x="3.0"  y="8.8"  width="2.7" height="2.7" rx="0.3"/>
+              <rect x="3.0"  y="11.7" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="3.0"  y="14.6" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="3.0"  y="17.5" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="3.0"  y="20.4" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="5.9"  y="20.4" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="8.8"  y="20.4" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="11.7" y="20.4" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="14.6" y="20.4" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="17.5" y="20.4" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="20.4" y="20.4" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="20.4" y="17.5" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="20.4" y="14.6" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="20.4" y="11.7" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="20.4" y="8.8"  width="2.7" height="2.7" rx="0.3"/>
+              <rect x="17.5" y="8.8"  width="2.7" height="2.7" rx="0.3"/>
+              <rect x="14.6" y="8.8"  width="2.7" height="2.7" rx="0.3"/>
+              <rect x="11.7" y="8.8"  width="2.7" height="2.7" rx="0.3"/>
+              <rect x="11.7" y="11.7" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="11.7" y="14.6" width="2.7" height="2.7" rx="0.3"/>
+              <rect x="14.6" y="14.6" width="2.7" height="2.7" rx="0.3"/>
+            </g>
             <!-- forked tongue: slides out of the mouth and retracts -->
-            <g fill="none" stroke="#c44d3a" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round">
+            <g fill="none" stroke="#c44d3a" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round">
               <animateTransform attributeName="transform" type="translate"
                                 values="-2.6 0; -2.6 0; 1.2 0; 1.2 0; -2.6 0"
                                 keyTimes="0;0.25;0.5;0.75;1" dur="1.6s" repeatCount="indefinite"/>
-              <path d="M12,4 L13.6,4"/>
-              <path d="M13.6,4 L14.6,3.2"/>
-              <path d="M13.6,4 L14.6,4.8"/>
+              <path d="M14.4,4.3 L15.9,4.3"/>
+              <path d="M15.9,4.3 L16.9,3.5"/>
+              <path d="M15.9,4.3 L16.9,5.1"/>
             </g>
-            <!-- head: rounded-rect -->
-            <rect x="7.4" y="1.7" width="5.1" height="4.6" rx="1.4" fill="#d97757"/>
+            <!-- head: rounded-rect, centred over the shape -->
+            <rect x="9.0" y="1.8" width="5.3" height="4.8" rx="1.3" fill="#d97757"/>
             <!-- eyes "ii" -->
             <g fill="#1A0808">
-              <rect x="8.7"  y="2.6" width="0.7" height="1.4" rx="0.2"/>
-              <rect x="10.3" y="2.6" width="0.7" height="1.4" rx="0.2"/>
+              <rect x="10.4" y="2.8" width="0.8" height="1.6" rx="0.2"/>
+              <rect x="12.2" y="2.8" width="0.8" height="1.6" rx="0.2"/>
             </g>
             <!-- food: rounded square -->
-            <rect x="16.5" y="2.7" width="2.2" height="2.2" rx="0.7" fill="#c44d3a">
+            <rect x="17.2" y="3.3" width="2.4" height="2.4" rx="0.6" fill="#c44d3a">
               <animate attributeName="opacity" values="1;0.5;1" dur="1.1s" repeatCount="indefinite"/>
             </rect>
           </svg>
