@@ -482,60 +482,47 @@
 
       <a href="games/snake/" class="game-card available">
         <div class="sprite">
-          <!-- Pixel-by-pixel match to reference: discrete 1.6x1.6 cells on
-               a 2-unit pitch in a 14x14 viewBox, leaving 0.4-unit gaps
-               between adjacent cells. Coiled-snake silhouette inside an
-               open frame with a tail extending left at the bottom. -->
-          <svg viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges">
-            <!-- Top + side frame + inner spiral: bound to a slower slither
-                 transform so the whole frame drifts gently side-to-side
-                 (snake-characteristic motion). -->
+          <!-- Same discrete pixel-cell style (1.6 cells on a 2-unit pitch,
+               0.4 gaps) but a NEW silhouette: a snake slithering diagonally
+               up-right, tail at bottom-left, head with eye + flicking tongue
+               at top-right. New animation too: the whole body glides
+               up-right and settles (slither-forward) while the tongue
+               flicks, replacing the old side-to-side wag. -->
+          <svg viewBox="0 0 16 14" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges">
             <g>
               <animateTransform attributeName="transform" type="translate"
-                                values="0 0; 0.35 0; 0 0; -0.35 0; 0 0"
-                                dur="1.6s" repeatCount="indefinite"/>
-              <!-- Row 0: top bar (6 cells) -->
-              <rect x="2.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="4.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="6.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="8.2"  y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="10.2" y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="12.2" y="0.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <!-- Row 1: left + right columns -->
-              <rect x="2.2"  y="2.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="12.2" y="2.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <!-- Row 2: left + inner pair (cols 3-4) + right -->
-              <rect x="2.2"  y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="6.2"  y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="8.2"  y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="12.2" y="4.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <!-- Row 3: left + inner col 4 (separated from right frame) + right -->
-              <rect x="2.2"  y="6.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="8.2"  y="6.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="12.2" y="6.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <!-- Row 4: left horizontal sweep (cols 1-4) + right -->
-              <rect x="2.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="4.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="6.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="8.2"  y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="12.2" y="8.2"  width="1.6" height="1.6" fill="#d97757"/>
-              <!-- Row 5: only right column -->
-              <rect x="12.2" y="10.2" width="1.6" height="1.6" fill="#d97757"/>
-              <!-- Row 6: bottom bar extends 1 cell left of top bar; lagged
-                   slither (opposite phase) so the tail wags counter to the
-                   body — feels more like a snake than a rigid sliding block. -->
-            </g>
-            <g>
-              <animateTransform attributeName="transform" type="translate"
-                                values="0 0; -0.5 0; 0 0; 0.5 0; 0 0"
-                                dur="1.6s" repeatCount="indefinite"/>
-              <rect x="0.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="2.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="4.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="6.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="8.2"  y="12.2" width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="10.2" y="12.2" width="1.6" height="1.6" fill="#d97757"/>
-              <rect x="12.2" y="12.2" width="1.6" height="1.6" fill="#d97757"/>
+                                values="0 0; 0.3 -0.3; 0 0; -0.15 0.15; 0 0"
+                                dur="1.7s" repeatCount="indefinite"/>
+              <!-- Diagonal body: bottom-left tail climbing to top-right head -->
+              <!-- r5 tail tip -->
+              <rect x="0.2"  y="11.2" width="1.6" height="1.6" fill="#d97757"/>
+              <!-- r4 -->
+              <rect x="0.2"  y="9.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="2.2"  y="9.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="4.2"  y="9.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <!-- r3 -->
+              <rect x="2.2"  y="7.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="4.2"  y="7.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="6.2"  y="7.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <!-- r2 -->
+              <rect x="4.2"  y="5.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="6.2"  y="5.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="8.2"  y="5.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <!-- r1 -->
+              <rect x="6.2"  y="3.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="8.2"  y="3.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="10.2" y="3.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <!-- r0 head -->
+              <rect x="8.2"  y="1.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <rect x="10.2" y="1.2"  width="1.6" height="1.6" fill="#d97757"/>
+              <!-- eye (snout tip) -->
+              <rect x="12.2" y="1.2"  width="1.6" height="1.6" fill="#1A0808"/>
+              <!-- forked tongue flicking out the front, opacity flick -->
+              <g>
+                <animate attributeName="opacity" values="1;1;0.15;1" dur="0.6s" repeatCount="indefinite"/>
+                <rect x="14.2" y="0.4"  width="1.4" height="1.0" fill="#c44d3a"/>
+                <rect x="14.2" y="2.0"  width="1.4" height="1.0" fill="#c44d3a"/>
+              </g>
             </g>
           </svg>
         </div>
