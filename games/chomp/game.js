@@ -152,7 +152,7 @@
     wallLayerCanvas.width  = W;
     wallLayerCanvas.height = H;
     const wctx = wallLayerCanvas.getContext('2d');
-    wctx.fillStyle = '#3a5a8c';
+    wctx.fillStyle = '#5e5b54';
     const inset = 2;
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
