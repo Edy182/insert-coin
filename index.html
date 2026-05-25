@@ -482,31 +482,30 @@
 
       <a href="games/snake/" class="game-card available">
         <div class="sprite">
-          <!-- Snake-game icon matching the reference: a green-snake-style
-               hook in Clawd terracotta. Tail with a down-arrow at the
-               bottom-left, body climbs up the left, runs across the top,
-               drops down the right, then the head turns left and opens its
-               mouth toward a red food pellet in the middle. Smooth rounded
-               tube (stroke) rather than discrete cells. Subtle nibble +
+          <!-- Snake-game icon matching the reference: a long snake folded
+               back on itself in rounded switchbacks (Clawd terracotta tube),
+               head raised at top-left with an eye + flicking forked tongue,
+               reaching toward a red food pellet up-right. Tongue flick +
                food pulse animation. -->
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-            <!-- Body tube -->
-            <path d="M6,20 L6,6.5 L17.5,6.5 L17.5,14 L12.5,14"
-                  fill="none" stroke="#d97757" stroke-width="3"
+            <!-- Body: neck down from the head, then 4 switchback passes -->
+            <path d="M7,5.5 L7,9 L19,9 L19,12.5 L5,12.5 L5,16 L19,16 L19,19 L9,19"
+                  fill="none" stroke="#d97757" stroke-width="2.6"
                   stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- Tail arrowhead pointing down -->
-            <polygon points="3.7,19.3 8.3,19.3 6,23" fill="#d97757"/>
-            <!-- Head open mouth (fork) reaching toward the food -->
-            <g stroke="#d97757" stroke-width="2.4" stroke-linecap="round" fill="none">
-              <animateTransform attributeName="transform" type="translate"
-                                values="0 0; -0.7 0; 0 0" dur="1.1s" repeatCount="indefinite"/>
-              <path d="M12.6,13.1 L10.8,12.4"/>
-              <path d="M12.6,14.9 L10.8,15.6"/>
+            <!-- Head -->
+            <circle cx="7" cy="4.3" r="2.1" fill="#d97757"/>
+            <!-- Eye -->
+            <circle cx="7.7" cy="3.8" r="0.5" fill="#1A0808"/>
+            <!-- Forked tongue, flicking -->
+            <g stroke="#c44d3a" stroke-width="0.7" stroke-linecap="round" fill="none">
+              <animate attributeName="opacity" values="1;1;0.2;1" dur="0.7s" repeatCount="indefinite"/>
+              <path d="M9,4.2 L10.9,3.5"/>
+              <path d="M9,4.4 L10.9,5.1"/>
             </g>
             <!-- Food pellet -->
-            <rect x="7.3" y="12.6" width="2.7" height="2.7" rx="0.4" fill="#c44d3a">
+            <circle cx="13" cy="4.2" r="1.4" fill="#c44d3a">
               <animate attributeName="opacity" values="1;0.45;1" dur="1.1s" repeatCount="indefinite"/>
-            </rect>
+            </circle>
           </svg>
         </div>
         <h2>SNAKE</h2>
