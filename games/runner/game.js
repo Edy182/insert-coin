@@ -868,16 +868,19 @@
   }
 
   // Runner music — upbeat pentatonic loop
-  const MUSIC_NOTES = [523, 587, 659, 784, 880, 784, 659, 587];
+  // Dino: fast galloping run feel. Bright triangle, staccato, with rests
+  // (0 = silence) that create a bouncing gallop. Fast 140ms step.
+  const MUSIC_NOTES = [392, 0, 523, 659, 392, 0, 784, 659, 440, 0, 587, 698, 440, 0, 880, 784];
   let musicIdx = 0, musicTimer = null;
   function startMusic() {
     if (musicTimer || !soundOn) return;
     getAudioCtx();
     musicTimer = setInterval(() => {
       if (!soundOn) return;
-      beep({ freq: MUSIC_NOTES[musicIdx], type: 'triangle', duration: 0.12, volume: 0.035 });
+      const n = MUSIC_NOTES[musicIdx];
+      if (n) beep({ freq: n, type: 'triangle', duration: 0.09, volume: 0.04 });
       musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
-    }, 200);
+    }, 140);
   }
   function stopMusic() {
     if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }

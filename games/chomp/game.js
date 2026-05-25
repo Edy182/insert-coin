@@ -1043,16 +1043,20 @@
   // Mac-Pan music — classic-arcade SQUARE wave for the harsh chase texture.
   // Single oscillator per tick (no bass doubling) to keep audio load light;
   // E-minor descending phrase still reads as chase tension vs Dino's triangle.
-  const MUSIC_NOTES = [659, 587, 523, 494, 440, 494, 523, 587];
+  // Mac-Pan: classic maze-chase bounce. Square wave, a two-bar looping
+  // melody that springs between a root and a higher answer note — the
+  // recognizable arcade "chase" cadence. Medium 175ms step.
+  const MUSIC_NOTES = [523, 659, 523, 392, 523, 659, 523, 392, 587, 698, 587, 440, 587, 698, 587, 440];
   let musicIdx = 0, musicTimer = null;
   function startMusic() {
     if (musicTimer || !soundOn) return;
     getAudioCtx();
     musicTimer = setInterval(() => {
       if (!soundOn) return;
-      beep({ freq: MUSIC_NOTES[musicIdx], type: 'square', duration: 0.1, volume: 0.03 });
+      const n = MUSIC_NOTES[musicIdx];
+      if (n) beep({ freq: n, type: 'square', duration: 0.11, volume: 0.032 });
       musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
-    }, 200);
+    }, 175);
   }
   function stopMusic() {
     if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
