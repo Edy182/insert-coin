@@ -418,13 +418,19 @@
     ctx.fill();
   }
 
-  // Body segment — tile rectangle with 1-px inset so adjacent segments read
-  // as distinct blocks (visible divisions between them).
+  // Body segment — a centred square that tapers smaller toward the tail
+  // (idx 1 = just behind the head, idx total-1 = tail tip). Shrinking also
+  // widens the gap between blocks, so divisions stay clearly visible.
   function drawBody(c, r, idx, total) {
     const x = c * TILE;
     const y = r * TILE;
     ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
-    ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
+    const t = total > 1 ? idx / total : 0;     // 0 near head → ~1 at tail
+    const maxSize = TILE - 2;                   // 22px just behind the head
+    const minSize = 7;                          // tail tip
+    const size = maxSize - t * (maxSize - minSize);
+    const off = (TILE - size) / 2;
+    ctx.fillRect(x + off, y + off, size, size);
   }
 
   // Snake head — the real Clawd sprite (12×9 grid from the other games),
