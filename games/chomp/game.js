@@ -1041,37 +1041,22 @@
   }
 
   // Mac-Pan music — classic-arcade SQUARE wave for the harsh chase texture.
-  // Two loops: the normal maze-chase bounce (square wave, ~175ms) and a
-  // faster, darker loop while ghosts are FRIGHTENED/fleeing — gritty
-  // sawtooth doubled with a low octave at a tense 110ms step for drama.
-  // Self-rescheduling setTimeout so the tempo can flip with the mode.
-  const CHASE_NOTES  = [523, 659, 523, 392, 523, 659, 523, 392, 587, 698, 587, 440, 587, 698, 587, 440];
-  const FRIGHT_NOTES = [392, 466, 392, 466, 349, 415, 349, 415, 311, 370, 311, 370, 349, 415, 466, 523];
-  let musicIdx = 0, musicTimer = null, musicWasFright = false;
+  // Maze-chase loop: square wave bounce, single loop (no separate
+  // frightened track), extended to more bars for variety.
+  const MUSIC_NOTES = [523, 659, 523, 392, 523, 659, 523, 392, 587, 698, 587, 440, 587, 698, 587, 440, 659, 784, 659, 494, 659, 784, 659, 494];
+  let musicIdx = 0, musicTimer = null;
   function startMusic() {
     if (musicTimer || !soundOn) return;
     getAudioCtx();
-    musicStep();
-  }
-  function musicStep() {
-    if (!soundOn) { musicTimer = null; return; }
-    const frightened = frightenedTimer > 0;
-    if (frightened !== musicWasFright) { musicIdx = 0; musicWasFright = frightened; }
-    const notes = frightened ? FRIGHT_NOTES : CHASE_NOTES;
-    const n = notes[musicIdx % notes.length];
-    if (n) {
-      if (frightened) {
-        beep({ freq: n,     type: 'sawtooth', duration: 0.1, volume: 0.045 });
-        beep({ freq: n / 2, type: 'square',   duration: 0.1, volume: 0.025 });
-      } else {
-        beep({ freq: n, type: 'square', duration: 0.11, volume: 0.032 });
-      }
-    }
-    musicIdx++;
-    musicTimer = setTimeout(musicStep, frightened ? 110 : 175);
+    musicTimer = setInterval(() => {
+      if (!soundOn) return;
+      const n = MUSIC_NOTES[musicIdx];
+      if (n) beep({ freq: n, type: 'square', duration: 0.11, volume: 0.032 });
+      musicIdx = (musicIdx + 1) % MUSIC_NOTES.length;
+    }, 175);
   }
   function stopMusic() {
-    if (musicTimer) { clearTimeout(musicTimer); musicTimer = null; }
+    if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
   }
 
   function playSound(kind) {
