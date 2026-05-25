@@ -482,28 +482,83 @@
 
       <a href="games/snake/" class="game-card available">
         <div class="sprite">
-          <!-- Snake-game icon matching the reference: a long snake folded
-               back on itself in rounded switchbacks (Clawd terracotta tube),
-               head raised at top-left with an eye + flicking forked tongue,
-               reaching toward a red food pellet up-right. Tongue flick +
-               food pulse animation. -->
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-            <!-- Body: neck down from the head, then 4 switchback passes -->
-            <path d="M7,5.5 L7,9 L19,9 L19,12.5 L5,12.5 L5,16 L19,16 L19,19 L9,19"
-                  fill="none" stroke="#d97757" stroke-width="2.6"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- Head -->
-            <circle cx="7" cy="4.3" r="2.1" fill="#d97757"/>
-            <!-- Eye -->
-            <circle cx="7.7" cy="3.8" r="0.5" fill="#1A0808"/>
-            <!-- Forked tongue, flicking -->
-            <g stroke="#c44d3a" stroke-width="0.7" stroke-linecap="round" fill="none">
-              <animate attributeName="opacity" values="1;1;0.2;1" dur="0.7s" repeatCount="indefinite"/>
-              <path d="M9,4.2 L10.9,3.5"/>
-              <path d="M9,4.4 L10.9,5.1"/>
+          <!-- Reference #8 in pixel-cell style (crisp 2-unit blocks, no
+               rounded tube): a long snake spiralling inward through a maze.
+               Head at top-center with two "ii" eyes + open jaws gaping
+               right toward a red food dot. Tail ends inside the coil.
+               Path: head → neck left → down far-left → across bottom → up
+               far-right → inner top-right → down centre → inner bottom →
+               up inner-left → tail. -->
+          <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges">
+            <g fill="#d97757">
+              <!-- head -->
+              <rect x="8"  y="1"  width="2" height="2"/>
+              <rect x="10" y="1"  width="2" height="2"/>
+              <!-- neck (left) -->
+              <rect x="8"  y="3"  width="2" height="2"/>
+              <rect x="6"  y="3"  width="2" height="2"/>
+              <rect x="4"  y="3"  width="2" height="2"/>
+              <rect x="2"  y="3"  width="2" height="2"/>
+              <!-- far-left column down -->
+              <rect x="2"  y="5"  width="2" height="2"/>
+              <rect x="2"  y="7"  width="2" height="2"/>
+              <rect x="2"  y="9"  width="2" height="2"/>
+              <rect x="2"  y="11" width="2" height="2"/>
+              <rect x="2"  y="13" width="2" height="2"/>
+              <rect x="2"  y="15" width="2" height="2"/>
+              <rect x="2"  y="17" width="2" height="2"/>
+              <!-- bottom row -->
+              <rect x="4"  y="17" width="2" height="2"/>
+              <rect x="6"  y="17" width="2" height="2"/>
+              <rect x="8"  y="17" width="2" height="2"/>
+              <rect x="10" y="17" width="2" height="2"/>
+              <rect x="12" y="17" width="2" height="2"/>
+              <rect x="14" y="17" width="2" height="2"/>
+              <rect x="16" y="17" width="2" height="2"/>
+              <rect x="18" y="17" width="2" height="2"/>
+              <!-- far-right column up -->
+              <rect x="18" y="15" width="2" height="2"/>
+              <rect x="18" y="13" width="2" height="2"/>
+              <rect x="18" y="11" width="2" height="2"/>
+              <rect x="18" y="9"  width="2" height="2"/>
+              <rect x="18" y="7"  width="2" height="2"/>
+              <rect x="18" y="5"  width="2" height="2"/>
+              <rect x="18" y="3"  width="2" height="2"/>
+              <!-- inner top-right run (left) -->
+              <rect x="16" y="3"  width="2" height="2"/>
+              <rect x="14" y="3"  width="2" height="2"/>
+              <rect x="12" y="3"  width="2" height="2"/>
+              <!-- inner centre column down -->
+              <rect x="12" y="5"  width="2" height="2"/>
+              <rect x="12" y="7"  width="2" height="2"/>
+              <rect x="12" y="9"  width="2" height="2"/>
+              <rect x="12" y="11" width="2" height="2"/>
+              <rect x="12" y="13" width="2" height="2"/>
+              <!-- inner bottom run (left) -->
+              <rect x="10" y="13" width="2" height="2"/>
+              <rect x="8"  y="13" width="2" height="2"/>
+              <rect x="6"  y="13" width="2" height="2"/>
+              <!-- inner-left column up -->
+              <rect x="6"  y="11" width="2" height="2"/>
+              <rect x="6"  y="9"  width="2" height="2"/>
+              <rect x="6"  y="7"  width="2" height="2"/>
+              <!-- tail tip -->
+              <rect x="8"  y="7"  width="2" height="2"/>
             </g>
-            <!-- Food pellet -->
-            <circle cx="13" cy="4.2" r="1.4" fill="#c44d3a">
+            <!-- eyes ("ii") on the head -->
+            <g fill="#1A0808">
+              <rect x="9"    y="1.4" width="0.6" height="1.0"/>
+              <rect x="10.6" y="1.4" width="0.6" height="1.0"/>
+            </g>
+            <!-- open jaws gaping right toward the food -->
+            <g stroke="#d97757" stroke-width="0.7" stroke-linecap="round" fill="none">
+              <animateTransform attributeName="transform" type="translate"
+                                values="0 0; 0.4 0; 0 0" dur="1.0s" repeatCount="indefinite"/>
+              <path d="M12,1.6 L13.6,0.9"/>
+              <path d="M12,2.4 L13.6,3.1"/>
+            </g>
+            <!-- food dot -->
+            <circle cx="16" cy="2" r="1.2" fill="#c44d3a">
               <animate attributeName="opacity" values="1;0.45;1" dur="1.1s" repeatCount="indefinite"/>
             </circle>
           </svg>
