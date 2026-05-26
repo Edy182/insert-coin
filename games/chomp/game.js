@@ -121,6 +121,7 @@
   let totalDots;
   let dotCells;       // [{c, r, kind}] — only dot/pellet cells, for fast iter
   let wallLayerCanvas; // pre-rendered wall layer (static)
+  let mazeTheme;       // { bg, dot, pellet, text, sub } chosen by ?design=N
 
   function parseMaze() {
     grid = [];
@@ -152,16 +153,53 @@
     wallLayerCanvas.width  = W;
     wallLayerCanvas.height = H;
     const wctx = wallLayerCanvas.getContext('2d');
-    // Warm-grey filled wall blocks — matches the runner's silhouette tone so
-    // the games share a look, and keeps terracotta reserved for Clawd.
-    wctx.fillStyle = '#854a38';
-    const inset = 2;
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        if (grid[r][c] === CELL_WALL) {
-          wctx.fillRect(c * TILE + inset, r * TILE + inset, TILE - inset * 2, TILE - inset * 2);
+    // Original classic maze: muted Claude navy-blue wall blocks, slightly inset
+    // so corridors read clearly, on the Claude-navy background.
+    mazeTheme = { bg: '#141413', dot: '#F5EFE0', pellet: '#FFFFFF', text: '#F5EFE0', sub: '#b0aea5' };
+    // Classic Pac-Man trick: don't fill cells (a field of squares saturates the
+    // eye). Trace the corridor-facing edges as ONE continuous rounded outline so
+    // walls read as flowing tubes with lots of black negative space.
+    const isWall = (r, c) => r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r][c] === CELL_WALL;
+    const trace = () => {
+      wctx.beginPath();
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (grid[r][c] !== CELL_WALL) continue;
+          const x0 = c * TILE, y0 = r * TILE, x1 = x0 + TILE, y1 = y0 + TILE;
+          if (!isWall(r - 1, c)) { wctx.moveTo(x0, y0); wctx.lineTo(x1, y0); }
+          if (!isWall(r + 1, c)) { wctx.moveTo(x0, y1); wctx.lineTo(x1, y1); }
+          if (!isWall(r, c - 1)) { wctx.moveTo(x0, y0); wctx.lineTo(x0, y1); }
+          if (!isWall(r, c + 1)) { wctx.moveTo(x1, y0); wctx.lineTo(x1, y1); }
         }
       }
+      wctx.stroke();
+    };
+    // Each game picks ONE of 4 Claude-FM dot-matrix looks at random, so the maze
+    // style varies between plays (parseMaze re-runs on every reset()).
+    // Override with ?fill=N to force a specific style.
+    const N = 4, sz = TILE / N;
+    const cream = (a) => `rgba(228,214,188,${Math.max(0, a).toFixed(3)})`;
+    const eachCell = (fn) => {
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        if (grid[r][c] !== CELL_WALL) continue;
+        for (let i = 0; i < N; i++) for (let j = 0; j < N; j++)
+          fn(c * TILE + j * sz, r * TILE + i * sz);
+      }
+    };
+    const forced = params.get('fill');
+    const style = forced !== null ? +forced : Math.floor(Math.random() * 4);
+    if (style === 0) {                         // random cells
+      const cell = sz - 2;
+      eachCell((gx, gy) => { wctx.fillStyle = cream(0.18 + 0.30 * Math.random()); wctx.fillRect(gx + 1, gy + 1, cell, cell); });
+    } else if (style === 1) {                  // fine cells + vertical light gradient
+      const cell = sz - 3;
+      eachCell((gx, gy) => { const grad = 1 - (gy / H) * 0.5; wctx.fillStyle = cream((0.10 + 0.42 * Math.random()) * grad); wctx.fillRect(gx + 1.5, gy + 1.5, cell, cell); });
+    } else if (style === 2) {                  // circular dots + radial glow
+      const cx = W / 2, cy = H / 2, maxd = Math.hypot(cx, cy);
+      eachCell((gx, gy) => { const x = gx + sz / 2, y = gy + sz / 2; const d = Math.hypot(x - cx, y - cy) / maxd; wctx.fillStyle = cream((0.48 - 0.30 * d) * (0.55 + 0.45 * Math.random())); wctx.beginPath(); wctx.arc(x, y, 1.7, 0, Math.PI * 2); wctx.fill(); });
+    } else {                                   // wave intensity (audio-visualizer)
+      const cell = sz - 2;
+      eachCell((gx, gy) => { const wave = 0.5 + 0.5 * Math.sin(gx * 0.045 + gy * 0.03); wctx.fillStyle = cream(0.18 + 0.30 * wave + 0.08 * Math.random()); wctx.fillRect(gx + 1, gy + 1, cell, cell); });
     }
   }
 
@@ -267,6 +305,13 @@
 
   function canMoveFrom(c, r, dx, dy) {
     return !isWallTile(c + dx, r + dy);
+  }
+
+  // The ghost house is a dead-end pocket — Clawd gets trapped if he wanders in.
+  // Block the player from entering it; ghosts still use it freely.
+  function isGhostHouse(c, r) { return r >= 9 && r <= 10 && c >= 8 && c <= 10; }
+  function playerCanMove(c, r, dx, dy) {
+    return isGhostHouse(c + dx, r + dy) ? false : canMoveFrom(c, r, dx, dy);
   }
 
   // === Ghost AI ===
@@ -430,7 +475,7 @@
 
     // At intersection, try queued direction
     if (atCenter && (nd.dx !== 0 || nd.dy !== 0)) {
-      if (canMoveFrom(c, r, nd.dx, nd.dy)) {
+      if (playerCanMove(c, r, nd.dx, nd.dy)) {
         player.dir = { dx: nd.dx, dy: nd.dy };
         player.x = centerX;
         player.y = centerY;
@@ -439,7 +484,7 @@
 
     // Move, unless blocked
     if (player.dir.dx !== 0 || player.dir.dy !== 0) {
-      if (atCenter && !canMoveFrom(c, r, player.dir.dx, player.dir.dy)) {
+      if (atCenter && !playerCanMove(c, r, player.dir.dx, player.dir.dy)) {
         player.dir = { dx: 0, dy: 0 };
         player.x = centerX;
         player.y = centerY;
@@ -636,12 +681,12 @@
 
   // === Draw ===
   function draw() {
-    // Background — Claude navy (matches Runner night mode)
-    ctx.fillStyle = '#141413';
+    // Background — set by the active theme (?design=N): warm paper or warm dark.
+    ctx.fillStyle = mazeTheme.bg;
     ctx.fillRect(0, 0, W, H);
 
-    // Walls: blit the pre-rendered static layer (1 drawImage instead of
-    // iterating 399 cells with fillRect per frame).
+    // Walls: blit the pre-rendered Claude-FM dot-matrix (one of 4 styles chosen
+    // per game in parseMaze).
     if (wallLayerCanvas) ctx.drawImage(wallLayerCanvas, 0, 0);
 
     // Dots + pellets: iterate the dotCells list (only cells that have
@@ -649,19 +694,20 @@
     // Skip eaten cells (still in list but grid is now CELL_PATH).
     const pulse = (Math.sin(frameCount * 0.15) + 1) * 0.5;
     const pelletRadius = 4 + pulse * 6;
-    ctx.fillStyle = '#faf9f5';
     for (let i = 0; i < dotCells.length; i++) {
       const d = dotCells[i];
       const cell = grid[d.r][d.c];
       if (cell === CELL_DOT) {
         const px = d.c * TILE + TILE / 2;
         const py = d.r * TILE + TILE / 2;
+        ctx.fillStyle = mazeTheme.dot;
         ctx.beginPath();
         ctx.arc(px, py, 4, 0, Math.PI * 2);
         ctx.fill();
       } else if (cell === CELL_PELLET) {
         const px = d.c * TILE + TILE / 2;
         const py = d.r * TILE + TILE / 2;
+        ctx.fillStyle = mazeTheme.pellet;
         ctx.beginPath();
         ctx.arc(px, py, pelletRadius, 0, Math.PI * 2);
         ctx.fill();
@@ -680,7 +726,7 @@
     if (comboFlash > 0) {
       comboFlash--;
       const a = (comboFlash / 35) * 0.55;
-      ctx.strokeStyle = `rgba(250, 249, 245, ${a})`;
+      ctx.strokeStyle = `rgba(245, 239, 224, ${a})`;
       ctx.lineWidth = 6;
       ctx.strokeRect(3, 3, W - 6, H - 6);
       ctx.lineWidth = 1;
@@ -689,10 +735,12 @@
     // Score popups float upward and fade
     for (const p of scorePopups) {
       const alpha = Math.min(1, p.frames / 60);
-      ctx.fillStyle = `rgba(250, 249, 245, ${alpha})`;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = mazeTheme.text;
       ctx.font = '12px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText(p.text, p.x, p.y);
+      ctx.globalAlpha = 1;
     }
 
     // Lives — small Clawd faces along the bottom-left
@@ -717,15 +765,15 @@
 
     // Ready overlay — shown until first input
     if (!gameStarted && !gameOver) {
-      ctx.fillStyle = '#faf9f5';
+      ctx.fillStyle = mazeTheme.text;
       ctx.font = '20px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText('READY!', W / 2, H / 2 + 50);
-      ctx.fillStyle = '#faf9f5';
+      ctx.fillStyle = mazeTheme.sub;
       ctx.font = '12px "VT323", monospace';
       ctx.fillText('Press ARROW to start', W / 2, H / 2 + 72);
       if (isFirstPlay) {
-        ctx.fillStyle = '#faf9f5';
+        ctx.fillStyle = mazeTheme.sub;
         ctx.font = '12px "VT323", monospace';
         ctx.fillText('Eat dots  ·  dodge bugs  ·  power pellets fight back', W / 2, H / 2 + 94);
       }
