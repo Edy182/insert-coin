@@ -934,6 +934,9 @@
     [392, 0, 523, 659, 392, 0, 784, 659, 440, 0, 587, 698, 440, 0, 880, 784],
     [523, 659, 784, 659, 587, 698, 880, 698, 659, 784, 988, 784, 880, 698, 587, 523],
     [659, 0, 880, 0, 784, 0, 988, 0, 880, 0, 698, 0, 784, 0, 659, 0],
+    [523, 0, 659, 784, 523, 0, 880, 784, 587, 0, 698, 880, 587, 0, 988, 880],
+    [440, 523, 659, 523, 494, 587, 698, 587, 523, 659, 784, 659, 587, 494, 440, 0],
+    [659, 784, 659, 523, 587, 698, 587, 440, 523, 659, 523, 392, 440, 523, 659, 784],
   ];
   let mTrack = TRACKS[0], musicIdx = 0, musicTimer = null;
   function pickTrack() { mTrack = TRACKS[(Math.random() * TRACKS.length) | 0]; musicIdx = 0; }
@@ -944,7 +947,7 @@
     musicTimer = setInterval(() => {
       if (!soundOn) return;
       const n = mTrack[musicIdx];
-      if (n) beep({ freq: n, type: 'triangle', duration: 0.09, volume: 0.06 });
+      if (n) beep({ freq: n, type: 'triangle', duration: 0.09, volume: 0.085 });
       musicIdx++;
       if (musicIdx >= mTrack.length) pickTrack();
     }, 140);

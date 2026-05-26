@@ -154,7 +154,7 @@
     const wctx = wallLayerCanvas.getContext('2d');
     // Warm-grey filled wall blocks — matches the runner's silhouette tone so
     // the games share a look, and keeps terracotta reserved for Clawd.
-    wctx.fillStyle = '#54524a';
+    wctx.fillStyle = '#854a38';
     const inset = 2;
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
@@ -1052,11 +1052,16 @@
     [523, 659, 523, 392, 523, 659, 523, 392, 587, 698, 587, 440, 587, 698, 587, 440],
     [392, 440, 494, 523, 587, 523, 494, 440, 392, 440, 494, 587, 659, 587, 523, 440],
     [523, 392, 659, 523, 587, 440, 698, 587, 523, 392, 659, 784, 698, 587, 523, 440],
+    [440, 523, 440, 330, 440, 523, 440, 330, 494, 587, 494, 392, 494, 587, 494, 392],
+    [523, 587, 659, 587, 523, 494, 440, 494, 523, 587, 659, 698, 659, 587, 523, 494],
+    [392, 523, 440, 587, 494, 659, 523, 698, 587, 523, 494, 440, 392, 440, 494, 523],
   ];
   const FRIGHT_TRACKS = [
     [659, 622, 587, 554, 523, 494, 466, 440, 415, 392, 370, 349, 392, 440, 494, 554],
     [440, 622, 415, 587, 392, 554, 370, 523, 440, 622, 466, 659, 440, 622, 415, 587],
     [587, 587, 698, 0, 622, 622, 466, 0, 523, 523, 622, 0, 440, 440, 587, 0],
+    [466, 440, 415, 392, 370, 349, 330, 311, 330, 349, 370, 392, 415, 440, 466, 494],
+    [349, 0, 415, 0, 349, 0, 494, 0, 466, 0, 415, 0, 466, 0, 587, 0],
   ];
   let mTrack = CHASE_TRACKS[0], musicIdx = 0, musicTimer = null, musicWasFright = false;
   function pickTrack(fright) {
@@ -1076,7 +1081,7 @@
     const fright = frightenedTimer > 0;
     if (fright !== musicWasFright) { musicWasFright = fright; pickTrack(fright); }
     const n = mTrack[musicIdx];
-    if (n) beep({ freq: n, type: 'square', duration: fright ? 0.1 : 0.11, volume: fright ? 0.055 : 0.05 });
+    if (n) beep({ freq: n, type: 'square', duration: fright ? 0.1 : 0.11, volume: fright ? 0.075 : 0.07 });
     musicIdx++;
     if (musicIdx >= mTrack.length) pickTrack(fright);
     musicTimer = setTimeout(musicStep, fright ? 150 : 175);
