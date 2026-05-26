@@ -911,10 +911,37 @@
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       masterGain = audioCtx.createGain();
       masterGain.gain.value = 0.7; // global headroom / volume trim
-      masterGain.connect(audioCtx.destination);
+      const comp = audioCtx.createDynamicsCompressor(); // glue + clip protection
+      masterGain.connect(comp);
+      comp.connect(audioCtx.destination);
     }
     if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
+  }
+
+  // Percussion for the rhythm section.
+  function kick(vol) {
+    const ac = getAudioCtx(); const t = ac.currentTime;
+    const osc = ac.createOscillator(), g = ac.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(140, t);
+    osc.frequency.exponentialRampToValueAtTime(45, t + 0.12);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(t); osc.stop(t + 0.15);
+  }
+  function hat(vol) {
+    const ac = getAudioCtx(); const t = ac.currentTime, dur = 0.03;
+    const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = ac.createBufferSource(); src.buffer = buf;
+    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 7000;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    src.connect(hp); hp.connect(g); g.connect(masterGain);
+    src.start(t); src.stop(t + dur);
   }
 
   function beep({ freq = 440, freq2 = null, type = 'square', duration = 0.12, volume = 0.18, delay = 0 }) {
@@ -954,6 +981,13 @@
       if (!soundOn) return;
       const n = mTrack[musicIdx];
       if (n) beep({ freq: n, type: 'triangle', duration: 0.09, volume: 0.085 });
+      // rhythm section: kick + bass on downbeats, soft hat on offbeats
+      if (musicIdx % 4 === 0) {
+        kick(0.15);
+        if (n) { let bf = n; while (bf > 165) bf /= 2; beep({ freq: bf, type: 'triangle', duration: 0.14, volume: 0.06 }); }
+      } else if (musicIdx % 2 === 1) {
+        hat(0.04);
+      }
       musicIdx++;
       if (musicIdx >= mTrack.length) pickTrack();
     }, 140);
@@ -967,8 +1001,8 @@
     if (kind === 'jump') {
       beep({ freq: 220, freq2: 440, type: 'square', duration: 0.1, volume: 0.15 });
     } else if (kind === 'death') {
-      beep({ freq: 440, freq2: 110, type: 'sawtooth', duration: 0.25, volume: 0.2 });
-      beep({ freq: 220, freq2: 55,  type: 'sawtooth', duration: 0.25, volume: 0.15, delay: 0.2 });
+      beep({ freq: 440, freq2: 110, type: 'sawtooth', duration: 0.25, volume: 0.15 });
+      beep({ freq: 220, freq2: 55,  type: 'sawtooth', duration: 0.25, volume: 0.12, delay: 0.2 });
     } else if (kind === 'milestone') {
       beep({ freq: 660, duration: 0.08, volume: 0.15 });
       beep({ freq: 880, duration: 0.08, volume: 0.15, delay: 0.1 });

@@ -549,7 +549,9 @@
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       masterGain = audioCtx.createGain();
       masterGain.gain.value = 0.7; // global headroom / volume trim
-      masterGain.connect(audioCtx.destination);
+      const comp = audioCtx.createDynamicsCompressor(); // glue + clip protection
+      masterGain.connect(comp);
+      comp.connect(audioCtx.destination);
     }
     if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
@@ -591,6 +593,8 @@
       if (!soundOn) return;
       const n = mTrack[musicIdx];
       if (n) beep({ freq: n, type: 'sine', duration: 0.22, volume: 0.095 });
+      // soft sine bass on downbeats — keeps it calm/ambient (no percussion)
+      if (musicIdx % 4 === 0 && n) { let bf = n; while (bf > 150) bf /= 2; beep({ freq: bf, type: 'sine', duration: 0.4, volume: 0.05 }); }
       musicIdx++;
       if (musicIdx >= mTrack.length) pickTrack();
     }, 240);
@@ -604,8 +608,8 @@
     if (kind === 'eat') {
       beep({ freq: 660, freq2: 990, type: 'square', duration: 0.07, volume: 0.13 });
     } else if (kind === 'death') {
-      beep({ freq: 440, freq2: 110, type: 'sawtooth', duration: 0.25, volume: 0.2 });
-      beep({ freq: 220, freq2: 55,  type: 'sawtooth', duration: 0.25, volume: 0.15, delay: 0.2 });
+      beep({ freq: 440, freq2: 110, type: 'sawtooth', duration: 0.25, volume: 0.15 });
+      beep({ freq: 220, freq2: 55,  type: 'sawtooth', duration: 0.25, volume: 0.12, delay: 0.2 });
     } else if (kind === 'win') {
       beep({ freq: 440, duration: 0.12, volume: 0.18 });
       beep({ freq: 660, duration: 0.12, volume: 0.18, delay: 0.13 });
