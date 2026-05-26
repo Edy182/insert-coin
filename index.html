@@ -481,65 +481,43 @@
 
       <a href="games/snake/" class="game-card available">
         <div class="sprite">
-          <!-- Clean vector of the reference winding: solid Clawd terracotta
-               tube (no black outline), crisp edges, head with "ii" eyes and a
-               forked tongue that flicks in and out toward the red food. -->
-          <svg viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-            <!-- body = grid-aligned square cells (pitch 2.9, cell 2.7 = a bit
-                 thicker) tracing the winding; top row has an extra cell so the
-                 head sits more central over the overall shape -->
+          <!-- Chunky Clawd-snake: a thick terracotta coiled body with Clawd's
+               head (ii eyes) at the top and a flicking forked tongue. Coarse,
+               bold pixels to match the Dino / Mac-Pan character icons. -->
+          <svg viewBox="0 0 18 15" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+            <!-- one continuous terracotta tube: the body coils into a square
+                 spiral, and its outer end rises and becomes the head (the head
+                 IS the end of the body, not a blob on top) -->
+            <g transform="translate(2.5 1)">
             <g fill="#d97757" shape-rendering="crispEdges">
-              <!-- neck (top, 3 cells so the head centres over the shape) -->
-              <rect x="3.0"  y="3.0"  width="2.7" height="2.7" rx="0.3"/>
-              <rect x="5.9"  y="3.0"  width="2.7" height="2.7" rx="0.3"/>
-              <rect x="8.8"  y="3.0"  width="2.7" height="2.7" rx="0.3"/>
-              <!-- left edge -->
-              <rect x="3.0"  y="5.9"  width="2.7" height="2.7" rx="0.3"/>
-              <rect x="3.0"  y="8.8"  width="2.7" height="2.7" rx="0.3"/>
-              <rect x="3.0"  y="11.7" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="3.0"  y="14.6" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="3.0"  y="17.5" width="2.7" height="2.7" rx="0.3"/>
-              <!-- bottom row -->
-              <rect x="3.0"  y="20.4" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="5.9"  y="20.4" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="8.8"  y="20.4" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="11.7" y="20.4" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="14.6" y="20.4" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="17.5" y="20.4" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="20.4" y="20.4" width="2.7" height="2.7" rx="0.3"/>
-              <!-- right edge -->
-              <rect x="20.4" y="17.5" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="20.4" y="14.6" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="20.4" y="11.7" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="20.4" y="8.8"  width="2.7" height="2.7" rx="0.3"/>
-              <!-- inner S -->
-              <rect x="17.5" y="8.8"  width="2.7" height="2.7" rx="0.3"/>
-              <rect x="14.6" y="8.8"  width="2.7" height="2.7" rx="0.3"/>
-              <rect x="11.7" y="8.8"  width="2.7" height="2.7" rx="0.3"/>
-              <rect x="11.7" y="11.7" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="11.7" y="14.6" width="2.7" height="2.7" rx="0.3"/>
-              <rect x="14.6" y="14.6" width="2.7" height="2.7" rx="0.3"/>
+              <!-- spiral coil -->
+              <rect x="0"  y="3"  width="10" height="2"/>
+              <rect x="0"  y="5"  width="2"  height="2"/>
+              <rect x="0"  y="7"  width="2"  height="2"/>
+              <rect x="4"  y="7"  width="6"  height="2"/>
+              <rect x="0"  y="9"  width="2"  height="2"/>
+              <rect x="8"  y="9"  width="2"  height="2"/>
+              <rect x="0"  y="11" width="10" height="2"/>
+              <!-- neck: the coil's outer end rises -->
+              <rect x="8"  y="0"  width="2"  height="4"/>
+              <!-- head: the tube's end, a touch wider, turning right -->
+              <rect x="8"  y="0"  width="5"  height="3"/>
             </g>
-            <!-- forked tongue: slides out of the mouth and retracts -->
-            <g fill="none" stroke="#c44d3a" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round">
-              <animateTransform attributeName="transform" type="translate"
-                                values="-2.6 0; -2.6 0; 1.2 0; 1.2 0; -2.6 0"
-                                keyTimes="0;0.25;0.5;0.75;1" dur="1.6s" repeatCount="indefinite"/>
-              <path d="M14.4,4.3 L15.9,4.3"/>
-              <path d="M15.9,4.3 L16.9,3.5"/>
-              <path d="M15.9,4.3 L16.9,5.1"/>
-            </g>
-            <!-- head: rounded-rect, centred over the shape -->
-            <rect x="9.0" y="1.8" width="5.3" height="4.8" rx="1.3" fill="#d97757"/>
             <!-- eyes "ii" -->
-            <g fill="#1A0808">
-              <rect x="10.4" y="2.8" width="0.8" height="1.6" rx="0.2"/>
-              <rect x="12.2" y="2.8" width="0.8" height="1.6" rx="0.2"/>
+            <g fill="#1A0808" shape-rendering="crispEdges">
+              <rect x="9.5"  y="1" width="1" height="1.6"/>
+              <rect x="11.3" y="1" width="1" height="1.6"/>
             </g>
-            <!-- food: rounded square -->
-            <rect x="17.2" y="3.3" width="2.4" height="2.4" rx="0.6" fill="#c44d3a">
-              <animate attributeName="opacity" values="1;0.5;1" dur="1.1s" repeatCount="indefinite"/>
-            </rect>
+            <!-- forked tongue (square pixels) flicking out the front -->
+            <g fill="#c44d3a" shape-rendering="crispEdges">
+              <animateTransform attributeName="transform" type="translate"
+                                values="-2 0;-2 0;0 0;0 0;-2 0"
+                                keyTimes="0;0.25;0.5;0.75;1" dur="1.6s" repeatCount="indefinite"/>
+              <rect x="13"   y="1.2" width="1.6" height="1"/>
+              <rect x="14.6" y="0.5" width="1"   height="1"/>
+              <rect x="14.6" y="1.9" width="1"   height="1"/>
+            </g>
+            </g>
           </svg>
         </div>
         <h2>SNAKE</h2>

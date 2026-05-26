@@ -581,7 +581,7 @@
     musicTimer = setInterval(() => {
       if (!soundOn) return;
       const n = mTrack[musicIdx];
-      if (n) beep({ freq: n, type: 'sine', duration: 0.22, volume: 0.05 });
+      if (n) beep({ freq: n, type: 'sine', duration: 0.22, volume: 0.07 });
       musicIdx++;
       if (musicIdx >= mTrack.length) pickTrack();
     }, 240);

@@ -101,7 +101,7 @@
   let uap; // rare UAP saucer easter egg (cosmetic background flyby)
   // Vibrant glow colours — UAPs are a themed exception to the "only Clawd is
   // coloured" rule (like the Mac-Pan ghosts). Each sighting picks one at random.
-  const UAP_COLORS = ['#5a9bd6'];
+  const UAP_COLORS = ['#5a9bd6', '#6ec6e0', '#4f7fc4'];
 
   function reset() {
     player = { x: 80, y: GROUND_Y - 36, w: 48, h: 36, vy: 0, grounded: true, ducking: false };
@@ -944,7 +944,7 @@
     musicTimer = setInterval(() => {
       if (!soundOn) return;
       const n = mTrack[musicIdx];
-      if (n) beep({ freq: n, type: 'triangle', duration: 0.09, volume: 0.04 });
+      if (n) beep({ freq: n, type: 'triangle', duration: 0.09, volume: 0.06 });
       musicIdx++;
       if (musicIdx >= mTrack.length) pickTrack();
     }, 140);

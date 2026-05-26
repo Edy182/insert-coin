@@ -152,8 +152,9 @@
     wallLayerCanvas.width  = W;
     wallLayerCanvas.height = H;
     const wctx = wallLayerCanvas.getContext('2d');
-    // Blue filled wall blocks (classic arcade look).
-    wctx.fillStyle = '#3a5a8c';
+    // Warm-grey filled wall blocks — matches the runner's silhouette tone so
+    // the games share a look, and keeps terracotta reserved for Clawd.
+    wctx.fillStyle = '#54524a';
     const inset = 2;
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
@@ -1075,7 +1076,7 @@
     const fright = frightenedTimer > 0;
     if (fright !== musicWasFright) { musicWasFright = fright; pickTrack(fright); }
     const n = mTrack[musicIdx];
-    if (n) beep({ freq: n, type: 'square', duration: fright ? 0.1 : 0.11, volume: fright ? 0.035 : 0.032 });
+    if (n) beep({ freq: n, type: 'square', duration: fright ? 0.1 : 0.11, volume: fright ? 0.055 : 0.05 });
     musicIdx++;
     if (musicIdx >= mTrack.length) pickTrack(fright);
     musicTimer = setTimeout(musicStep, fright ? 150 : 175);
