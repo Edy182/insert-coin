@@ -98,7 +98,10 @@
   let nightMode, nightTimer, stars, lastNightScore;
   let frameCount;
   let gameStarted;
-  let uap; // rare UAP-orb easter egg (cosmetic background flyby)
+  let uap; // rare UAP saucer easter egg (cosmetic background flyby)
+  // Vibrant glow colours — UAPs are a themed exception to the "only Clawd is
+  // coloured" rule (like the Mac-Pan ghosts). Each sighting picks one at random.
+  const UAP_COLORS = ['#5a9bd6'];
 
   function reset() {
     player = { x: 80, y: GROUND_Y - 36, w: 48, h: 36, vy: 0, grounded: true, ducking: false };
@@ -242,7 +245,8 @@
       }
       if (uap.x < -40 || uap.x > W + 40 || uap.y < -40 || uap.y > H + 40) uap = null;
     } else if (rand() < 0.0004) {
-      uap = { x: W + 20, y: 18 + rand() * 38, vx: -gameSpeed * 0.45, vy: 0, phase: 'drift', timer: 0 };
+      uap = { x: W + 20, y: 18 + rand() * 38, vx: -gameSpeed * 0.45, vy: 0, phase: 'drift', timer: 0,
+              color: UAP_COLORS[Math.floor(rand() * UAP_COLORS.length)] };
     }
 
     groundOffset = (groundOffset + gameSpeed) % 60;
@@ -422,7 +426,7 @@
     for (const c of clouds) drawCloud(c.x, c.y, cld);
 
     // UAP orb (cosmetic) — glows brighter at night
-    if (uap) drawUap(uap, nightMode ? '#faf9f5' : '#54524a');
+    if (uap) drawUap(uap, uap.color);
 
     ctx.fillStyle = gnd;
     ctx.fillRect(0, GROUND_Y, W, 2);
@@ -640,20 +644,20 @@
     ctx.fillStyle = color;
     ctx.strokeStyle = color;
     if (u.phase === 'dash') { // motion trail
-      ctx.globalAlpha = 0.35;
-      ctx.lineWidth = 3;
+      ctx.globalAlpha = 0.3;
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.moveTo(x, y);
-      ctx.lineTo(x - u.vx * 0.7, y - u.vy * 0.7);
+      ctx.lineTo(x - u.vx * 0.6, y - u.vy * 0.6);
       ctx.stroke();
     }
-    // glow halo
-    ctx.globalAlpha = 0.18;
-    ctx.beginPath(); ctx.ellipse(x, y, 13, 6, 0, 0, Math.PI * 2); ctx.fill();
-    // saucer disc + dome
+    // flat glow halo (kept tight to the disc so nothing reads as "legs" below)
+    ctx.globalAlpha = 0.16;
+    ctx.beginPath(); ctx.ellipse(x, y, 17, 4, 0, 0, Math.PI * 2); ctx.fill();
+    // saucer: long flat disc + dome
     ctx.globalAlpha = 1;
-    ctx.beginPath(); ctx.ellipse(x, y, 9, 3, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(x, y - 1, 3.6, Math.PI, Math.PI * 2); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x, y, 12, 3, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y - 1, 4, Math.PI, Math.PI * 2); ctx.closePath(); ctx.fill();
     ctx.restore();
   }
 
