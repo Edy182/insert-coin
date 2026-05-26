@@ -98,6 +98,7 @@
   let nightMode, nightTimer, stars, lastNightScore;
   let frameCount;
   let gameStarted;
+  let uap; // rare UAP-orb easter egg (cosmetic background flyby)
 
   function reset() {
     player = { x: 80, y: GROUND_Y - 36, w: 48, h: 36, vy: 0, grounded: true, ducking: false };
@@ -125,6 +126,7 @@
     lastNightScore = -1;
     stars          = [];
     gameStarted    = false;
+    uap            = null;
     if (dailyMode) reseedFromToday();
     restartBtn.classList.add('hidden');
     shareBtn.classList.add('hidden');
@@ -217,6 +219,31 @@
       if (clouds[i].x < -80) clouds.splice(i, 1);
     }
     if (rand() < 0.004) clouds.push({ x: W + 20, y: 15 + rand() * 55 });
+
+    // UAP-orb easter egg: rarely drifts in, hovers, then does the viral
+    // "instant acceleration" dash and vanishes. Purely cosmetic.
+    if (uap) {
+      uap.timer++;
+      if (uap.phase === 'drift') {
+        uap.x += uap.vx;
+        uap.y += Math.sin(uap.timer * 0.09) * 0.35;
+        if (uap.timer > 80) { uap.phase = 'charge'; uap.timer = 0; }
+      } else if (uap.phase === 'charge') {
+        if (uap.timer > 26) {
+          uap.phase = 'dash';
+          const ang = -Math.PI / 2 + (rand() - 0.5) * 1.1; // mostly up, slight angle
+          const sp = 28;
+          uap.vx = Math.cos(ang) * sp;
+          uap.vy = Math.sin(ang) * sp;
+        }
+      } else { // dash
+        uap.x += uap.vx;
+        uap.y += uap.vy;
+      }
+      if (uap.x < -40 || uap.x > W + 40 || uap.y < -40 || uap.y > H + 40) uap = null;
+    } else if (rand() < 0.0004) {
+      uap = { x: W + 20, y: 18 + rand() * 38, vx: -gameSpeed * 0.45, vy: 0, phase: 'drift', timer: 0 };
+    }
 
     groundOffset = (groundOffset + gameSpeed) % 60;
 
@@ -393,6 +420,9 @@
 
     // Clouds
     for (const c of clouds) drawCloud(c.x, c.y, cld);
+
+    // UAP orb (cosmetic) — glows brighter at night
+    if (uap) drawUap(uap, nightMode ? '#faf9f5' : '#54524a');
 
     ctx.fillStyle = gnd;
     ctx.fillRect(0, GROUND_Y, W, 2);
@@ -598,6 +628,33 @@
     ].forEach((row, r) => row.forEach((col, c) => {
       if (col) { ctx.fillStyle = col; ctx.fillRect(x + c*P, y + r*P, P, P); }
     }));
+  }
+
+  // UAP orb — small glowing ball that jitters while charging, then dashes off
+  // with a motion trail (homage to the viral "instant acceleration" clips).
+  function drawUap(u, color) {
+    let dx = 0, dy = 0;
+    if (u.phase === 'charge') { dx = (rand() - 0.5) * 2.4; dy = (rand() - 0.5) * 2.4; }
+    const x = u.x + dx, y = u.y + dy;
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    if (u.phase === 'dash') { // motion trail
+      ctx.globalAlpha = 0.35;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x - u.vx * 0.7, y - u.vy * 0.7);
+      ctx.stroke();
+    }
+    // glow halo
+    ctx.globalAlpha = 0.18;
+    ctx.beginPath(); ctx.ellipse(x, y, 13, 6, 0, 0, Math.PI * 2); ctx.fill();
+    // saucer disc + dome
+    ctx.globalAlpha = 1;
+    ctx.beginPath(); ctx.ellipse(x, y, 9, 3, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y - 1, 3.6, Math.PI, Math.PI * 2); ctx.closePath(); ctx.fill();
+    ctx.restore();
   }
 
   // Cloud — 3-bump shape ~55×15px
