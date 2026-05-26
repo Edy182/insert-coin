@@ -904,9 +904,15 @@
 
   // === Audio ===
   let audioCtx = null;
+  let masterGain = null;
 
   function getAudioCtx() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0.7; // global headroom / volume trim
+      masterGain.connect(audioCtx.destination);
+    }
     if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
   }
@@ -916,7 +922,7 @@
     const osc = ac.createOscillator();
     const gain = ac.createGain();
     osc.connect(gain);
-    gain.connect(ac.destination);
+    gain.connect(masterGain);
     osc.type = type;
     const t = ac.currentTime + delay;
     osc.frequency.setValueAtTime(freq, t);
