@@ -571,13 +571,32 @@
       const audio = document.getElementById('landing-music');
       const btn   = document.getElementById('music-toggle');
       if (!audio || !btn) return;
-      audio.volume = 0.9;
+      const TARGET_VOLUME = 0.9;
+      // No fade-in: punchy arcade start, matches the games. Fade-out on mute
+      // still smooths the cut.
+      const FADE_OUT_MS = 400;
+      audio.volume = TARGET_VOLUME;
 
-      const MUTE_KEY = 'clawd-landing-muted';
+      // Shared mute key with the games so muting in one place sticks across
+      // the entire arcade (landing + Dino + Mac-Pan + Snake).
+      const MUTE_KEY = 'clawd-music-muted';
       const TIME_KEY = 'clawd-landing-time';
 
       let muted = false;
       try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch (_) {}
+
+      function fade(from, to, ms, done) {
+        if (ms <= 0) { audio.volume = to; if (done) done(); return; }
+        const t0 = performance.now();
+        function step() {
+          const t = Math.min(1, (performance.now() - t0) / ms);
+          const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          audio.volume = Math.max(0, Math.min(1, from + (to - from) * e));
+          if (t < 1) requestAnimationFrame(step);
+          else if (done) done();
+        }
+        requestAnimationFrame(step);
+      }
 
       function render() {
         btn.textContent = muted ? '🔇 MUSIC' : '🔊 MUSIC';
@@ -602,6 +621,7 @@
       function tryStart() {
         if (started || muted) return;
         started = true;
+        audio.volume = TARGET_VOLUME;
         audio.play().catch(() => { started = false; });
       }
 
@@ -615,8 +635,23 @@
       // try playing right away so returning visitors don't need a fresh click.
       tryStart();
       window.addEventListener('pageshow', tryStart);
+      // Pause when the tab is hidden, resume when shown. Track whether we
+      // were actually playing so the resume actually runs (tryStart short-
+      // circuits on `started=true`, so we play directly here).
+      let resumeOnVisible = false;
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') tryStart();
+        if (document.visibilityState === 'hidden') {
+          resumeOnVisible = !audio.paused;
+          if (!audio.paused) audio.pause();
+        } else {
+          if (muted) return;
+          if (resumeOnVisible && started) {
+            audio.play().catch(() => { started = false; tryStart(); });
+          } else {
+            tryStart();
+          }
+          resumeOnVisible = false;
+        }
       });
 
       // Save playback position so we can resume on return.
@@ -635,8 +670,7 @@
         try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (_) {}
         render();
         if (muted) {
-          audio.pause();
-          started = false;
+          fade(audio.volume, 0, FADE_OUT_MS, () => { audio.pause(); started = false; });
         } else {
           tryStart();
         }

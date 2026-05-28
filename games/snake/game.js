@@ -91,7 +91,6 @@
   let comboPopup;       // { text, frames }
   let comboFlash;       // frames of cream border pulse when a streak fires
   let leaderboardResult; // { rank, list } from Worker after submit
-  let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-snake-high') || '0', 10);
   const ONBOARDED_KEY = 'clawd-onboarded-snake';
   let isFirstPlay = !localStorage.getItem(ONBOARDED_KEY);
@@ -568,50 +567,18 @@
   // Snake music — pool of mellow SINE-wave melodies (mid register), one
   // picked at random and re-rolled each loop. Sine stays distinct from
   // Dino's triangle and Mac-Pan's square, calm and smooth (not buzzy).
-  const BG_TRACKS = [
-    '../../assets/sounds/snake-bg-1.mp3',
-    '../../assets/sounds/snake-bg-2.mp3',
-    '../../assets/sounds/snake-bg-3.mp3',
-  ];
-  // Shuffle queue: every track plays before any repeats; the first of a new
-  // shuffle is never the last of the previous one (no boundary repeats).
-  let bgm = null, lastIdx = -1, queue = [];
-  function refillQueue() {
-    queue = BG_TRACKS.map((_, i) => i);
-    for (let i = queue.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [queue[i], queue[j]] = [queue[j], queue[i]];
-    }
-    if (queue.length > 1 && queue[0] === lastIdx) {
-      [queue[0], queue[1]] = [queue[1], queue[0]];
-    }
-  }
-  function pickNextIdx() {
-    if (queue.length === 0) refillQueue();
-    const i = queue.shift();
-    lastIdx = i;
-    return i;
-  }
-  // Pre-buffer the next track so playback is instant on first user input.
-  refillQueue();
-  let preloaded = new Audio(BG_TRACKS[queue[0]]);
-  preloaded.preload = 'auto';
-  preloaded.load();
-  function playNext() {
-    if (!soundOn) { bgm = null; return; }
-    if (preloaded) { bgm = preloaded; preloaded = null; lastIdx = queue.shift(); }
-    else           { bgm = new Audio(BG_TRACKS[pickNextIdx()]); bgm.preload = 'auto'; }
-    bgm.volume = 0.35;
-    bgm.onended = playNext;
-    bgm.play().catch(() => {});
-  }
-  function startMusic() {
-    if (!soundOn || bgm) return;
-    playNext();
-  }
-  function stopMusic() {
-    if (bgm) { bgm.onended = null; bgm.pause(); bgm = null; }
-  }
+  // Background music — shared ClawdMusic player (shuffle + crossfade +
+  // fade-in/out + persistent mute + pause-on-hidden).
+  const music = window.ClawdMusic.init({
+    tracks: [
+      '../../assets/sounds/snake-bg-1.mp3',
+      '../../assets/sounds/snake-bg-2.mp3',
+      '../../assets/sounds/snake-bg-3.mp3',
+    ],
+    volume: 0.35,
+  });
+  function startMusic() { music.start(); }
+  function stopMusic()  { music.stop();  }
 
   // SFX always play — mute button only toggles music.
   function playSound(kind) {
@@ -714,11 +681,12 @@
   });
 
   restartBtn.addEventListener('click', reset);
+  function renderMuteBtn() { muteBtn.textContent = music.isMuted() ? '🔇 MUSIC' : '🔊 MUSIC'; }
+  renderMuteBtn();
   muteBtn.addEventListener('click', () => {
-    soundOn = !soundOn;
-    muteBtn.textContent = soundOn ? '🔊 MUSIC' : '🔇 MUSIC';
-    if (!soundOn) stopMusic();
-    else if (gameStarted && !gameOver) startMusic();
+    const nowMuted = music.toggle();
+    renderMuteBtn();
+    if (!nowMuted && gameStarted && !gameOver) startMusic();
   });
   shareBtn.addEventListener('click', async () => {
     try {

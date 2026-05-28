@@ -224,7 +224,6 @@
   let shieldFlash;      // frames of cream flash after activating the shield
   let comboFlash;       // cream border pulse frames after a PERFECT CHAIN
   let leaderboardResult; // { rank, list } from Worker after submit
-  let soundOn = true;
   let highScore = parseInt(localStorage.getItem('clawd-chomp-high') || '0', 10);
   const ONBOARDED_KEY = 'clawd-onboarded-chomp';
   let isFirstPlay = !localStorage.getItem(ONBOARDED_KEY);
@@ -1093,52 +1092,18 @@
     osc.stop(t + duration + 0.01);
   }
 
-  const BG_TRACKS = [
-    '../../assets/sounds/chomp-bg-1.mp3',
-    '../../assets/sounds/chomp-bg-2.mp3',
-    '../../assets/sounds/chomp-bg-3.mp3',
-  ];
-  // Shuffle queue: every track plays before any repeats; the first of a new
-  // shuffle is never the last of the previous one (no boundary repeats).
-  let bgm = null, lastIdx = -1, queue = [];
-  function refillQueue() {
-    queue = BG_TRACKS.map((_, i) => i);
-    for (let i = queue.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [queue[i], queue[j]] = [queue[j], queue[i]];
-    }
-    if (queue.length > 1 && queue[0] === lastIdx) {
-      [queue[0], queue[1]] = [queue[1], queue[0]];
-    }
-  }
-  function pickNextIdx() {
-    if (queue.length === 0) refillQueue();
-    const i = queue.shift();
-    lastIdx = i;
-    return i;
-  }
-  // Pre-buffer the next track so playback is instant when the player first
-  // moves. Without this, the browser fetches the MP3 on the first play() call
-  // and there's a noticeable gap before music starts.
-  refillQueue();
-  let preloaded = new Audio(BG_TRACKS[queue[0]]);
-  preloaded.preload = 'auto';
-  preloaded.load();
-  function playNext() {
-    if (!soundOn) { bgm = null; return; }
-    if (preloaded) { bgm = preloaded; preloaded = null; lastIdx = queue.shift(); }
-    else           { bgm = new Audio(BG_TRACKS[pickNextIdx()]); bgm.preload = 'auto'; }
-    bgm.volume = 0.35;
-    bgm.onended = playNext;
-    bgm.play().catch(() => {});
-  }
-  function startMusic() {
-    if (!soundOn || bgm) return;
-    playNext();
-  }
-  function stopMusic() {
-    if (bgm) { bgm.onended = null; bgm.pause(); bgm = null; }
-  }
+  // Background music — delegated to the shared ClawdMusic player which
+  // handles shuffle, crossfade, fades, mute persistence and tab visibility.
+  const music = window.ClawdMusic.init({
+    tracks: [
+      '../../assets/sounds/chomp-bg-1.mp3',
+      '../../assets/sounds/chomp-bg-2.mp3',
+      '../../assets/sounds/chomp-bg-3.mp3',
+    ],
+    volume: 0.35,
+  });
+  function startMusic() { music.start(); }
+  function stopMusic()  { music.stop();  }
 
   // SFX (dots, pellets, catches, wins) always play — the mute button only
   // toggles background music, never coin/event sound effects.
@@ -1251,11 +1216,14 @@
   });
 
   restartBtn.addEventListener('click', reset);
+  // Reflect persisted mute state on load so the button shows the right icon
+  // when arriving from another game where music was muted.
+  function renderMuteBtn() { muteBtn.textContent = music.isMuted() ? '🔇 MUSIC' : '🔊 MUSIC'; }
+  renderMuteBtn();
   muteBtn.addEventListener('click', () => {
-    soundOn = !soundOn;
-    muteBtn.textContent = soundOn ? '🔊 MUSIC' : '🔇 MUSIC';
-    if (!soundOn) stopMusic();
-    else if (gameStarted && !gameOver) startMusic();
+    const nowMuted = music.toggle();
+    renderMuteBtn();
+    if (!nowMuted && gameStarted && !gameOver) startMusic();
   });
   shareBtn.addEventListener('click', async () => {
     try {
