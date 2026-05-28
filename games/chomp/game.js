@@ -61,15 +61,14 @@
   const COLS  = 19;
   const ROWS  = 21;
   const SPEED = 3;
-  const GHOST_SPEED = 1.75;  // was 2.0 — gives player a comfortable speed margin (3 vs 1.75)
-  const LIVES_START = 8;
+  const GHOST_SPEED = 2.1;   // bumped from 1.95 — tighter margin (3 vs 2.1)
+  const LIVES_START = 4;     // down from 5 — fewer mistakes allowed
 
-  // Mode timing — chase/scatter rhythm gives the player breathing room.
-  // Tuned for winnability: shorter chase bursts, longer scatter breathers,
-  // much longer frightened windows to chain power pellets and rest.
-  const CHASE_FRAMES      = 720;   // 12s chase (was 15s)
-  const SCATTER_FRAMES    = 720;   // 12s scatter (was 9s)
-  const FRIGHTENED_FRAMES = 1080;  // 18s frightened (was 13s)
+  // Mode timing — longer chases, much shorter frightened so power pellets
+  // give breathing room but not a free pass.
+  const CHASE_FRAMES      = 900;   // 15s chase
+  const SCATTER_FRAMES    = 540;   // 9s scatter — tight breathers
+  const FRIGHTENED_FRAMES = 660;   // 11s frightened — less reprieve
   const FRIGHTENED_FLASH  = 120;   // last 2s flash white as warning
 
   // Ghost spawn config: col, row, color, releaseAt frames, personality, scatter corner.
@@ -407,7 +406,10 @@
     const r = Math.floor(g.y / TILE);
     const cx = c * TILE + TILE / 2;
     const cy = r * TILE + TILE / 2;
-    const atCenter = Math.abs(g.x - cx) < speed && Math.abs(g.y - cy) < speed;
+    // Margin guards against float precision: with non-binary-exact speeds
+    // (e.g. 1.95), |position - center| can equal speed - epsilon after a
+    // snap+move and retrigger atCenter forever. 0.05 cushion fixes it.
+    const atCenter = Math.abs(g.x - cx) < speed - 0.05 && Math.abs(g.y - cy) < speed - 0.05;
 
     if (atCenter) {
       g.dir = chooseGhostDir(g);
@@ -606,7 +608,8 @@
 
   function endGame() {
     gameOver = true;
-    stopMusic();
+    // Music keeps playing across death/win → retry (continuity over interruption).
+    // Only the mute button stops it.
     const beatHigh = score > highScore;
     if (beatHigh) {
       highScore = score;
@@ -1065,45 +1068,12 @@
 
   // === Audio (chiptune beeps via Web Audio API; original frequencies) ===
   let audioCtx = null;
-  let masterGain = null;
   let dotToggle = 0; // alternates dot pitch for a chomping rhythm
 
   function getAudioCtx() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      masterGain = audioCtx.createGain();
-      masterGain.gain.value = 0.7; // global headroom / volume trim
-      const comp = audioCtx.createDynamicsCompressor(); // glue + clip protection
-      masterGain.connect(comp);
-      comp.connect(audioCtx.destination);
-    }
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
-  }
-
-  // Percussion for the rhythm section.
-  function kick(vol) {
-    const ac = getAudioCtx(); const t = ac.currentTime;
-    const osc = ac.createOscillator(), g = ac.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(140, t);
-    osc.frequency.exponentialRampToValueAtTime(45, t + 0.12);
-    g.gain.setValueAtTime(vol, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
-    osc.connect(g); g.connect(masterGain);
-    osc.start(t); osc.stop(t + 0.15);
-  }
-  function hat(vol) {
-    const ac = getAudioCtx(); const t = ac.currentTime, dur = 0.03;
-    const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    const src = ac.createBufferSource(); src.buffer = buf;
-    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 7000;
-    const g = ac.createGain();
-    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    src.connect(hp); hp.connect(g); g.connect(masterGain);
-    src.start(t); src.stop(t + dur);
   }
 
   function beep({ freq = 440, freq2 = null, type = 'square', duration = 0.1, volume = 0.15, delay = 0 }) {
@@ -1111,7 +1081,7 @@
     const osc = ac.createOscillator();
     const gain = ac.createGain();
     osc.connect(gain);
-    gain.connect(masterGain);
+    gain.connect(ac.destination);
     osc.type = type;
     const t = ac.currentTime + delay;
     osc.frequency.setValueAtTime(freq, t);
@@ -1123,63 +1093,56 @@
     osc.stop(t + duration + 0.01);
   }
 
-  // Mac-Pan music — classic-arcade SQUARE wave for the harsh chase texture.
-  // Two pools of melodies, each picked at random and re-rolled every time
-  // a loop finishes so the background music keeps varying:
-  //  - CHASE_TRACKS: normal square-wave maze tunes (175ms).
-  //  - FRIGHT_TRACKS: genuinely different dramatic riffs for fleeing ghosts
-  //    (chromatic descent / tritone pulse / alarm stabs), 150ms.
-  const CHASE_TRACKS = [
-    [523, 659, 523, 392, 523, 659, 523, 392, 587, 698, 587, 440, 587, 698, 587, 440],
-    [392, 440, 494, 523, 587, 523, 494, 440, 392, 440, 494, 587, 659, 587, 523, 440],
-    [523, 392, 659, 523, 587, 440, 698, 587, 523, 392, 659, 784, 698, 587, 523, 440],
-    [440, 523, 440, 330, 440, 523, 440, 330, 494, 587, 494, 392, 494, 587, 494, 392],
-    [523, 587, 659, 587, 523, 494, 440, 494, 523, 587, 659, 698, 659, 587, 523, 494],
-    [392, 523, 440, 587, 494, 659, 523, 698, 587, 523, 494, 440, 392, 440, 494, 523],
+  const BG_TRACKS = [
+    '../../assets/sounds/chomp-bg-1.mp3',
+    '../../assets/sounds/chomp-bg-2.mp3',
+    '../../assets/sounds/chomp-bg-3.mp3',
   ];
-  const FRIGHT_TRACKS = [
-    [659, 622, 587, 554, 523, 494, 466, 440, 415, 392, 370, 349, 392, 440, 494, 554],
-    [440, 622, 415, 587, 392, 554, 370, 523, 440, 622, 466, 659, 440, 622, 415, 587],
-    [587, 587, 698, 0, 622, 622, 466, 0, 523, 523, 622, 0, 440, 440, 587, 0],
-    [466, 440, 415, 392, 370, 349, 330, 311, 330, 349, 370, 392, 415, 440, 466, 494],
-    [349, 0, 415, 0, 349, 0, 494, 0, 466, 0, 415, 0, 466, 0, 587, 0],
-  ];
-  let mTrack = CHASE_TRACKS[0], musicIdx = 0, musicTimer = null, musicWasFright = false;
-  function pickTrack(fright) {
-    const pool = fright ? FRIGHT_TRACKS : CHASE_TRACKS;
-    mTrack = pool[(Math.random() * pool.length) | 0];
-    musicIdx = 0;
+  // Shuffle queue: every track plays before any repeats; the first of a new
+  // shuffle is never the last of the previous one (no boundary repeats).
+  let bgm = null, lastIdx = -1, queue = [];
+  function refillQueue() {
+    queue = BG_TRACKS.map((_, i) => i);
+    for (let i = queue.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [queue[i], queue[j]] = [queue[j], queue[i]];
+    }
+    if (queue.length > 1 && queue[0] === lastIdx) {
+      [queue[0], queue[1]] = [queue[1], queue[0]];
+    }
+  }
+  function pickNextIdx() {
+    if (queue.length === 0) refillQueue();
+    const i = queue.shift();
+    lastIdx = i;
+    return i;
+  }
+  // Pre-buffer the next track so playback is instant when the player first
+  // moves. Without this, the browser fetches the MP3 on the first play() call
+  // and there's a noticeable gap before music starts.
+  refillQueue();
+  let preloaded = new Audio(BG_TRACKS[queue[0]]);
+  preloaded.preload = 'auto';
+  preloaded.load();
+  function playNext() {
+    if (!soundOn) { bgm = null; return; }
+    if (preloaded) { bgm = preloaded; preloaded = null; lastIdx = queue.shift(); }
+    else           { bgm = new Audio(BG_TRACKS[pickNextIdx()]); bgm.preload = 'auto'; }
+    bgm.volume = 0.35;
+    bgm.onended = playNext;
+    bgm.play().catch(() => {});
   }
   function startMusic() {
-    if (musicTimer || !soundOn) return;
-    getAudioCtx();
-    musicWasFright = frightenedTimer > 0;
-    pickTrack(musicWasFright);
-    musicStep();
-  }
-  function musicStep() {
-    if (!soundOn) { musicTimer = null; return; }
-    const fright = frightenedTimer > 0;
-    if (fright !== musicWasFright) { musicWasFright = fright; pickTrack(fright); }
-    const n = mTrack[musicIdx];
-    if (n) beep({ freq: n, type: 'square', duration: fright ? 0.1 : 0.11, volume: fright ? 0.075 : 0.07 });
-    // rhythm section: kick + bass on downbeats, soft hat on offbeats
-    if (musicIdx % 4 === 0) {
-      kick(0.14);
-      if (n) { let bf = n; while (bf > 165) bf /= 2; beep({ freq: bf, type: 'triangle', duration: 0.15, volume: 0.055 }); }
-    } else if (musicIdx % 2 === 1) {
-      hat(0.03);
-    }
-    musicIdx++;
-    if (musicIdx >= mTrack.length) pickTrack(fright);
-    musicTimer = setTimeout(musicStep, fright ? 150 : 175);
+    if (!soundOn || bgm) return;
+    playNext();
   }
   function stopMusic() {
-    if (musicTimer) { clearTimeout(musicTimer); musicTimer = null; }
+    if (bgm) { bgm.onended = null; bgm.pause(); bgm = null; }
   }
 
+  // SFX (dots, pellets, catches, wins) always play — the mute button only
+  // toggles background music, never coin/event sound effects.
   function playSound(kind) {
-    if (!soundOn) return;
     if (kind === 'dot') {
       // Alternating two-tone bite for the chomping rhythm
       dotToggle = 1 - dotToggle;
@@ -1187,8 +1150,8 @@
     } else if (kind === 'pellet') {
       beep({ freq: 220, freq2: 660, type: 'square', duration: 0.18, volume: 0.15 });
     } else if (kind === 'catch') {
-      beep({ freq: 660, freq2: 110, type: 'sawtooth', duration: 0.3, volume: 0.15 });
-      beep({ freq: 330, freq2: 55,  type: 'sawtooth', duration: 0.3, volume: 0.12, delay: 0.25 });
+      beep({ freq: 660, freq2: 110, type: 'sawtooth', duration: 0.3, volume: 0.2 });
+      beep({ freq: 330, freq2: 55,  type: 'sawtooth', duration: 0.3, volume: 0.15, delay: 0.25 });
     } else if (kind === 'win') {
       beep({ freq: 440, duration: 0.12, volume: 0.18 });
       beep({ freq: 660, duration: 0.12, volume: 0.18, delay: 0.13 });
@@ -1290,7 +1253,7 @@
   restartBtn.addEventListener('click', reset);
   muteBtn.addEventListener('click', () => {
     soundOn = !soundOn;
-    muteBtn.textContent = soundOn ? '🔊 SOUND' : '🔇 MUTED';
+    muteBtn.textContent = soundOn ? '🔊 MUSIC' : '🔇 MUSIC';
     if (!soundOn) stopMusic();
     else if (gameStarted && !gameOver) startMusic();
   });

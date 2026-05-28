@@ -388,9 +388,34 @@
     @keyframes splash-blink {
       to { opacity: 0; }
     }
+    /* Landing music mute toggle */
+    #music-toggle {
+      position: fixed;
+      top: 0.6rem;
+      right: 0.8rem;
+      z-index: 50;
+      background: transparent;
+      color: var(--gray);
+      border: 1px solid var(--gray);
+      border-radius: 3px;
+      padding: 0.3rem 0.5rem;
+      font-family: 'VT323', monospace;
+      font-size: 0.9rem;
+      cursor: pointer;
+      opacity: 0.55;
+      transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    #music-toggle:hover {
+      opacity: 1;
+      color: var(--cream);
+      border-color: var(--cream);
+    }
   </style>
 </head>
 <body>
+
+  <audio id="landing-music" src="assets/sounds/landing.mp3?v=2" loop preload="auto"></audio>
+  <button id="music-toggle" type="button" title="toggle music">🔊 MUSIC</button>
 
   <div id="splash" class="splash">
     <div class="splash-inner">
@@ -481,42 +506,33 @@
 
       <a href="games/snake/" class="game-card available">
         <div class="sprite">
-          <!-- Chunky Clawd-snake: a thick terracotta coiled body with Clawd's
-               head (ii eyes) at the top and a flicking forked tongue. Coarse,
-               bold pixels to match the Dino / Mac-Pan character icons. -->
-          <svg viewBox="0 0 18 15" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-            <!-- one continuous terracotta tube: the body coils into a square
-                 spiral, and its outer end rises and becomes the head (the head
-                 IS the end of the body, not a blob on top) -->
-            <g transform="translate(2.5 1)">
-            <g fill="#d97757" shape-rendering="crispEdges">
-              <!-- spiral coil -->
-              <rect x="0"  y="3"  width="10" height="2"/>
-              <rect x="0"  y="5"  width="2"  height="2"/>
-              <rect x="0"  y="7"  width="2"  height="2"/>
-              <rect x="4"  y="7"  width="6"  height="2"/>
-              <rect x="0"  y="9"  width="2"  height="2"/>
-              <rect x="8"  y="9"  width="2"  height="2"/>
-              <rect x="0"  y="11" width="10" height="2"/>
-              <!-- neck: the coil's outer end rises -->
-              <rect x="8"  y="0"  width="2"  height="4"/>
-              <!-- head: the tube's end, a touch wider, turning right -->
-              <rect x="8"  y="0"  width="5"  height="3"/>
+          <!-- Clawd-snake: a big, dominant Clawd head (ii eyes, like Mac-Pan's
+               crab) raised cobra-style, with a thick terracotta body curving
+               down the right and coiling at the base. A character, not a
+               generic spiral — matches the Dino / Mac-Pan icons. -->
+          <svg viewBox="0 0 13 13" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" style="width:80%;height:80%">
+            <g fill="#d97757">
+              <!-- coiled base -->
+              <rect x="1" y="9"  width="11" height="3"/>
+              <rect x="1" y="6"  width="3"  height="3"/>
+              <!-- neck rising on the right up to the head -->
+              <rect x="9" y="4"  width="3"  height="5"/>
+              <!-- big head turning left -->
+              <rect x="2" y="0"  width="10" height="4"/>
             </g>
-            <!-- eyes "ii" -->
-            <g fill="#1A0808" shape-rendering="crispEdges">
-              <rect x="9.5"  y="1" width="1" height="1.6"/>
-              <rect x="11.3" y="1" width="1" height="1.6"/>
+            <!-- ii eyes (Clawd signature) on the left of the head -->
+            <g fill="#1A0808">
+              <rect x="3.8" y="1.2" width="1.2" height="2"/>
+              <rect x="6"   y="1.2" width="1.2" height="2"/>
             </g>
-            <!-- forked tongue (square pixels) flicking out the front -->
-            <g fill="#c44d3a" shape-rendering="crispEdges">
+            <!-- forked tongue flicking out the front (left) -->
+            <g fill="#c44d3a">
               <animateTransform attributeName="transform" type="translate"
-                                values="-2 0;-2 0;0 0;0 0;-2 0"
+                                values="0 0;0 0;-1.6 0;-1.6 0;0 0"
                                 keyTimes="0;0.25;0.5;0.75;1" dur="1.6s" repeatCount="indefinite"/>
-              <rect x="13"   y="1.2" width="1.6" height="1"/>
-              <rect x="14.6" y="0.5" width="1"   height="1"/>
-              <rect x="14.6" y="1.9" width="1"   height="1"/>
-            </g>
+              <rect x="0.4" y="1.6" width="1.6" height="0.9"/>
+              <rect x="-0.4" y="0.9" width="0.9" height="0.9"/>
+              <rect x="-0.4" y="2.3" width="0.9" height="0.9"/>
             </g>
           </svg>
         </div>
@@ -547,6 +563,86 @@
 
   <script src="assets/clawd-stats.js?v=37"></script>
   <script>
+    // Landing music: starts on first user gesture (splash dismiss or any click),
+    // persists mute preference in localStorage, and resumes from saved
+    // position when you come back to the landing from a game.
+    (function () {
+      'use strict';
+      const audio = document.getElementById('landing-music');
+      const btn   = document.getElementById('music-toggle');
+      if (!audio || !btn) return;
+      audio.volume = 0.9;
+
+      const MUTE_KEY = 'clawd-landing-muted';
+      const TIME_KEY = 'clawd-landing-time';
+
+      let muted = false;
+      try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch (_) {}
+
+      function render() {
+        btn.textContent = muted ? '🔇 MUSIC' : '🔊 MUSIC';
+      }
+      render();
+
+      // Resume from where the previous landing visit left off (same tab).
+      let savedTime = 0;
+      try {
+        const raw = sessionStorage.getItem(TIME_KEY);
+        if (raw) savedTime = parseFloat(raw) || 0;
+      } catch (_) {}
+      function applySavedTime() {
+        if (savedTime > 0 && isFinite(audio.duration) && savedTime < audio.duration) {
+          try { audio.currentTime = savedTime; } catch (_) {}
+        }
+      }
+      if (audio.readyState >= 1) applySavedTime();
+      else audio.addEventListener('loadedmetadata', applySavedTime, { once: true });
+
+      let started = false;
+      function tryStart() {
+        if (started || muted) return;
+        started = true;
+        audio.play().catch(() => { started = false; });
+      }
+
+      // Any user gesture is enough to unlock autoplay. Coming back from a game
+      // is itself a click (back link), so playback resumes without extra UI.
+      ['pointerdown', 'keydown', 'touchstart', 'mousemove'].forEach((ev) => {
+        document.addEventListener(ev, tryStart, { once: false, passive: true });
+      });
+
+      // Same-tab navigation back from a game can still carry user activation;
+      // try playing right away so returning visitors don't need a fresh click.
+      tryStart();
+      window.addEventListener('pageshow', tryStart);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') tryStart();
+      });
+
+      // Save playback position so we can resume on return.
+      setInterval(() => {
+        if (!audio.paused) {
+          try { sessionStorage.setItem(TIME_KEY, String(audio.currentTime)); } catch (_) {}
+        }
+      }, 1000);
+      window.addEventListener('pagehide', () => {
+        try { sessionStorage.setItem(TIME_KEY, String(audio.currentTime)); } catch (_) {}
+      });
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        muted = !muted;
+        try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (_) {}
+        render();
+        if (muted) {
+          audio.pause();
+          started = false;
+        } else {
+          tryStart();
+        }
+      });
+    })();
+
     (function () {
       'use strict';
       const splash = document.getElementById('splash');

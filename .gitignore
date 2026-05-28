@@ -36,6 +36,9 @@ assets/sprites/exports/
 # Audio source files (large): keep masters elsewhere
 assets/sounds/raw/
 
+# Pre-normalization audio backups (kept locally, not committed)
+*.bak
+
 # Logs
 *.log
 logs/

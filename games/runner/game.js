@@ -348,7 +348,8 @@
   // === End game ===
   function endGame() {
     gameOver = true;
-    stopMusic();
+    // Music keeps playing across death → retry (continuity over interruption).
+    // Only the mute button stops it.
     playSound('death');
     const beatHigh = score > highScore;
     if (beatHigh) {
@@ -904,44 +905,11 @@
 
   // === Audio ===
   let audioCtx = null;
-  let masterGain = null;
 
   function getAudioCtx() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      masterGain = audioCtx.createGain();
-      masterGain.gain.value = 0.7; // global headroom / volume trim
-      const comp = audioCtx.createDynamicsCompressor(); // glue + clip protection
-      masterGain.connect(comp);
-      comp.connect(audioCtx.destination);
-    }
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
-  }
-
-  // Percussion for the rhythm section.
-  function kick(vol) {
-    const ac = getAudioCtx(); const t = ac.currentTime;
-    const osc = ac.createOscillator(), g = ac.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(140, t);
-    osc.frequency.exponentialRampToValueAtTime(45, t + 0.12);
-    g.gain.setValueAtTime(vol, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
-    osc.connect(g); g.connect(masterGain);
-    osc.start(t); osc.stop(t + 0.15);
-  }
-  function hat(vol) {
-    const ac = getAudioCtx(); const t = ac.currentTime, dur = 0.03;
-    const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    const src = ac.createBufferSource(); src.buffer = buf;
-    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 7000;
-    const g = ac.createGain();
-    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    src.connect(hp); hp.connect(g); g.connect(masterGain);
-    src.start(t); src.stop(t + dur);
   }
 
   function beep({ freq = 440, freq2 = null, type = 'square', duration = 0.12, volume = 0.18, delay = 0 }) {
@@ -949,7 +917,7 @@
     const osc = ac.createOscillator();
     const gain = ac.createGain();
     osc.connect(gain);
-    gain.connect(masterGain);
+    gain.connect(ac.destination);
     osc.type = type;
     const t = ac.currentTime + delay;
     osc.frequency.setValueAtTime(freq, t);
@@ -963,46 +931,58 @@
 
   // Runner music — pool of bright triangle gallop loops; a random one is
   // picked and re-rolled each time a loop finishes, so it keeps varying.
-  const TRACKS = [
-    [392, 0, 523, 659, 392, 0, 784, 659, 440, 0, 587, 698, 440, 0, 880, 784],
-    [523, 659, 784, 659, 587, 698, 880, 698, 659, 784, 988, 784, 880, 698, 587, 523],
-    [659, 0, 880, 0, 784, 0, 988, 0, 880, 0, 698, 0, 784, 0, 659, 0],
-    [523, 0, 659, 784, 523, 0, 880, 784, 587, 0, 698, 880, 587, 0, 988, 880],
-    [440, 523, 659, 523, 494, 587, 698, 587, 523, 659, 784, 659, 587, 494, 440, 0],
-    [659, 784, 659, 523, 587, 698, 587, 440, 523, 659, 523, 392, 440, 523, 659, 784],
+  const BG_TRACKS = [
+    '../../assets/sounds/runner-bg-1.mp3',
+    '../../assets/sounds/runner-bg-2.mp3',
+    '../../assets/sounds/runner-bg-3.mp3',
   ];
-  let mTrack = TRACKS[0], musicIdx = 0, musicTimer = null;
-  function pickTrack() { mTrack = TRACKS[(Math.random() * TRACKS.length) | 0]; musicIdx = 0; }
+  // Shuffle queue: every track plays before any repeats; the first of a new
+  // shuffle is never the last of the previous one (no boundary repeats).
+  let bgm = null, lastIdx = -1, queue = [];
+  function refillQueue() {
+    queue = BG_TRACKS.map((_, i) => i);
+    for (let i = queue.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [queue[i], queue[j]] = [queue[j], queue[i]];
+    }
+    if (queue.length > 1 && queue[0] === lastIdx) {
+      [queue[0], queue[1]] = [queue[1], queue[0]];
+    }
+  }
+  function pickNextIdx() {
+    if (queue.length === 0) refillQueue();
+    const i = queue.shift();
+    lastIdx = i;
+    return i;
+  }
+  // Pre-buffer the next track so playback is instant on first user input.
+  refillQueue();
+  let preloaded = new Audio(BG_TRACKS[queue[0]]);
+  preloaded.preload = 'auto';
+  preloaded.load();
+  function playNext() {
+    if (!soundOn) { bgm = null; return; }
+    if (preloaded) { bgm = preloaded; preloaded = null; lastIdx = queue.shift(); }
+    else           { bgm = new Audio(BG_TRACKS[pickNextIdx()]); bgm.preload = 'auto'; }
+    bgm.volume = 0.35;
+    bgm.onended = playNext;
+    bgm.play().catch(() => {});
+  }
   function startMusic() {
-    if (musicTimer || !soundOn) return;
-    getAudioCtx();
-    pickTrack();
-    musicTimer = setInterval(() => {
-      if (!soundOn) return;
-      const n = mTrack[musicIdx];
-      if (n) beep({ freq: n, type: 'triangle', duration: 0.09, volume: 0.085 });
-      // rhythm section: kick + bass on downbeats, soft hat on offbeats
-      if (musicIdx % 4 === 0) {
-        kick(0.15);
-        if (n) { let bf = n; while (bf > 165) bf /= 2; beep({ freq: bf, type: 'triangle', duration: 0.14, volume: 0.06 }); }
-      } else if (musicIdx % 2 === 1) {
-        hat(0.04);
-      }
-      musicIdx++;
-      if (musicIdx >= mTrack.length) pickTrack();
-    }, 140);
+    if (!soundOn || bgm) return;
+    playNext();
   }
   function stopMusic() {
-    if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+    if (bgm) { bgm.onended = null; bgm.pause(); bgm = null; }
   }
 
+  // SFX always play — mute button only toggles music.
   function playSound(kind) {
-    if (!soundOn) return;
     if (kind === 'jump') {
       beep({ freq: 220, freq2: 440, type: 'square', duration: 0.1, volume: 0.15 });
     } else if (kind === 'death') {
-      beep({ freq: 440, freq2: 110, type: 'sawtooth', duration: 0.25, volume: 0.15 });
-      beep({ freq: 220, freq2: 55,  type: 'sawtooth', duration: 0.25, volume: 0.12, delay: 0.2 });
+      beep({ freq: 440, freq2: 110, type: 'sawtooth', duration: 0.25, volume: 0.2 });
+      beep({ freq: 220, freq2: 55,  type: 'sawtooth', duration: 0.25, volume: 0.15, delay: 0.2 });
     } else if (kind === 'milestone') {
       beep({ freq: 660, duration: 0.08, volume: 0.15 });
       beep({ freq: 880, duration: 0.08, volume: 0.15, delay: 0.1 });
@@ -1058,7 +1038,7 @@
   restartBtn.addEventListener('click', reset);
   muteBtn.addEventListener('click', () => {
     soundOn = !soundOn;
-    muteBtn.textContent = soundOn ? '🔊 SOUND' : '🔇 MUTED';
+    muteBtn.textContent = soundOn ? '🔊 MUSIC' : '🔇 MUSIC';
     if (!soundOn) stopMusic();
     else if (gameStarted && !gameOver) startMusic();
   });

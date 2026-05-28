@@ -242,7 +242,8 @@
 
   function endGame() {
     gameOver = true;
-    stopMusic();
+    // Music keeps playing across death/win → retry (continuity over interruption).
+    // Only the mute button stops it.
     playSound(win ? 'win' : 'death');
     const beatHigh = score > highScore;
     if (beatHigh) {
@@ -543,16 +544,8 @@
 
   // === Audio (chiptune beeps, original frequencies) ===
   let audioCtx = null;
-  let masterGain = null;
   function getAudioCtx() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      masterGain = audioCtx.createGain();
-      masterGain.gain.value = 0.7; // global headroom / volume trim
-      const comp = audioCtx.createDynamicsCompressor(); // glue + clip protection
-      masterGain.connect(comp);
-      comp.connect(audioCtx.destination);
-    }
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
   }
@@ -561,7 +554,7 @@
     const osc = ac.createOscillator();
     const gain = ac.createGain();
     osc.connect(gain);
-    gain.connect(masterGain);
+    gain.connect(ac.destination);
     osc.type = type;
     const t = ac.currentTime + delay;
     osc.frequency.setValueAtTime(freq, t);
@@ -575,41 +568,58 @@
   // Snake music — pool of mellow SINE-wave melodies (mid register), one
   // picked at random and re-rolled each loop. Sine stays distinct from
   // Dino's triangle and Mac-Pan's square, calm and smooth (not buzzy).
-  const TRACKS = [
-    [392, 0, 440, 523, 440, 0, 392, 349, 392, 0, 440, 523, 587, 523, 440, 0],
-    [330, 392, 440, 392, 330, 294, 330, 392, 440, 523, 440, 392, 330, 294, 262, 0],
-    [523, 0, 440, 0, 392, 0, 440, 0, 523, 0, 587, 0, 523, 0, 440, 0],
-    [349, 392, 440, 392, 349, 330, 294, 330, 349, 440, 523, 440, 392, 349, 330, 0],
-    [440, 0, 392, 0, 349, 392, 440, 523, 440, 0, 392, 0, 349, 330, 294, 0],
-    [294, 330, 392, 440, 523, 440, 392, 330, 294, 262, 294, 330, 392, 440, 392, 330],
+  const BG_TRACKS = [
+    '../../assets/sounds/snake-bg-1.mp3',
+    '../../assets/sounds/snake-bg-2.mp3',
+    '../../assets/sounds/snake-bg-3.mp3',
   ];
-  let mTrack = TRACKS[0], musicIdx = 0, musicTimer = null;
-  function pickTrack() { mTrack = TRACKS[(Math.random() * TRACKS.length) | 0]; musicIdx = 0; }
+  // Shuffle queue: every track plays before any repeats; the first of a new
+  // shuffle is never the last of the previous one (no boundary repeats).
+  let bgm = null, lastIdx = -1, queue = [];
+  function refillQueue() {
+    queue = BG_TRACKS.map((_, i) => i);
+    for (let i = queue.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [queue[i], queue[j]] = [queue[j], queue[i]];
+    }
+    if (queue.length > 1 && queue[0] === lastIdx) {
+      [queue[0], queue[1]] = [queue[1], queue[0]];
+    }
+  }
+  function pickNextIdx() {
+    if (queue.length === 0) refillQueue();
+    const i = queue.shift();
+    lastIdx = i;
+    return i;
+  }
+  // Pre-buffer the next track so playback is instant on first user input.
+  refillQueue();
+  let preloaded = new Audio(BG_TRACKS[queue[0]]);
+  preloaded.preload = 'auto';
+  preloaded.load();
+  function playNext() {
+    if (!soundOn) { bgm = null; return; }
+    if (preloaded) { bgm = preloaded; preloaded = null; lastIdx = queue.shift(); }
+    else           { bgm = new Audio(BG_TRACKS[pickNextIdx()]); bgm.preload = 'auto'; }
+    bgm.volume = 0.35;
+    bgm.onended = playNext;
+    bgm.play().catch(() => {});
+  }
   function startMusic() {
-    if (musicTimer || !soundOn) return;
-    getAudioCtx();
-    pickTrack();
-    musicTimer = setInterval(() => {
-      if (!soundOn) return;
-      const n = mTrack[musicIdx];
-      if (n) beep({ freq: n, type: 'sine', duration: 0.22, volume: 0.095 });
-      // soft sine bass on downbeats — keeps it calm/ambient (no percussion)
-      if (musicIdx % 4 === 0 && n) { let bf = n; while (bf > 150) bf /= 2; beep({ freq: bf, type: 'sine', duration: 0.4, volume: 0.05 }); }
-      musicIdx++;
-      if (musicIdx >= mTrack.length) pickTrack();
-    }, 240);
+    if (!soundOn || bgm) return;
+    playNext();
   }
   function stopMusic() {
-    if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+    if (bgm) { bgm.onended = null; bgm.pause(); bgm = null; }
   }
 
+  // SFX always play — mute button only toggles music.
   function playSound(kind) {
-    if (!soundOn) return;
     if (kind === 'eat') {
       beep({ freq: 660, freq2: 990, type: 'square', duration: 0.07, volume: 0.13 });
     } else if (kind === 'death') {
-      beep({ freq: 440, freq2: 110, type: 'sawtooth', duration: 0.25, volume: 0.15 });
-      beep({ freq: 220, freq2: 55,  type: 'sawtooth', duration: 0.25, volume: 0.12, delay: 0.2 });
+      beep({ freq: 440, freq2: 110, type: 'sawtooth', duration: 0.25, volume: 0.2 });
+      beep({ freq: 220, freq2: 55,  type: 'sawtooth', duration: 0.25, volume: 0.15, delay: 0.2 });
     } else if (kind === 'win') {
       beep({ freq: 440, duration: 0.12, volume: 0.18 });
       beep({ freq: 660, duration: 0.12, volume: 0.18, delay: 0.13 });
@@ -706,7 +716,7 @@
   restartBtn.addEventListener('click', reset);
   muteBtn.addEventListener('click', () => {
     soundOn = !soundOn;
-    muteBtn.textContent = soundOn ? '🔊 SOUND' : '🔇 MUTED';
+    muteBtn.textContent = soundOn ? '🔊 MUSIC' : '🔇 MUSIC';
     if (!soundOn) stopMusic();
     else if (gameStarted && !gameOver) startMusic();
   });
