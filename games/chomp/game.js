@@ -1096,8 +1096,8 @@
   // handles shuffle, crossfade, fades, mute persistence and tab visibility.
   const music = window.ClawdMusic.init({
     tracks: [
-      '../../assets/sounds/chomp-bg-1.mp3',
-      '../../assets/sounds/chomp-bg-2.mp3',
+      // '../../assets/sounds/chomp-bg-1.mp3',  // off — single-track per game v1
+      // '../../assets/sounds/chomp-bg-2.mp3',  // off
       '../../assets/sounds/chomp-bg-3.mp3',
     ],
     volume: 0.3,
