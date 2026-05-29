@@ -19,9 +19,9 @@ package.json
 package-lock.json
 .gitignore
 
-# Working / reference assets (keep assets/clawd-stats.js — that ships)
+# Working / reference assets (keep assets/clawd-stats.js, music-player.js
+# and assets/sounds/*.mp3 — those ship)
 assets/sprites
-assets/sounds
 assets/ui
 assets/*.png
 *.psd
