@@ -938,7 +938,7 @@
       '../../assets/sounds/runner-bg-2.mp3',
       // '../../assets/sounds/runner-bg-3.mp3',  // off
     ],
-    volume: 0.45,
+    volume: 0.7,
   });
   function startMusic() { music.start(); }
   function stopMusic()  { music.stop();  }

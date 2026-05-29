@@ -1100,7 +1100,7 @@
       '../../assets/sounds/chomp-bg-2.mp3',
       '../../assets/sounds/chomp-bg-3.mp3',
     ],
-    volume: 0.45,
+    volume: 0.7,
   });
   function startMusic() { music.start(); }
   function stopMusic()  { music.stop();  }

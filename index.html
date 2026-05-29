@@ -414,7 +414,6 @@
 </head>
 <body>
 
-  <audio id="landing-music" src="assets/sounds/landing.mp3?v=3" loop preload="auto" autoplay></audio>
   <button id="music-toggle" type="button" title="toggle music">🔊 MUSIC</button>
 
   <div id="splash" class="splash">
@@ -562,97 +561,40 @@
   </footer>
 
   <script src="assets/clawd-stats.js?v=37"></script>
+  <script src="assets/music-player.js?v=9"></script>
   <script>
-    // Landing music: starts on first user gesture (splash dismiss or any click),
-    // persists mute preference in localStorage, and resumes from saved
-    // position when you come back to the landing from a game.
+    // Landing music: shared ClawdMusic player with 2-track shuffle + crossfade.
+    // Differences vs games: pauseOnHidden=false (atmosphere continues across
+    // tab switches), higher volume (no SFX competing on the landing).
     (function () {
       'use strict';
-      const audio = document.getElementById('landing-music');
-      const btn   = document.getElementById('music-toggle');
-      if (!audio || !btn) return;
-      const TARGET_VOLUME = 0.85;
-      // No fade-in: punchy arcade start, matches the games. Fade-out on mute
-      // still smooths the cut.
-      const FADE_OUT_MS = 400;
-      audio.volume = TARGET_VOLUME;
+      const btn = document.getElementById('music-toggle');
+      if (!btn || !window.ClawdMusic) return;
 
-      // Shared mute key with the games so muting in one place sticks across
-      // the entire arcade (landing + Dino + Mac-Pan + Snake).
-      const MUTE_KEY = 'clawd-music-muted';
+      const music = window.ClawdMusic.init({
+        tracks: ['assets/sounds/landing.mp3', 'assets/sounds/landing-2.mp3'],
+        volume: 0.85,
+        pauseOnHidden: false,
+      });
 
-      let muted = false;
-      try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch (_) {}
-
-      function fade(from, to, ms, done) {
-        if (ms <= 0) { audio.volume = to; if (done) done(); return; }
-        const t0 = performance.now();
-        function step() {
-          const t = Math.min(1, (performance.now() - t0) / ms);
-          const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-          audio.volume = Math.max(0, Math.min(1, from + (to - from) * e));
-          if (t < 1) requestAnimationFrame(step);
-          else if (done) done();
-        }
-        requestAnimationFrame(step);
-      }
-
-      function render() {
-        btn.textContent = muted ? '🔇 MUSIC' : '🔊 MUSIC';
-      }
+      function render() { btn.textContent = music.isMuted() ? '🔇 MUSIC' : '🔊 MUSIC'; }
       render();
 
-      // Landing track is a tight ~75s loop, so we just play from the start
-      // every visit — every visitor hears the whole song. The <audio loop>
-      // attribute handles the seamless restart.
-
-      let started = false;
-      function tryStart() {
-        if (started || muted) return;
-        started = true;
-        audio.volume = TARGET_VOLUME;
-        audio.play().catch(() => { started = false; });
-      }
-
-      // Any user gesture is enough to unlock autoplay. Coming back from a game
-      // is itself a click (back link), so playback resumes without extra UI.
+      // First user gesture (splash click/keydown, mouse move, etc.) unlocks
+      // autoplay → start music. Returning-from-game navigation may carry
+      // user activation, so we also try immediately at load.
+      function start() { music.start(); }
       ['pointerdown', 'keydown', 'touchstart', 'mousemove'].forEach((ev) => {
-        document.addEventListener(ev, tryStart, { once: false, passive: true });
+        document.addEventListener(ev, start, { once: false, passive: true });
       });
-
-      // Same-tab navigation back from a game can still carry user activation;
-      // try playing right away so returning visitors don't need a fresh click.
-      tryStart();
-      window.addEventListener('pageshow', tryStart);
-      // Pause when the tab is hidden, resume when shown. Track whether we
-      // were actually playing so the resume actually runs (tryStart short-
-      // circuits on `started=true`, so we play directly here).
-      let resumeOnVisible = false;
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') {
-          resumeOnVisible = !audio.paused;
-          if (!audio.paused) audio.pause();
-        } else {
-          if (muted) return;
-          if (resumeOnVisible && started) {
-            audio.play().catch(() => { started = false; tryStart(); });
-          } else {
-            tryStart();
-          }
-          resumeOnVisible = false;
-        }
-      });
+      start();
+      window.addEventListener('pageshow', start);
 
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        muted = !muted;
-        try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (_) {}
+        const nowMuted = music.toggle();
         render();
-        if (muted) {
-          fade(audio.volume, 0, FADE_OUT_MS, () => { audio.pause(); started = false; });
-        } else {
-          tryStart();
-        }
+        if (!nowMuted) music.start();
       });
     })();
 

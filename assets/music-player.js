@@ -62,6 +62,10 @@
   function init(opts) {
     const tracks = opts.tracks;
     const target = opts.volume != null ? opts.volume : 0.35;
+    // pauseOnHidden defaults to true: standard for games (alt-tabbing shouldn't
+    // keep blasting music). Landing can pass false to maintain atmosphere
+    // continuity when the user briefly tabs away.
+    const pauseOnHidden = opts.pauseOnHidden !== false;
     if (!tracks || tracks.length === 0) return noopPlayer();
 
     let bgm = null, nextBgm = null, lastIdx = -1, queue = [];
@@ -191,24 +195,25 @@
       return muted;
     }
 
-    // Pause when tab hidden, resume when visible. We track the "was playing"
-    // state explicitly so the resume actually fires — the previous version
-    // checked .paused which can flip in subtle ways during a tab switch.
-    let resumeBgm = false;
-    let resumeNext = false;
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        resumeBgm  = !!(bgm && !bgm.paused);
-        resumeNext = !!(nextBgm && !nextBgm.paused);
-        if (bgm)     bgm.pause();
-        if (nextBgm) nextBgm.pause();
-      } else {
-        if (muted) return;
-        if (bgm && resumeBgm)         bgm.play().catch(() => {});
-        if (nextBgm && resumeNext)    nextBgm.play().catch(() => {});
-        resumeBgm = resumeNext = false;
-      }
-    });
+    // Pause when tab hidden, resume when visible — but only if the caller
+    // opted in (default true; landing opts out for atmospheric continuity).
+    if (pauseOnHidden) {
+      let resumeBgm = false;
+      let resumeNext = false;
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          resumeBgm  = !!(bgm && !bgm.paused);
+          resumeNext = !!(nextBgm && !nextBgm.paused);
+          if (bgm)     bgm.pause();
+          if (nextBgm) nextBgm.pause();
+        } else {
+          if (muted) return;
+          if (bgm && resumeBgm)         bgm.play().catch(() => {});
+          if (nextBgm && resumeNext)    nextBgm.play().catch(() => {});
+          resumeBgm = resumeNext = false;
+        }
+      });
+    }
 
     return {
       start,
