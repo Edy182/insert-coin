@@ -86,12 +86,8 @@
       return lastIdx;
     }
 
-    // Pre-shuffle so the first pick is random across page loads, and
-    // pre-buffer the first track so playback starts without a fetch gap.
+    // Pre-shuffle so the first pick is random across page loads.
     refill();
-    let preloaded = new Audio(tracks[queue[0]]);
-    preloaded.preload = 'auto';
-    preloaded.load();
 
     function makeAudio(src) {
       const a = new Audio(src);
@@ -145,13 +141,12 @@
 
     function playNext() {
       if (muted) { bgm = null; return; }
-      if (preloaded) { bgm = preloaded; preloaded = null; consumeNext(); }
-      else           { bgm = makeAudio(tracks[consumeNext()]); }
+      // Create the Audio element fresh inside whatever caller (usually a
+      // user-gesture handler chain) so Chrome's autoplay heuristics are
+      // happy. Wire handlers BEFORE play() to never have a window with
+      // no listener attached.
+      bgm = makeAudio(tracks[consumeNext()]);
       bgm.volume = target;
-      // Wire handlers and start the watcher BEFORE play() so they're in
-      // place regardless of whether the play promise resolves slowly or
-      // rejects. Autoplay blocks simply leave bgm in a state where the
-      // next start() call retries.
       attachFallback(bgm);
       attachWatcher();
       if (FASTFADE) attachFastFade(bgm);
