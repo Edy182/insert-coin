@@ -934,7 +934,7 @@
   // fade-in/out + persistent mute + pause-on-hidden).
   const music = window.ClawdMusic.init({
     tracks: [
-      // '../../assets/sounds/runner-bg-1.mp3',  // off — single-track per game v1
+      '../../assets/sounds/runner-bg-1.mp3',
       '../../assets/sounds/runner-bg-2.mp3',
       // '../../assets/sounds/runner-bg-3.mp3',  // off
     ],

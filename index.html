@@ -414,7 +414,7 @@
 </head>
 <body>
 
-  <audio id="landing-music" src="assets/sounds/landing.mp3?v=2" loop preload="auto" autoplay></audio>
+  <audio id="landing-music" src="assets/sounds/landing.mp3?v=3" loop preload="auto" autoplay></audio>
   <button id="music-toggle" type="button" title="toggle music">🔊 MUSIC</button>
 
   <div id="splash" class="splash">
@@ -580,7 +580,6 @@
       // Shared mute key with the games so muting in one place sticks across
       // the entire arcade (landing + Dino + Mac-Pan + Snake).
       const MUTE_KEY = 'clawd-music-muted';
-      const TIME_KEY = 'clawd-landing-time';
 
       let muted = false;
       try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch (_) {}
@@ -603,19 +602,9 @@
       }
       render();
 
-      // Resume from where the previous landing visit left off (same tab).
-      let savedTime = 0;
-      try {
-        const raw = sessionStorage.getItem(TIME_KEY);
-        if (raw) savedTime = parseFloat(raw) || 0;
-      } catch (_) {}
-      function applySavedTime() {
-        if (savedTime > 0 && isFinite(audio.duration) && savedTime < audio.duration) {
-          try { audio.currentTime = savedTime; } catch (_) {}
-        }
-      }
-      if (audio.readyState >= 1) applySavedTime();
-      else audio.addEventListener('loadedmetadata', applySavedTime, { once: true });
+      // Landing track is a tight ~75s loop, so we just play from the start
+      // every visit — every visitor hears the whole song. The <audio loop>
+      // attribute handles the seamless restart.
 
       let started = false;
       function tryStart() {
@@ -652,16 +641,6 @@
           }
           resumeOnVisible = false;
         }
-      });
-
-      // Save playback position so we can resume on return.
-      setInterval(() => {
-        if (!audio.paused) {
-          try { sessionStorage.setItem(TIME_KEY, String(audio.currentTime)); } catch (_) {}
-        }
-      }, 1000);
-      window.addEventListener('pagehide', () => {
-        try { sessionStorage.setItem(TIME_KEY, String(audio.currentTime)); } catch (_) {}
       });
 
       btn.addEventListener('click', (e) => {

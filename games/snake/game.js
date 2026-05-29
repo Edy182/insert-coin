@@ -571,7 +571,7 @@
   // fade-in/out + persistent mute + pause-on-hidden).
   const music = window.ClawdMusic.init({
     tracks: [
-      // '../../assets/sounds/snake-bg-1.mp3',  // off — single-track per game v1
+      '../../assets/sounds/snake-bg-1.mp3',
       // '../../assets/sounds/snake-bg-2.mp3',  // off
       '../../assets/sounds/snake-bg-3.mp3',
     ],
