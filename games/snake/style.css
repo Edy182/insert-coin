@@ -20,6 +20,11 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  overscroll-behavior: contain;
+  -webkit-tap-highlight-color: transparent;
+}
+#game {
+  touch-action: none;
 }
 
 .game-shell {

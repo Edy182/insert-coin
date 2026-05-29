@@ -13,7 +13,7 @@ Independent fan project. All original code, MIT licensed. Not affiliated with or
 | Name | Genre | How |
 |---|---|---|
 | **Dino** | Endless runner | jump cacti, duck pteros |
-| **Mac-Pan** | Maze chase | eat dots, dodge bugs, power pellet flips the script |
+| **Munch** | Maze chase | eat dots, dodge bugs, power pellet flips the script |
 | **Snake** | Classic snake | grow, don't bite yourself |
 
 All three support keyboard, mouse, and touch. Cross-platform, no download.
@@ -42,7 +42,7 @@ Edit any HTML / CSS / JS file and the browser refreshes automatically. Productio
 ```
 /                      landing page (index.html)
 games/runner/          Dino
-games/chomp/           Mac-Pan
+games/chomp/           Munch
 games/snake/           Snake
 assets/clawd-stats.js  shared stats / cosmetics module
 cli/                   the npm CLI launcher

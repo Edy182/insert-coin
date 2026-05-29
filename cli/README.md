@@ -5,7 +5,7 @@ Launch the [Insert Coin](https://insert-coin-sigma-sand.vercel.app) browser arca
 Three pixel games starring Clawd, a friendly pixel-art crab:
 
 - **Dino** — endless runner
-- **Mac-Pan** — maze chase
+- **Munch** — maze chase
 - **Snake** — classic snake
 
 ```bash

@@ -53,7 +53,7 @@
     if (dailyMode)  params.set('dt', todayISO);
     const url = `https://${PROD_HOST}/d?${params.toString()}`;
     const dailyLabel = dailyMode ? `daily #${dailyNumber()}` : 'all-time';
-    return `🕹️ INSERT COIN · Mac-Pan ${dailyLabel}\n${score} pts${rankLine}\n${trackStr}\n${url}`;
+    return `🕹️ INSERT COIN · Munch ${dailyLabel}\n${score} pts${rankLine}\n${trackStr}\n${url}`;
   }
 
   // === Constants ===

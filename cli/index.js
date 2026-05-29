@@ -25,7 +25,7 @@ const SITE =
   'https://insert-coin-sigma-sand.vercel.app';
 const GAMES = [
   { key: 'd', label: 'DINO',    path: '/games/runner/', blurb: 'endless runner · dodge cacti and pteros' },
-  { key: 'm', label: 'MAC-PAN', path: '/games/chomp/',  blurb: 'maze chase · eat the bugs back' },
+  { key: 'm', label: 'MUNCH',   path: '/games/chomp/',  blurb: 'maze chase · eat the bugs back' },
   { key: 's', label: 'SNAKE',   path: '/games/snake/',  blurb: 'snake · don\'t bite yourself' },
 ];
 

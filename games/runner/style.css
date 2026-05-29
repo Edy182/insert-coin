@@ -20,6 +20,13 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  /* Mobile: prevent pull-to-refresh and overscroll bounce while playing */
+  overscroll-behavior: contain;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Canvas: own all touch input — no pinch/zoom/scroll interference */
+#game {
+  touch-action: none;
 }
 
 .game-shell {
