@@ -23,6 +23,13 @@
   'use strict';
 
   const MUTE_KEY    = 'clawd-music-muted';
+  // Test mode: ?fastfade=1 in the URL makes the player jump to the last 5s
+  // of every track so you can hear the crossfade every few seconds instead
+  // of waiting through full songs. Dev-only, has no effect without the flag.
+  const FASTFADE = (function () {
+    try { return new URLSearchParams(location.search).has('fastfade'); }
+    catch (_) { return false; }
+  })();
   // No fade-in: arcade music kicks in punchy from frame 1, like the originals.
   // Fade-out on mute / stop softens the harsh cut. Crossfade between tracks
   // hides the seams without affecting the start-of-game feel.
@@ -94,7 +101,8 @@
 
     function attachFallback(audio) {
       // If a track ends or errors before the crossfade watcher triggers,
-      // jump straight to the next one with no audible gap.
+      // jump straight to the next one with no audible gap. Wired BEFORE
+      // play() so we never have a window with no handler attached.
       audio.onended = () => { if (bgm === audio) bgm = null; if (!muted) playNext(); };
       audio.onerror = () => { if (bgm === audio) bgm = null; if (!muted) playNext(); };
     }
@@ -121,6 +129,7 @@
       nextBgm = audio;
       const p = audio.play();
       const begin = () => {
+        if (FASTFADE) attachFastFade(audio);
         fade(audio, 0, target, CROSSFADE_MS);
         fade(old, old.volume, 0, CROSSFADE_MS, () => {
           old.pause(); old.src = '';
@@ -135,31 +144,29 @@
     }
 
     function playNext() {
-      if (muted) return;
-      let audio;
-      if (preloaded) {
-        audio = preloaded;
-        preloaded = null;
-        consumeNext();
-      } else {
-        audio = makeAudio(tracks[consumeNext()]);
-      }
-      bgm = audio;
+      if (muted) { bgm = null; return; }
+      if (preloaded) { bgm = preloaded; preloaded = null; consumeNext(); }
+      else           { bgm = makeAudio(tracks[consumeNext()]); }
       bgm.volume = target;
+      // Wire handlers and start the watcher BEFORE play() so they're in
+      // place regardless of whether the play promise resolves slowly or
+      // rejects. Autoplay blocks simply leave bgm in a state where the
+      // next start() call retries.
+      attachFallback(bgm);
+      attachWatcher();
+      if (FASTFADE) attachFastFade(bgm);
       const p = bgm.play();
-      const onPlay = () => {
-        attachFallback(bgm);
-        attachWatcher();
-      };
-      if (p && p.then) {
-        p.then(onPlay).catch(() => {
-          // Autoplay blocked or transient error. Drop bgm so a later start()
-          // call (e.g. from a user gesture) can try again.
-          bgm = null;
-        });
-      } else {
-        onPlay();
-      }
+      if (p && p.catch) p.catch(() => { bgm = null; });
+    }
+
+    function attachFastFade(audio) {
+      // Force a crossfade ~4s after this track begins, independent of
+      // duration metadata. Streaming MP3s (e.g. Suno output) often report
+      // duration as Infinity until fully buffered, so the seek-near-end
+      // approach silently no-ops on them. A timer always fires.
+      setTimeout(() => {
+        if (bgm === audio && !nextBgm) startCrossfade();
+      }, 4000);
     }
 
     function start() {

@@ -575,7 +575,7 @@
       '../../assets/sounds/snake-bg-2.mp3',
       '../../assets/sounds/snake-bg-3.mp3',
     ],
-    volume: 0.35,
+    volume: 0.3,
   });
   function startMusic() { music.start(); }
   function stopMusic()  { music.stop();  }
