@@ -315,26 +315,26 @@
 
     drawFood(food.c, food.r);
 
-    // Connecting ribbon — a thick darker-orange line through every segment
-    // center, drawn UNDER the body circles. Gives the snake a single
-    // continuous silhouette instead of detached beads. The body bolitas
-    // sit on top and read as visible segments.
+    // Body as a single continuous "noodle" — Slither.io style. Draw a
+    // dark outline pass slightly thicker than the body, then the orange
+    // fill pass on top. Single shape, no segment seams, clean silhouette.
     if (snake.length > 1) {
       const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
-      ctx.strokeStyle = darken(O, 0.15);
-      ctx.lineWidth = TILE - 12;  // 12 px ribbon under 16 px bolitas
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
+      // Outline
+      ctx.strokeStyle = darken(O, 0.4);
+      ctx.lineWidth = TILE - 4;  // 20 px outline
       ctx.beginPath();
       ctx.moveTo(snake[0].c * TILE + TILE / 2, snake[0].r * TILE + TILE / 2);
       for (let i = 1; i < snake.length; i++) {
         ctx.lineTo(snake[i].c * TILE + TILE / 2, snake[i].r * TILE + TILE / 2);
       }
       ctx.stroke();
-    }
-
-    for (let i = snake.length - 1; i > 0; i--) {
-      drawBody(snake[i].c, snake[i].r, i, snake.length);
+      // Fill
+      ctx.strokeStyle = O;
+      ctx.lineWidth = TILE - 8;  // 16 px body sitting inside the outline
+      ctx.stroke();
     }
 
     drawClawdHead(snake[0].c, snake[0].r);
@@ -496,13 +496,13 @@
       }
     }
 
-    // Filled head with outline
+    // Filled head with thicker outline matching the body noodle outline
     ctx.fillStyle = O;
     ctx.beginPath();
     ctx.arc(cx, cy, headSize / 2, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = darken(O, 0.3);
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = darken(O, 0.4);
+    ctx.lineWidth = 2;
     ctx.stroke();
 
     if (gameOver) {

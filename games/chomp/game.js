@@ -1174,26 +1174,24 @@
     }
   });
 
-  // Mobile touch: virtual joystick. Touchstart sets the origin. Touchmove
-  // updates the queued direction CONTINUOUSLY based on the finger's offset
-  // from origin (dominant axis), no need to lift between turns. Origin
-  // stays fixed for the duration of the touch — moving the thumb around
-  // feels like an analog stick.
+  // Mobile touch: Pac-Man 256-style discrete swipes with origin reset.
+  // Each finger movement past the threshold queues a direction change AND
+  // resets the origin to the finger's new position — so the next swipe
+  // measures from there, not from the original touchstart. Users can
+  // chain U-turns and right-angle turns naturally without lifting.
   let touchStartX = 0, touchStartY = 0;
-  const STICK_DEAD = 8; // px dead zone before any direction registers
+  const SWIPE_THRESHOLD = 12; // px — clear swipe intent, low false-positive
   function startGameFromTouch() {
     if (gameStarted) return;
     gameStarted = true; startMusic();
     if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; }
     if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'chomp', dailyMode: dailyMode, dateISO: todayISO });
   }
-  let lastDirKey = '';
   canvas.addEventListener('touchstart', e => {
     if (gameOver) { reset(); return; }
     if (e.touches.length > 0) {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
-      lastDirKey = '';
     }
     e.preventDefault();
   }, { passive: false });
@@ -1201,17 +1199,16 @@
     if (!e.touches.length || !player) return;
     const ddx = e.touches[0].clientX - touchStartX;
     const ddy = e.touches[0].clientY - touchStartY;
-    if (Math.abs(ddx) < STICK_DEAD && Math.abs(ddy) < STICK_DEAD) return;
+    if (Math.abs(ddx) < SWIPE_THRESHOLD && Math.abs(ddy) < SWIPE_THRESHOLD) return;
     const queued = Math.abs(ddx) > Math.abs(ddy)
       ? { dx: ddx > 0 ? 1 : -1, dy: 0 }
       : { dx: 0, dy: ddy > 0 ? 1 : -1 };
-    const key = queued.dx + ',' + queued.dy;
-    if (key !== lastDirKey) {
-      player.nextDir = queued;
-      lastDirKey = key;
-      startGameFromTouch();
-      if (navigator.vibrate) navigator.vibrate(6);
-    }
+    player.nextDir = queued;
+    startGameFromTouch();
+    if (navigator.vibrate) navigator.vibrate(6);
+    // Reset origin so the NEXT swipe in the same touch starts fresh.
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
     e.preventDefault();
   }, { passive: false });
 
