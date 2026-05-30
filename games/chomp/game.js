@@ -61,8 +61,13 @@
   const COLS  = 19;
   const ROWS  = 21;
   const SPEED = 3;
-  const GHOST_SPEED = 2.1;   // bumped from 1.95 — tighter margin (3 vs 2.1)
-  const LIVES_START = 4;     // down from 5 — fewer mistakes allowed
+  // Mobile gets a small handicap: slightly slower ghosts and one extra life,
+  // compensating for the inherently harder touch controls vs keyboard.
+  const IS_MOBILE = (typeof window !== 'undefined') && (
+    window.matchMedia && window.matchMedia('(max-width: 900px), (pointer: coarse)').matches
+  );
+  const GHOST_SPEED = IS_MOBILE ? 1.85 : 2.1;
+  const LIVES_START = IS_MOBILE ? 5 : 4;
 
   // Mode timing — longer chases, much shorter frightened so power pellets
   // give breathing room but not a free pass.

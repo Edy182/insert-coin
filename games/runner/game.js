@@ -73,8 +73,8 @@
 
   // === Constants ===
   const GROUND_Y       = H - 40;
-  const GRAVITY        = 0.6;
-  const JUMP_VELOCITY  = -12;
+  const GRAVITY        = 0.58;
+  const JUMP_VELOCITY  = -12.5;
   const INITIAL_SPEED  = 5;
   const SPAWN_MIN_GAP  = 80;
   const NIGHT_DURATION = 700;
