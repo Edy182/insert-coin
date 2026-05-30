@@ -208,6 +208,11 @@
           if (nextBgm) nextBgm.pause();
         } else {
           if (muted) return;
+          // Some mobile browsers fire 'visible' briefly during screen wake
+          // (notifications, fingerprint unlock) without actually returning
+          // the user to the page — gate the resume on window having focus
+          // too, so audio doesn't blip on for a few seconds and stop again.
+          if (typeof document.hasFocus === 'function' && !document.hasFocus()) return;
           if (bgm && resumeBgm)         bgm.play().catch(() => {});
           if (nextBgm && resumeNext)    nextBgm.play().catch(() => {});
           resumeBgm = resumeNext = false;

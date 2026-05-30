@@ -978,17 +978,16 @@
   document.addEventListener('keyup', e => {
     if (e.code === 'ArrowDown') duck(false);
   });
-  // Touch model: position-zone based. Tapping the upper 65% of the canvas
-  // (the sky / where you want Dino to jump TO) fires jump immediately on
-  // touchstart — zero latency. Tapping the lower 35% (the ground / where
-  // Dino lives) ducks while held. Pure position decides intent — no timer,
-  // no swipe detection, no jump-before-duck conflict.
+  // Touch model: position-zone based. Tap upper 50% = jump (instant).
+  // Tap lower 50% = duck (held). 50/50 split is generous enough on the
+  // letterboxed mobile canvas that thumb taps land in the intended zone
+  // reliably. Zero latency, zero swipe-detection ambiguity.
   let isDucking = false;
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
     const rect = canvas.getBoundingClientRect();
     const relY = (e.touches[0].clientY - rect.top) / rect.height;
-    if (relY > 0.65) {
+    if (relY > 0.5) {
       duck(true);
       isDucking = true;
     } else {

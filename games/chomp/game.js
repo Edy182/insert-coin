@@ -467,7 +467,7 @@
     // frames before exact center. Classic Pac-Man corner cutting. The snap
     // below is gated on dir-actually-changes to avoid an every-frame snap
     // loop while moving in a straight line.
-    const TURN_WINDOW = SPEED * 2;
+    const TURN_WINDOW = SPEED * 3;  // 9 px — extremely permissive turn detection
     const atCenter = Math.abs(player.x - centerX) < TURN_WINDOW &&
                      Math.abs(player.y - centerY) < TURN_WINDOW;
 
