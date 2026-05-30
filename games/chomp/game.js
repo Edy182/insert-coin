@@ -463,11 +463,11 @@
     const r = Math.floor(player.y / TILE);
     const centerX = c * TILE + TILE / 2;
     const centerY = r * TILE + TILE / 2;
-    // Turn window: wider than SPEED so the queued direction registers a
-    // couple frames before reaching exact tile center. Gives the corner-
-    // cutting feel from classic Pac-Man — no missed turns when the swipe
-    // lands a hair early.
-    const TURN_WINDOW = SPEED + 3;  // 6 px on a 24 px tile
+    // Turn window: 6 px (twice SPEED) so a queued direction lands a couple
+    // frames before exact center. Classic Pac-Man corner cutting. The snap
+    // below is gated on dir-actually-changes to avoid an every-frame snap
+    // loop while moving in a straight line.
+    const TURN_WINDOW = SPEED * 2;
     const atCenter = Math.abs(player.x - centerX) < TURN_WINDOW &&
                      Math.abs(player.y - centerY) < TURN_WINDOW;
 
@@ -479,8 +479,12 @@
       player.dir = { dx: nd.dx, dy: nd.dy };
     }
 
-    // At intersection, try queued direction
-    if (atCenter && (nd.dx !== 0 || nd.dy !== 0)) {
+    // At intersection, try queued direction. Only snap/turn when the queued
+    // direction actually differs from the current one — otherwise we'd snap
+    // to center every frame while moving straight and the player wouldn't
+    // make progress.
+    const dirChanging = nd.dx !== d.dx || nd.dy !== d.dy;
+    if (atCenter && dirChanging && (nd.dx !== 0 || nd.dy !== 0)) {
       if (playerCanMove(c, r, nd.dx, nd.dy)) {
         player.dir = { dx: nd.dx, dy: nd.dy };
         player.x = centerX;

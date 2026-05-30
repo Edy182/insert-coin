@@ -992,11 +992,11 @@
     pendingJumpTimer = setTimeout(() => {
       pendingJumpTimer = null;
       if (!touchMoved) jump();
-    }, 90);
+    }, 50);
   }, { passive: false });
   canvas.addEventListener('touchmove', e => {
     e.preventDefault();
-    if (e.touches[0].clientY - touchStartY > 10) {
+    if (e.touches[0].clientY - touchStartY > 6) {
       if (pendingJumpTimer) { clearTimeout(pendingJumpTimer); pendingJumpTimer = null; }
       touchMoved = true;
       duck(true);
