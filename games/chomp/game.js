@@ -463,8 +463,13 @@
     const r = Math.floor(player.y / TILE);
     const centerX = c * TILE + TILE / 2;
     const centerY = r * TILE + TILE / 2;
-    const atCenter = Math.abs(player.x - centerX) < SPEED &&
-                     Math.abs(player.y - centerY) < SPEED;
+    // Turn window: wider than SPEED so the queued direction registers a
+    // couple frames before reaching exact tile center. Gives the corner-
+    // cutting feel from classic Pac-Man — no missed turns when the swipe
+    // lands a hair early.
+    const TURN_WINDOW = SPEED + 3;  // 6 px on a 24 px tile
+    const atCenter = Math.abs(player.x - centerX) < TURN_WINDOW &&
+                     Math.abs(player.y - centerY) < TURN_WINDOW;
 
     const nd = player.nextDir;
     const d  = player.dir;

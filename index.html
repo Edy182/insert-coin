@@ -598,7 +598,10 @@
       const music = window.ClawdMusic.init({
         tracks: ['assets/sounds/landing.mp3', 'assets/sounds/landing-2.mp3'],
         volume: 0.85,
-        pauseOnHidden: false,
+        // Pause on hidden tab / locked screen — keeping atmosphere playing
+        // in the background drains battery and annoys users who locked
+        // their phone or alt-tabbed to something else.
+        pauseOnHidden: true,
       });
 
       function render() { btn.textContent = music.isMuted() ? '🔇 MUSIC' : '🔊 MUSIC'; }
