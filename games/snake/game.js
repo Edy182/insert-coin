@@ -315,26 +315,10 @@
 
     drawFood(food.c, food.r);
 
-    // Body as a single continuous "noodle" — Slither.io style. Draw a
-    // dark outline pass slightly thicker than the body, then the orange
-    // fill pass on top. Single shape, no segment seams, clean silhouette.
-    if (snake.length > 1) {
-      const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      // Outline
-      ctx.strokeStyle = darken(O, 0.4);
-      ctx.lineWidth = TILE - 4;  // 20 px outline
-      ctx.beginPath();
-      ctx.moveTo(snake[0].c * TILE + TILE / 2, snake[0].r * TILE + TILE / 2);
-      for (let i = 1; i < snake.length; i++) {
-        ctx.lineTo(snake[i].c * TILE + TILE / 2, snake[i].r * TILE + TILE / 2);
-      }
-      ctx.stroke();
-      // Fill
-      ctx.strokeStyle = O;
-      ctx.lineWidth = TILE - 8;  // 16 px body sitting inside the outline
-      ctx.stroke();
+    // Body segments — classic retro pixel squares matching Dino + Munch
+    // visual aesthetic. Slight taper toward the tail.
+    for (let i = snake.length - 1; i > 0; i--) {
+      drawBody(snake[i].c, snake[i].r, i, snake.length);
     }
 
     drawClawdHead(snake[0].c, snake[0].r);
@@ -444,100 +428,50 @@
   // Body segment — a centred circle ("bolita") that tapers smaller toward
   // the tail. Round segments read as a serpentine snake silhouette closer
   // to the spiral icon on the landing.
+  // Body segment — solid pixel square, classic Nokia/arcade aesthetic.
+  // Tapers from 22 px at the head to 14 px at the tail tip. Matches the
+  // chunky-pixel look of Dino and Munch.
   function drawBody(c, r, idx, total) {
     const x = c * TILE;
     const y = r * TILE;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const t = total > 1 ? idx / total : 0;
-    const maxSize = TILE - 6;     // 18 px so bolitas sit on top of the 12 px ribbon
-    const minSize = 8;
-    const size = maxSize - t * (maxSize - minSize);
-    const cx = x + TILE / 2;
-    const cy = y + TILE / 2;
-    // Filled body
+    const maxSize = TILE - 2;     // 22 px just behind the head
+    const minSize = 12;            // 12 px tail tip
+    const size = Math.round(maxSize - t * (maxSize - minSize));
+    const off = Math.round((TILE - size) / 2);
     ctx.fillStyle = O;
-    ctx.beginPath();
-    ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
-    ctx.fill();
-    // Darker outline for definition at small tile sizes
-    ctx.strokeStyle = darken(O, 0.25);
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    ctx.fillRect(x + off, y + off, size, size);
   }
 
-  // Snake head — bigger orange circle with outline, large eyes (sclera +
-  // pupil) on the leading edge per direction, plus a small forked tongue
-  // flicking out the front. Industry-grade upgrade from the old eye-dots
-  // version: bigger personality + clearer silhouette at 24 px tile size.
+  // Snake head — solid pixel square (TILE-2 = 22 px) with two dark eye
+  // pixels positioned on the leading edge per direction. Retro arcade
+  // aesthetic matching Dino's Clawd sprite and Munch's chunky pieces.
   function drawClawdHead(c, r) {
     const x = c * TILE;
     const y = r * TILE;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
-    const headSize = TILE - 1;  // 23 px — bigger than body for prominence
-    const cx = x + TILE / 2, cy = y + TILE / 2;
-
-    // Tongue first (under the head) — forked dark-red tip protruding
-    // from the front of the head in the current direction. Subtle
-    // flick animation tied to frame counter.
-    if (!gameOver && gameStarted) {
-      const flicking = (frame % 60) < 18; // ~30% of the time
-      if (flicking) {
-        ctx.fillStyle = '#c44d3a';
-        const tx = cx + dir.dc * (TILE * 0.55);
-        const ty = cy + dir.dr * (TILE * 0.55);
-        const px = dir.dr, py = dir.dc; // perpendicular for the fork
-        ctx.beginPath();
-        ctx.moveTo(cx + dir.dc * (TILE * 0.4), cy + dir.dr * (TILE * 0.4));
-        ctx.lineTo(tx + px * 2, ty + py * 2);
-        ctx.lineTo(tx - px * 2, ty - py * 2);
-        ctx.closePath();
-        ctx.fill();
-      }
-    }
-
-    // Filled head with thicker outline matching the body noodle outline
+    const headSize = TILE - 2;
+    const off = (TILE - headSize) / 2;
     ctx.fillStyle = O;
-    ctx.beginPath();
-    ctx.arc(cx, cy, headSize / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = darken(O, 0.4);
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    ctx.fillRect(x + off, y + off, headSize, headSize);
 
     if (gameOver) {
       drawXEyeMark(x + TILE * 0.35, y + TILE * 0.5, true);
       drawXEyeMark(x + TILE * 0.65, y + TILE * 0.5, false);
     } else {
-      // Proper eyes: white sclera + dark pupil. Positioned on the leading
-      // edge per direction. The pupil leans further forward for that "I'm
-      // looking where I'm going" look.
-      const lead = TILE * 0.22;
+      // Eyes: two solid dark pixels (4×4) on the leading edge per direction.
+      const cx = x + TILE / 2, cy = y + TILE / 2;
+      const lead = TILE * 0.25;
       const spread = TILE * 0.22;
       const perpX = dir.dr, perpY = dir.dc;
-      const scleraR = 3.5;
-      const pupilR = 2;
-      // Blink every ~3 seconds (180 frames at 60 fps)
-      const blinking = (frame % 180) < 6;
+      const eyeR = 2;
+      ctx.fillStyle = B;
       [ -1, 1 ].forEach(sign => {
         const ex = cx + dir.dc * lead + perpX * spread * sign;
         const ey = cy + dir.dr * lead + perpY * spread * sign;
-        if (blinking) {
-          // Closed eye = thin dark line
-          ctx.fillStyle = B;
-          ctx.fillRect(Math.round(ex - scleraR), Math.round(ey - 0.5), scleraR * 2, 1.5);
-        } else {
-          // White sclera
-          ctx.fillStyle = '#faf9f5';
-          ctx.beginPath();
-          ctx.arc(ex, ey, scleraR, 0, Math.PI * 2);
-          ctx.fill();
-          // Dark pupil, leaning slightly forward in the direction of travel
-          ctx.fillStyle = B;
-          ctx.beginPath();
-          ctx.arc(ex + dir.dc * 0.8, ey + dir.dr * 0.8, pupilR, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        ctx.fillRect(Math.round(ex - eyeR), Math.round(ey - eyeR), eyeR * 2, eyeR * 2);
       });
     }
 

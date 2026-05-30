@@ -24,6 +24,11 @@ body {
   overscroll-behavior: contain;
   -webkit-tap-highlight-color: transparent;
 }
+/* Mobile: block the entire page from scrolling during gameplay so a
+   swipe up/down on the canvas (or near it) never drags the page. */
+@media (max-width: 900px), (pointer: coarse) {
+  html, body { touch-action: none; overflow: hidden; }
+}
 #game {
   touch-action: none;
 }

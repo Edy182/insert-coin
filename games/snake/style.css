@@ -23,6 +23,9 @@ body {
   overscroll-behavior: contain;
   -webkit-tap-highlight-color: transparent;
 }
+@media (max-width: 900px), (pointer: coarse) {
+  html, body { touch-action: none; overflow: hidden; }
+}
 #game {
   touch-action: none;
 }
