@@ -165,29 +165,21 @@ h1 {
 }
 .rotate-hint { display: none; }
 
-/* Mobile-only Duck button — hidden on desktop, big thumb-friendly target
-   on phones. Canvas handles jump (any tap); duck is its own control. */
-#duck-btn.mobile-only { display: none; }
-@media (max-width: 900px), (pointer: coarse) {
-  #duck-btn.mobile-only {
-    display: block;
-    width: 100%;
-    margin-top: 0.6rem;
-    padding: 1rem;
-    min-height: 56px;
-    background: rgba(217, 119, 87, 0.18);
-    color: var(--orange);
-    border: 2px solid var(--orange);
-    border-radius: 8px;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.8rem;
-    cursor: pointer;
-    touch-action: none;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-  }
-  #duck-btn.mobile-only:active {
-    background: var(--orange);
-    color: var(--navy);
-  }
+/* Landscape phones: drop everything that's not the game so the canvas
+   fills the viewport horizontally. Header shrinks, controls hide, the
+   rotate-hint disappears (already in landscape). Canvas keeps its 8:3
+   aspect ratio via width:100% so no distortion. */
+@media (max-width: 900px) and (orientation: landscape) {
+  body { padding: 0.2rem; }
+  .game-shell { max-width: 100%; width: 100%; }
+  .game-header { padding: 0.35rem 0.6rem; margin-bottom: 0.3rem; gap: 0.4rem; }
+  .back-link { font-size: 0.5rem; }
+  h1 { font-size: 0.7rem; }
+  .score-box { font-size: 0.5rem; }
+  .controls { margin-top: 0.3rem; }
+  .controls p { display: none; }  /* hide hint text in landscape */
+  .controls button { margin-top: 0.2rem; padding: 0.5rem 0.7rem; font-size: 0.55rem; min-height: 36px; }
+  .game-footer { display: none; }
+  .rotate-hint { display: none !important; }
+  #game { touch-action: none; }
 }

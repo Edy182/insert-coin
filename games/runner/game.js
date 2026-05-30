@@ -978,24 +978,45 @@
   document.addEventListener('keyup', e => {
     if (e.code === 'ArrowDown') duck(false);
   });
-  // Touch model: canvas tap = jump always (instant, zero ambiguity).
-  // Duck is on a separate on-screen button below the canvas, mobile-only.
-  // Two distinct controls > one ambiguous gesture trying to do both.
-  canvas.addEventListener('touchstart', e => {
-    e.preventDefault();
-    jump();
-  }, { passive: false });
-  // Dedicated mobile duck button (HTML below the canvas, hidden on desktop)
-  const duckBtn = document.getElementById('duck-btn');
-  if (duckBtn) {
-    duckBtn.addEventListener('touchstart', e => { e.preventDefault(); duck(true); }, { passive: false });
-    duckBtn.addEventListener('touchend',   e => { e.preventDefault(); duck(false); }, { passive: false });
-    duckBtn.addEventListener('touchcancel',e => { e.preventDefault(); duck(false); }, { passive: false });
-    // Also support mouse for hybrid devices.
-    duckBtn.addEventListener('mousedown',  () => duck(true));
-    duckBtn.addEventListener('mouseup',    () => duck(false));
-    duckBtn.addEventListener('mouseleave', () => duck(false));
+  // Touch model: tap ANYWHERE on the page = jump (gestural, document-wide).
+  // Swipe down anywhere = duck while held. The 1-frame requestAnimationFrame
+  // delay between touchstart and the actual jump() call gives us a window
+  // to detect a downward swipe and cancel the pending jump — but it's below
+  // human perception (~16ms), so taps feel instant.
+  let touchStartY = 0;
+  let touchMoved = false;
+  let jumpPending = false;
+  function fireJumpIfNoSwipe() {
+    jumpPending = false;
+    if (!touchMoved) jump();
   }
+  function ignoreTarget(target) {
+    if (!target) return false;
+    // Don't hijack taps on links, buttons, or score elements.
+    return !!target.closest('a, button, .game-header');
+  }
+  document.addEventListener('touchstart', e => {
+    if (ignoreTarget(e.target)) return;
+    e.preventDefault();
+    touchStartY = e.touches[0].clientY;
+    touchMoved = false;
+    jumpPending = true;
+    requestAnimationFrame(fireJumpIfNoSwipe);
+  }, { passive: false });
+  document.addEventListener('touchmove', e => {
+    if (touchMoved || !e.touches.length) return;
+    const dy = e.touches[0].clientY - touchStartY;
+    if (dy > 12) {
+      touchMoved = true;
+      jumpPending = false;  // cancel pending jump
+      duck(true);
+      e.preventDefault();
+    }
+  }, { passive: false });
+  document.addEventListener('touchend', e => {
+    if (touchMoved) duck(false);
+    touchMoved = false;
+  });
   // Left click = jump; right click held = duck.
   canvas.addEventListener('mousedown', e => {
     if (e.button === 0) jump();

@@ -418,19 +418,22 @@
     ctx.fill();
   }
 
-  // Body segment — a centred square that tapers smaller toward the tail
-  // (idx 1 = just behind the head, idx total-1 = tail tip). Shrinking also
-  // widens the gap between blocks, so divisions stay clearly visible.
+  // Body segment — a centred circle ("bolita") that tapers smaller toward
+  // the tail. Round segments read as a serpentine snake silhouette closer
+  // to the spiral icon on the landing.
   function drawBody(c, r, idx, total) {
     const x = c * TILE;
     const y = r * TILE;
     ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
-    const t = total > 1 ? idx / total : 0;     // 0 near head → ~1 at tail
-    const maxSize = TILE - 2;                   // 22px just behind the head
-    const minSize = 7;                          // tail tip
+    const t = total > 1 ? idx / total : 0;
+    const maxSize = TILE - 2;
+    const minSize = 7;
     const size = maxSize - t * (maxSize - minSize);
-    const off = (TILE - size) / 2;
-    ctx.fillRect(x + off, y + off, size, size);
+    const cx = x + TILE / 2;
+    const cy = y + TILE / 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   // Snake head — same rounded segment as the body (matches the spiral icon
@@ -441,11 +444,13 @@
     const y = r * TILE;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
-    // Head block: same width as the front of the body (22 px on a 24 tile).
+    // Head: same round shape as body for consistent snake silhouette.
     const headSize = TILE - 2;
-    const off = (TILE - headSize) / 2;
+    const cx = x + TILE / 2, cy = y + TILE / 2;
     ctx.fillStyle = O;
-    ctx.fillRect(x + off, y + off, headSize, headSize);
+    ctx.beginPath();
+    ctx.arc(cx, cy, headSize / 2, 0, Math.PI * 2);
+    ctx.fill();
 
     if (gameOver) {
       // KO chevrons centred on the head, facing each other.
