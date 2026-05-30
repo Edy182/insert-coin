@@ -978,39 +978,28 @@
   document.addEventListener('keyup', e => {
     if (e.code === 'ArrowDown') duck(false);
   });
-  // Touch model: jump fires within ~60ms of touchstart (faster than waiting
-  // for touchend) UNLESS the user swipes down in that window, which cancels
-  // the pending jump and triggers duck instead. Net effect: snappy tap-to-
-  // jump for reaction-time-sensitive obstacles, swipe-down for ducking,
-  // no phantom jump-then-duck conflict.
-  let touchMoved = false;
-  let pendingJumpTimer = null;
+  // Touch model: position-zone based. Tapping the upper 65% of the canvas
+  // (the sky / where you want Dino to jump TO) fires jump immediately on
+  // touchstart — zero latency. Tapping the lower 35% (the ground / where
+  // Dino lives) ducks while held. Pure position decides intent — no timer,
+  // no swipe detection, no jump-before-duck conflict.
+  let isDucking = false;
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
-    touchStartY = e.touches[0].clientY;
-    touchMoved = false;
-    pendingJumpTimer = setTimeout(() => {
-      pendingJumpTimer = null;
-      if (!touchMoved) jump();
-    }, 50);
-  }, { passive: false });
-  canvas.addEventListener('touchmove', e => {
-    e.preventDefault();
-    if (e.touches[0].clientY - touchStartY > 6) {
-      if (pendingJumpTimer) { clearTimeout(pendingJumpTimer); pendingJumpTimer = null; }
-      touchMoved = true;
+    const rect = canvas.getBoundingClientRect();
+    const relY = (e.touches[0].clientY - rect.top) / rect.height;
+    if (relY > 0.65) {
       duck(true);
+      isDucking = true;
+    } else {
+      jump();
+      isDucking = false;
     }
   }, { passive: false });
   canvas.addEventListener('touchend', e => {
     e.preventDefault();
-    if (pendingJumpTimer) {
-      // Released before the 60ms timer fired — fire jump now if no swipe.
-      clearTimeout(pendingJumpTimer);
-      pendingJumpTimer = null;
-      if (!touchMoved) jump();
-    }
-    if (touchMoved) duck(false);
+    if (isDucking) duck(false);
+    isDucking = false;
   }, { passive: false });
   // Left click = jump; right click held = duck.
   canvas.addEventListener('mousedown', e => {

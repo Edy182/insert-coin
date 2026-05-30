@@ -433,47 +433,40 @@
     ctx.fillRect(x + off, y + off, size, size);
   }
 
-  // Snake head — the real Clawd sprite (12×9 grid from the other games),
-  // scaled at P=2 to ~24×18 and centred in the tile. Alive draws Clawd's
-  // eyes; gameOver swaps them for ">" "<" knocked-out chevrons.
+  // Snake head — same rounded segment as the body (matches the spiral icon
+  // on the landing) plus two small eye dots placed on the leading edge per
+  // direction. No more crab sprite — reads as snake at a glance.
   function drawClawdHead(c, r) {
     const x = c * TILE;
     const y = r * TILE;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
-    const _ = null;
-    const P = 2;
-    const oy = y + 3; // centre the 18px-tall sprite in the 24px tile
-    const grid = gameOver ? [
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ O,O,O,O,O,O,O,O,O,O,O,O ],
-      [ O,O,O,O,O,O,O,O,O,O,O,O ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
-    ] : [
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
-      [ _,O,O,B,O,O,O,O,O,B,O,_ ],
-      [ O,O,O,O,O,O,O,O,O,O,O,O ],
-      [ O,O,O,O,O,O,O,O,O,O,O,O ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,O,O,O,O,O,O,O,O,O,O,_ ],
-      [ _,_,O,_,O,_,_,_,O,_,O,_ ],
-    ];
-    for (let gy = 0; gy < grid.length; gy++) {
-      for (let gx = 0; gx < grid[gy].length; gx++) {
-        const col = grid[gy][gx];
-        if (col) { ctx.fillStyle = col; ctx.fillRect(x + gx * P, oy + gy * P, P, P); }
-      }
-    }
+    // Head block: same width as the front of the body (22 px on a 24 tile).
+    const headSize = TILE - 2;
+    const off = (TILE - headSize) / 2;
+    ctx.fillStyle = O;
+    ctx.fillRect(x + off, y + off, headSize, headSize);
+
     if (gameOver) {
-      drawXEyeMark(x + 3 * P + P / 2, oy + 2 * P + P, true);   // left ">"
-      drawXEyeMark(x + 9 * P + P / 2, oy + 2 * P + P, false);  // right "<"
+      // KO chevrons centred on the head, facing each other.
+      drawXEyeMark(x + TILE * 0.35, y + TILE * 0.5, true);
+      drawXEyeMark(x + TILE * 0.65, y + TILE * 0.5, false);
+    } else {
+      // Two eye dots positioned along the leading edge for the current
+      // direction. dc/dr point to where the snake is going.
+      const cx = x + TILE / 2, cy = y + TILE / 2;
+      const lead = TILE * 0.28; // distance from centre toward the front edge
+      const spread = TILE * 0.20; // gap between the two eyes
+      // Perpendicular axis for spreading the pair.
+      const perpX = dir.dr;  // if moving up/down, eyes spread horizontally
+      const perpY = dir.dc;  // if moving left/right, eyes spread vertically
+      const eyeR = 2;
+      ctx.fillStyle = B;
+      [ -1, 1 ].forEach(sign => {
+        const ex = cx + dir.dc * lead + perpX * spread * sign;
+        const ey = cy + dir.dr * lead + perpY * spread * sign;
+        ctx.fillRect(Math.round(ex - eyeR), Math.round(ey - eyeR), eyeR * 2, eyeR * 2);
+      });
     }
 
     if (window.ClawdStats) {

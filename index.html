@@ -527,7 +527,7 @@
 
       <a href="games/snake/" class="game-card available">
         <div class="sprite">
-          <img src="assets/snake-icon.png" alt="Snake" style="width:90%;height:90%;object-fit:contain;image-rendering:auto;">
+          <img src="assets/snake-icon.png?v=1" alt="Snake" style="width:90%;height:90%;object-fit:contain;image-rendering:auto;display:block;">
         </div>
         <h2>SNAKE</h2>
         <span class="play-btn">▶ PLAY</span>
@@ -567,13 +567,14 @@
       const btn = document.getElementById('music-toggle');
       if (!btn || !window.ClawdMusic) return;
 
+      // Mobile (touch device or narrow viewport): pause on hidden so a
+      // locked phone screen doesn't keep blasting music + draining battery.
+      // Desktop: keep atmosphere playing across tab switches.
+      const isMobileLike = window.matchMedia('(max-width: 600px), (pointer: coarse)').matches;
       const music = window.ClawdMusic.init({
         tracks: ['assets/sounds/landing.mp3', 'assets/sounds/landing-2.mp3'],
         volume: 0.85,
-        // Pause on hidden tab / locked screen — keeping atmosphere playing
-        // in the background drains battery and annoys users who locked
-        // their phone or alt-tabbed to something else.
-        pauseOnHidden: true,
+        pauseOnHidden: isMobileLike,
       });
 
       function render() { btn.textContent = music.isMuted() ? '🔇 MUSIC' : '🔊 MUSIC'; }
