@@ -978,26 +978,39 @@
   document.addEventListener('keyup', e => {
     if (e.code === 'ArrowDown') duck(false);
   });
-  // Touch model: distinguish a tap (= jump on release) from a swipe-down
-  // (= duck while held). Previously jump fired immediately on touchstart,
-  // so a swipe-down would jump THEN duck. Now we wait until release.
+  // Touch model: jump fires within ~60ms of touchstart (faster than waiting
+  // for touchend) UNLESS the user swipes down in that window, which cancels
+  // the pending jump and triggers duck instead. Net effect: snappy tap-to-
+  // jump for reaction-time-sensitive obstacles, swipe-down for ducking,
+  // no phantom jump-then-duck conflict.
   let touchMoved = false;
+  let pendingJumpTimer = null;
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
     touchStartY = e.touches[0].clientY;
     touchMoved = false;
+    pendingJumpTimer = setTimeout(() => {
+      pendingJumpTimer = null;
+      if (!touchMoved) jump();
+    }, 60);
   }, { passive: false });
   canvas.addEventListener('touchmove', e => {
     e.preventDefault();
-    if (e.touches[0].clientY - touchStartY > 20) {
-      duck(true);
+    if (e.touches[0].clientY - touchStartY > 18) {
+      if (pendingJumpTimer) { clearTimeout(pendingJumpTimer); pendingJumpTimer = null; }
       touchMoved = true;
+      duck(true);
     }
   }, { passive: false });
   canvas.addEventListener('touchend', e => {
     e.preventDefault();
+    if (pendingJumpTimer) {
+      // Released before the 60ms timer fired — fire jump now if no swipe.
+      clearTimeout(pendingJumpTimer);
+      pendingJumpTimer = null;
+      if (!touchMoved) jump();
+    }
     if (touchMoved) duck(false);
-    else            jump();
   }, { passive: false });
   // Left click = jump; right click held = duck.
   canvas.addEventListener('mousedown', e => {

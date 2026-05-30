@@ -1166,7 +1166,7 @@
   // reset the origin so a long drag can chain multiple direction changes
   // without lifting the finger — feels snappy and arcade-native.
   let touchStartX = 0, touchStartY = 0, touchDirLocked = false;
-  const SWIPE_THRESHOLD = 14; // px — tight for snappy direction changes in mazes
+  const SWIPE_THRESHOLD = 10; // px — very tight for instant maze direction changes
   function startGameFromTouch() {
     if (gameStarted) return;
     gameStarted = true; startMusic();

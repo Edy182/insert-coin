@@ -630,7 +630,7 @@
   // so direction registers without waiting for the finger lift. After each
   // change, origin resets so a single touch can chain turns.
   let touchStartX = 0, touchStartY = 0, touchDirLocked = false;
-  const SWIPE_THRESHOLD = 14;
+  const SWIPE_THRESHOLD = 10;
   canvas.addEventListener('touchstart', e => {
     if (gameOver) { reset(); return; }
     if (e.touches.length > 0) {
