@@ -962,8 +962,6 @@
   }
 
   // === Input ===
-  let touchStartY = 0;
-
   document.addEventListener('keydown', e => {
     if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); jump(); }
     if (e.code === 'ArrowDown') { e.preventDefault(); duck(true); }
