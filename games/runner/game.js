@@ -978,18 +978,26 @@
   document.addEventListener('keyup', e => {
     if (e.code === 'ArrowDown') duck(false);
   });
+  // Touch model: distinguish a tap (= jump on release) from a swipe-down
+  // (= duck while held). Previously jump fired immediately on touchstart,
+  // so a swipe-down would jump THEN duck. Now we wait until release.
+  let touchMoved = false;
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
     touchStartY = e.touches[0].clientY;
-    jump();
+    touchMoved = false;
   }, { passive: false });
   canvas.addEventListener('touchmove', e => {
     e.preventDefault();
-    if (e.touches[0].clientY - touchStartY > 20) duck(true);
+    if (e.touches[0].clientY - touchStartY > 20) {
+      duck(true);
+      touchMoved = true;
+    }
   }, { passive: false });
   canvas.addEventListener('touchend', e => {
     e.preventDefault();
-    duck(false);
+    if (touchMoved) duck(false);
+    else            jump();
   }, { passive: false });
   // Left click = jump; right click held = duck.
   canvas.addEventListener('mousedown', e => {
