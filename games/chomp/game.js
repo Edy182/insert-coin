@@ -1215,6 +1215,29 @@
     e.preventDefault();
   }, { passive: false });
 
+  // Virtual D-pad (mobile only). Each button fires a discrete direction
+  // change — no swipe ambiguity. Coexists with the gesture-based control:
+  // both feed player.nextDir, whichever the user prefers.
+  const DPAD_MAP = {
+    up:    { dx: 0,  dy: -1 },
+    down:  { dx: 0,  dy:  1 },
+    left:  { dx: -1, dy:  0 },
+    right: { dx: 1,  dy:  0 },
+  };
+  document.querySelectorAll('#munch-dpad .dpad-btn').forEach(btn => {
+    const dir = DPAD_MAP[btn.dataset.dir];
+    if (!dir) return;
+    const fire = e => {
+      e.preventDefault();
+      if (!player) return;
+      player.nextDir = dir;
+      startGameFromTouch();
+      if (navigator.vibrate) navigator.vibrate(8);
+    };
+    btn.addEventListener('touchstart', fire, { passive: false });
+    btn.addEventListener('mousedown', fire);
+  });
+
   // Mouse: click starts the game, then movement continuously steers Clawd
   // toward the cursor (dominant axis wins, with a small dead zone).
   function mouseDirection(e) {

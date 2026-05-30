@@ -115,6 +115,44 @@ h1 {
   color: var(--cream);
 }
 
+/* === Virtual D-pad (mobile only) ======================================== */
+/* Hidden on desktop; shown on phones/touch devices below the canvas.
+   3×3 grid: up top-centre, left + right on the middle row, down bottom-
+   centre. Each button is 56px so it clears the 44pt touch-target rule. */
+#munch-dpad { display: none; }
+@media (max-width: 900px), (pointer: coarse) {
+  #munch-dpad.mobile-only {
+    display: grid;
+    grid-template-columns: repeat(3, 56px);
+    grid-template-rows: repeat(3, 56px);
+    gap: 0.4rem;
+    justify-content: center;
+    margin: 0.8rem auto 0;
+  }
+  #munch-dpad .dpad-btn {
+    background: rgba(217, 119, 87, 0.18);
+    color: var(--orange);
+    border: 2px solid var(--orange);
+    border-radius: 8px;
+    font-size: 1.6rem;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  #munch-dpad .dpad-btn:active {
+    background: var(--orange);
+    color: var(--navy);
+  }
+  #munch-dpad .dpad-up    { grid-column: 2; grid-row: 1; }
+  #munch-dpad .dpad-left  { grid-column: 1; grid-row: 2; }
+  #munch-dpad .dpad-right { grid-column: 3; grid-row: 2; }
+  #munch-dpad .dpad-down  { grid-column: 2; grid-row: 3; }
+}
+
 /* === Mobile (≤ 600px wide) ============================================== */
 /* Tighter spacing, bigger touch targets, cleaner header for portrait phones. */
 @media (max-width: 600px) {

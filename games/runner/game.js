@@ -976,21 +976,15 @@
   document.addEventListener('keyup', e => {
     if (e.code === 'ArrowDown') duck(false);
   });
-  // Touch model: tap ANYWHERE on the page = jump (gestural, document-wide).
-  // Swipe down anywhere = duck while held. The 1-frame requestAnimationFrame
-  // delay between touchstart and the actual jump() call gives us a window
-  // to detect a downward swipe and cancel the pending jump — but it's below
-  // human perception (~16ms), so taps feel instant.
+  // Touch model: pure Chrome-Dino approach — touchstart = jump IMMEDIATELY,
+  // zero delay. Swipe-down also triggers duck while held (the brief jump
+  // that fires first lands the dino back on the ground quickly, like
+  // Subway Surfers' "swipe down to slide" — accept it as a feature, not
+  // a bug). Document-wide so any tap on the page jumps.
   let touchStartY = 0;
   let touchMoved = false;
-  let jumpPending = false;
-  function fireJumpIfNoSwipe() {
-    jumpPending = false;
-    if (!touchMoved) jump();
-  }
   function ignoreTarget(target) {
     if (!target) return false;
-    // Don't hijack taps on links, buttons, or score elements.
     return !!target.closest('a, button, .game-header');
   }
   document.addEventListener('touchstart', e => {
@@ -998,15 +992,13 @@
     e.preventDefault();
     touchStartY = e.touches[0].clientY;
     touchMoved = false;
-    jumpPending = true;
-    requestAnimationFrame(fireJumpIfNoSwipe);
+    jump();  // instant, like Chrome's official implementation
   }, { passive: false });
   document.addEventListener('touchmove', e => {
     if (touchMoved || !e.touches.length) return;
     const dy = e.touches[0].clientY - touchStartY;
     if (dy > 12) {
       touchMoved = true;
-      jumpPending = false;  // cancel pending jump
       duck(true);
       e.preventDefault();
     }
