@@ -1161,27 +1161,41 @@
     }
   });
 
-  // Mobile touch: swipe to set direction
-  let touchStartX = 0, touchStartY = 0;
+  // Mobile touch: register direction on touchmove the moment the swipe
+  // crosses the threshold (no waiting for touchend). After registering,
+  // reset the origin so a long drag can chain multiple direction changes
+  // without lifting the finger — feels snappy and arcade-native.
+  let touchStartX = 0, touchStartY = 0, touchDirLocked = false;
+  const SWIPE_THRESHOLD = 18; // px — slightly tighter than 20 for responsiveness
+  function startGameFromTouch() {
+    if (gameStarted) return;
+    gameStarted = true; startMusic();
+    if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; }
+    if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'chomp', dailyMode: dailyMode, dateISO: todayISO });
+  }
   canvas.addEventListener('touchstart', e => {
     if (gameOver) { reset(); return; }
     if (e.touches.length > 0) {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
+      touchDirLocked = false;
     }
+    e.preventDefault();
   }, { passive: false });
-  canvas.addEventListener('touchend', e => {
-    if (e.changedTouches.length === 0) return;
-    const ddx = e.changedTouches[0].clientX - touchStartX;
-    const ddy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(ddx) < 20 && Math.abs(ddy) < 20) return;
+  canvas.addEventListener('touchmove', e => {
+    if (touchDirLocked || !e.touches.length || !player) return;
+    const ddx = e.touches[0].clientX - touchStartX;
+    const ddy = e.touches[0].clientY - touchStartY;
+    if (Math.abs(ddx) < SWIPE_THRESHOLD && Math.abs(ddy) < SWIPE_THRESHOLD) return;
     const queued = Math.abs(ddx) > Math.abs(ddy)
       ? { dx: ddx > 0 ? 1 : -1, dy: 0 }
       : { dx: 0, dy: ddy > 0 ? 1 : -1 };
-    if (player) {
-      player.nextDir = queued;
-      if (!gameStarted) { gameStarted = true; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'chomp', dailyMode: dailyMode, dateISO: todayISO }); }
-    }
+    player.nextDir = queued;
+    startGameFromTouch();
+    if (navigator.vibrate) navigator.vibrate(8);
+    // Reset origin so the next swipe in the same touch starts fresh.
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
     e.preventDefault();
   }, { passive: false });
 

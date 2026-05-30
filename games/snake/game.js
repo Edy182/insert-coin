@@ -626,25 +626,37 @@
     }
   });
 
-  // Mobile touch: swipe to set direction
-  let touchStartX = 0, touchStartY = 0;
+  // Mobile touch: fire on touchmove the moment the swipe crosses threshold
+  // so direction registers without waiting for the finger lift. After each
+  // change, origin resets so a single touch can chain turns.
+  let touchStartX = 0, touchStartY = 0, touchDirLocked = false;
+  const SWIPE_THRESHOLD = 18;
   canvas.addEventListener('touchstart', e => {
     if (gameOver) { reset(); return; }
     if (e.touches.length > 0) {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
+      touchDirLocked = false;
     }
+    e.preventDefault();
   }, { passive: false });
-  canvas.addEventListener('touchend', e => {
-    if (e.changedTouches.length === 0) return;
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
+  canvas.addEventListener('touchmove', e => {
+    if (touchDirLocked || !e.touches.length) return;
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return;
     const queued = Math.abs(dx) > Math.abs(dy)
       ? { dc: dx > 0 ? 1 : -1, dr: 0 }
       : { dc: 0, dr: dy > 0 ? 1 : -1 };
     nextDir = queued;
-    if (!gameStarted) { gameStarted = true; dir = queued; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'snake', dailyMode: dailyMode, dateISO: todayISO }); }
+    if (!gameStarted) {
+      gameStarted = true; dir = queued; startMusic();
+      if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; }
+      if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'snake', dailyMode: dailyMode, dateISO: todayISO });
+    }
+    if (navigator.vibrate) navigator.vibrate(8);
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
     e.preventDefault();
   }, { passive: false });
 
