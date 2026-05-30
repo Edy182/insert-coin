@@ -73,8 +73,8 @@
 
   // === Constants ===
   const GROUND_Y       = H - 40;
-  const GRAVITY        = 0.5;
-  const JUMP_VELOCITY  = -13.5;
+  const GRAVITY        = 0.6;
+  const JUMP_VELOCITY  = -12;
   const INITIAL_SPEED  = 5;
   const SPAWN_MIN_GAP  = 80;
   const NIGHT_DURATION = 700;
@@ -137,17 +137,23 @@
 
   function jump() {
     if (gameOver) return reset();
-    if (!gameStarted) {
-      gameStarted = true;
-      startMusic();
-      if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; }
-      if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'runner', dailyMode: dailyMode, dateISO: todayISO });
-    }
+    // Trigger the visual jump FIRST — single line state change, fires in
+    // the same tick as the touchstart handler. Everything else (audio,
+    // analytics, localStorage) is deferred to the next macrotask so it
+    // can't block the first jump's perceived latency.
     if (player.grounded) {
       player.vy = JUMP_VELOCITY;
       player.grounded = false;
       player.ducking  = false;
       playSound('jump');
+    }
+    if (!gameStarted) {
+      gameStarted = true;
+      setTimeout(() => {
+        startMusic();
+        if (isFirstPlay) { try { localStorage.setItem(ONBOARDED_KEY, '1'); } catch (_) {} isFirstPlay = false; }
+        if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'runner', dailyMode: dailyMode, dateISO: todayISO });
+      }, 0);
     }
   }
 
