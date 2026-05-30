@@ -19,10 +19,11 @@ package.json
 package-lock.json
 .gitignore
 
-# Working / reference assets (keep assets/clawd-stats.js, music-player.js
-# and assets/sounds/*.mp3 — those ship)
+# Working / reference assets (keep assets/clawd-stats.js, music-player.js,
+# assets/sounds/*.mp3, and assets/*.png — those ship)
 assets/sprites
 assets/ui
-assets/*.png
+# Avatar is for X/Discord profile pic uploads — not used by the site itself
+assets/avatar-insertcoin.png
 *.psd
 *.aseprite
