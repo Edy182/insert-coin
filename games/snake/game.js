@@ -95,6 +95,16 @@
   const ONBOARDED_KEY = 'clawd-onboarded-snake';
   let isFirstPlay = !localStorage.getItem(ONBOARDED_KEY);
 
+  // Darken any #rrggbb colour by `amount` (0..1) so outlines / ribbon
+  // shadow remain in-palette without hardcoding a separate hex.
+  function darken(hex, amount) {
+    const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
+    if (!m) return hex;
+    const mix = c => Math.max(0, Math.min(255, Math.round(parseInt(c, 16) * (1 - amount))));
+    const to2 = n => n.toString(16).padStart(2, '0');
+    return '#' + to2(mix(m[1])) + to2(mix(m[2])) + to2(mix(m[3]));
+  }
+
   // === Clawd head sprite (pre-rendered for crisp scaling) ===
   let clawdSprite = null;
   let clawdSpriteKey = null;
@@ -300,20 +310,33 @@
 
   // === Draw ===
   function draw() {
-    // Pure black canvas — Claude Radio aesthetic. No checker noise.
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, W, H);
 
-    // Food
     drawFood(food.c, food.r);
 
-    // Body segments (tail first so head ends up on top of overlaps).
-    // Each segment is an orange dot that tapers smaller toward the tail tip.
+    // Connecting ribbon — a thick darker-orange line through every segment
+    // center, drawn UNDER the body circles. Gives the snake a single
+    // continuous silhouette instead of detached beads. The body bolitas
+    // sit on top and read as visible segments.
+    if (snake.length > 1) {
+      const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
+      ctx.strokeStyle = darken(O, 0.15);
+      ctx.lineWidth = TILE - 12;  // 12 px ribbon under 16 px bolitas
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(snake[0].c * TILE + TILE / 2, snake[0].r * TILE + TILE / 2);
+      for (let i = 1; i < snake.length; i++) {
+        ctx.lineTo(snake[i].c * TILE + TILE / 2, snake[i].r * TILE + TILE / 2);
+      }
+      ctx.stroke();
+    }
+
     for (let i = snake.length - 1; i > 0; i--) {
       drawBody(snake[i].c, snake[i].r, i, snake.length);
     }
 
-    // Head: Clawd
     drawClawdHead(snake[0].c, snake[0].r);
 
     // Crown shield activated — brief cream pulse so it reads.
@@ -424,55 +447,97 @@
   function drawBody(c, r, idx, total) {
     const x = c * TILE;
     const y = r * TILE;
-    ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
+    const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const t = total > 1 ? idx / total : 0;
-    // Smaller max size so adjacent body circles don't merge into a sausage —
-    // visible gaps between bolitas make the segments read distinctly.
-    const maxSize = TILE - 8;     // 16 px on a 24 tile (was TILE-2 = 22 px)
-    const minSize = 6;
+    const maxSize = TILE - 6;     // 18 px so bolitas sit on top of the 12 px ribbon
+    const minSize = 8;
     const size = maxSize - t * (maxSize - minSize);
     const cx = x + TILE / 2;
     const cy = y + TILE / 2;
+    // Filled body
+    ctx.fillStyle = O;
     ctx.beginPath();
     ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
     ctx.fill();
+    // Darker outline for definition at small tile sizes
+    ctx.strokeStyle = darken(O, 0.25);
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
   }
 
-  // Snake head — same rounded segment as the body (matches the spiral icon
-  // on the landing) plus two small eye dots placed on the leading edge per
-  // direction. No more crab sprite — reads as snake at a glance.
+  // Snake head — bigger orange circle with outline, large eyes (sclera +
+  // pupil) on the leading edge per direction, plus a small forked tongue
+  // flicking out the front. Industry-grade upgrade from the old eye-dots
+  // version: bigger personality + clearer silhouette at 24 px tile size.
   function drawClawdHead(c, r) {
     const x = c * TILE;
     const y = r * TILE;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
-    // Head: same round shape as body for consistent snake silhouette.
-    const headSize = TILE - 2;
+    const headSize = TILE - 1;  // 23 px — bigger than body for prominence
     const cx = x + TILE / 2, cy = y + TILE / 2;
+
+    // Tongue first (under the head) — forked dark-red tip protruding
+    // from the front of the head in the current direction. Subtle
+    // flick animation tied to frame counter.
+    if (!gameOver && gameStarted) {
+      const flicking = (frame % 60) < 18; // ~30% of the time
+      if (flicking) {
+        ctx.fillStyle = '#c44d3a';
+        const tx = cx + dir.dc * (TILE * 0.55);
+        const ty = cy + dir.dr * (TILE * 0.55);
+        const px = dir.dr, py = dir.dc; // perpendicular for the fork
+        ctx.beginPath();
+        ctx.moveTo(cx + dir.dc * (TILE * 0.4), cy + dir.dr * (TILE * 0.4));
+        ctx.lineTo(tx + px * 2, ty + py * 2);
+        ctx.lineTo(tx - px * 2, ty - py * 2);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    // Filled head with outline
     ctx.fillStyle = O;
     ctx.beginPath();
     ctx.arc(cx, cy, headSize / 2, 0, Math.PI * 2);
     ctx.fill();
+    ctx.strokeStyle = darken(O, 0.3);
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
 
     if (gameOver) {
-      // KO chevrons centred on the head, facing each other.
       drawXEyeMark(x + TILE * 0.35, y + TILE * 0.5, true);
       drawXEyeMark(x + TILE * 0.65, y + TILE * 0.5, false);
     } else {
-      // Two eye dots positioned along the leading edge for the current
-      // direction. dc/dr point to where the snake is going.
-      const cx = x + TILE / 2, cy = y + TILE / 2;
-      const lead = TILE * 0.28; // distance from centre toward the front edge
-      const spread = TILE * 0.20; // gap between the two eyes
-      // Perpendicular axis for spreading the pair.
-      const perpX = dir.dr;  // if moving up/down, eyes spread horizontally
-      const perpY = dir.dc;  // if moving left/right, eyes spread vertically
-      const eyeR = 2;
-      ctx.fillStyle = B;
+      // Proper eyes: white sclera + dark pupil. Positioned on the leading
+      // edge per direction. The pupil leans further forward for that "I'm
+      // looking where I'm going" look.
+      const lead = TILE * 0.22;
+      const spread = TILE * 0.22;
+      const perpX = dir.dr, perpY = dir.dc;
+      const scleraR = 3.5;
+      const pupilR = 2;
+      // Blink every ~3 seconds (180 frames at 60 fps)
+      const blinking = (frame % 180) < 6;
       [ -1, 1 ].forEach(sign => {
         const ex = cx + dir.dc * lead + perpX * spread * sign;
         const ey = cy + dir.dr * lead + perpY * spread * sign;
-        ctx.fillRect(Math.round(ex - eyeR), Math.round(ey - eyeR), eyeR * 2, eyeR * 2);
+        if (blinking) {
+          // Closed eye = thin dark line
+          ctx.fillStyle = B;
+          ctx.fillRect(Math.round(ex - scleraR), Math.round(ey - 0.5), scleraR * 2, 1.5);
+        } else {
+          // White sclera
+          ctx.fillStyle = '#faf9f5';
+          ctx.beginPath();
+          ctx.arc(ex, ey, scleraR, 0, Math.PI * 2);
+          ctx.fill();
+          // Dark pupil, leaning slightly forward in the direction of travel
+          ctx.fillStyle = B;
+          ctx.beginPath();
+          ctx.arc(ex + dir.dc * 0.8, ey + dir.dr * 0.8, pupilR, 0, Math.PI * 2);
+          ctx.fill();
+        }
       });
     }
 
