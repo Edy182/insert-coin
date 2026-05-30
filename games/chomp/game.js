@@ -467,7 +467,11 @@
     // frames before exact center. Classic Pac-Man corner cutting. The snap
     // below is gated on dir-actually-changes to avoid an every-frame snap
     // loop while moving in a straight line.
-    const TURN_WINDOW = SPEED * 3;  // 9 px — extremely permissive turn detection
+    // Max safe turn window: nearly half a tile so the queued direction
+    // can register from almost anywhere in the tile, classic Pac-Man
+    // corner-cutting at its most generous. dirChanging guard below stops
+    // the every-frame snap that would otherwise happen.
+    const TURN_WINDOW = TILE / 2 - 1;  // 11 px on a 24 tile
     const atCenter = Math.abs(player.x - centerX) < TURN_WINDOW &&
                      Math.abs(player.y - centerY) < TURN_WINDOW;
 

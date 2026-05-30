@@ -426,8 +426,10 @@
     const y = r * TILE;
     ctx.fillStyle = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const t = total > 1 ? idx / total : 0;
-    const maxSize = TILE - 2;
-    const minSize = 7;
+    // Smaller max size so adjacent body circles don't merge into a sausage —
+    // visible gaps between bolitas make the segments read distinctly.
+    const maxSize = TILE - 8;     // 16 px on a 24 tile (was TILE-2 = 22 px)
+    const minSize = 6;
     const size = maxSize - t * (maxSize - minSize);
     const cx = x + TILE / 2;
     const cy = y + TILE / 2;
