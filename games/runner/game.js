@@ -978,28 +978,24 @@
   document.addEventListener('keyup', e => {
     if (e.code === 'ArrowDown') duck(false);
   });
-  // Touch model: position-zone based. Tap upper 50% = jump (instant).
-  // Tap lower 50% = duck (held). 50/50 split is generous enough on the
-  // letterboxed mobile canvas that thumb taps land in the intended zone
-  // reliably. Zero latency, zero swipe-detection ambiguity.
-  let isDucking = false;
+  // Touch model: canvas tap = jump always (instant, zero ambiguity).
+  // Duck is on a separate on-screen button below the canvas, mobile-only.
+  // Two distinct controls > one ambiguous gesture trying to do both.
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const relY = (e.touches[0].clientY - rect.top) / rect.height;
-    if (relY > 0.5) {
-      duck(true);
-      isDucking = true;
-    } else {
-      jump();
-      isDucking = false;
-    }
+    jump();
   }, { passive: false });
-  canvas.addEventListener('touchend', e => {
-    e.preventDefault();
-    if (isDucking) duck(false);
-    isDucking = false;
-  }, { passive: false });
+  // Dedicated mobile duck button (HTML below the canvas, hidden on desktop)
+  const duckBtn = document.getElementById('duck-btn');
+  if (duckBtn) {
+    duckBtn.addEventListener('touchstart', e => { e.preventDefault(); duck(true); }, { passive: false });
+    duckBtn.addEventListener('touchend',   e => { e.preventDefault(); duck(false); }, { passive: false });
+    duckBtn.addEventListener('touchcancel',e => { e.preventDefault(); duck(false); }, { passive: false });
+    // Also support mouse for hybrid devices.
+    duckBtn.addEventListener('mousedown',  () => duck(true));
+    duckBtn.addEventListener('mouseup',    () => duck(false));
+    duckBtn.addEventListener('mouseleave', () => duck(false));
+  }
   // Left click = jump; right click held = duck.
   canvas.addEventListener('mousedown', e => {
     if (e.button === 0) jump();

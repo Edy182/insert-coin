@@ -164,3 +164,30 @@ h1 {
   }
 }
 .rotate-hint { display: none; }
+
+/* Mobile-only Duck button — hidden on desktop, big thumb-friendly target
+   on phones. Canvas handles jump (any tap); duck is its own control. */
+#duck-btn.mobile-only { display: none; }
+@media (max-width: 900px), (pointer: coarse) {
+  #duck-btn.mobile-only {
+    display: block;
+    width: 100%;
+    margin-top: 0.6rem;
+    padding: 1rem;
+    min-height: 56px;
+    background: rgba(217, 119, 87, 0.18);
+    color: var(--orange);
+    border: 2px solid var(--orange);
+    border-radius: 8px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  #duck-btn.mobile-only:active {
+    background: var(--orange);
+    color: var(--navy);
+  }
+}

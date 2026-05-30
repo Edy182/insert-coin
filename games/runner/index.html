@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Insert Coin — Dino</title>
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -24,9 +24,10 @@
 
     <p class="rotate-hint">📱 Best in landscape — rotate your phone</p>
     <canvas id="game" width="800" height="300"></canvas>
+    <button id="duck-btn" class="mobile-only" type="button">↓ HOLD TO DUCK</button>
 
     <div class="controls">
-      <p>TAP / SPACE / ↑ to jump &nbsp;·&nbsp; SWIPE DOWN / ↓ to duck</p>
+      <p>TAP / SPACE / ↑ to jump &nbsp;·&nbsp; HOLD ↓ / ↓ key to duck</p>
       <button id="restart" class="hidden">RESTART</button>
       <button id="share" class="hidden">📋 COPY SHARE</button>
       <button id="daily">📅 DAILY</button>
@@ -43,6 +44,6 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <script src="../../assets/clawd-stats.js?v=37"></script>
   <script src="../../assets/music-player.js?v=10"></script>
-  <script src="game.js?v=97"></script>
+  <script src="game.js?v=98"></script>
 </body>
 </html>
