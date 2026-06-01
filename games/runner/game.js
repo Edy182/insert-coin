@@ -79,7 +79,7 @@
   // stays roughly constant at any speed — slow game = long arc, fast game
   // = quick snap. Solves "jumps not fast enough at high speed."
   const BASE_GRAVITY   = 0.45;
-  const JUMP_VELOCITY  = -14;
+  const JUMP_VELOCITY  = -11;
   const INITIAL_SPEED  = 5;
   const MAX_SPEED      = 11;  // cap so the game stays winnable at high scores
   const SPAWN_MIN_GAP  = 80;
