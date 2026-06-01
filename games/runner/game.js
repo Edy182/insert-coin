@@ -73,10 +73,12 @@
 
   // === Constants ===
   const GROUND_Y       = H - 40;
-  // Jump tuned for length: lower gravity + same launch velocity gives the
-  // dino a longer airtime AND slightly higher peak — covers more horizontal
-  // distance per jump, easier to clear back-to-back obstacles at high speed.
-  const GRAVITY        = 0.6;
+  // Gravity SCALES with game speed: at INITIAL_SPEED the jump is long and
+  // floaty (base gravity 0.6); as speed climbs the gravity scales up so
+  // airtime shortens proportionally. Result: horizontal distance per jump
+  // stays roughly constant at any speed — slow game = long arc, fast game
+  // = quick snap. Solves "jumps not fast enough at high speed."
+  const BASE_GRAVITY   = 0.6;
   const JUMP_VELOCITY  = -14;
   const INITIAL_SPEED  = 5;
   const MAX_SPEED      = 11;  // cap so the game stays winnable at high scores
@@ -213,8 +215,9 @@
     // Duck state drives player height
     player.h = player.ducking ? 16 : 36;
 
-    // Physics
-    player.vy += GRAVITY;
+    // Physics — gravity scales with game speed so airtime shortens as the
+    // game speeds up (jump distance ≈ constant, but execution faster).
+    player.vy += BASE_GRAVITY * (gameSpeed / INITIAL_SPEED);
     player.y  += player.vy;
     if (player.y >= GROUND_Y - player.h) {
       player.y       = GROUND_Y - player.h;
