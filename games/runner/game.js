@@ -79,7 +79,7 @@
   // stays roughly constant at any speed — slow game = long arc, fast game
   // = quick snap. Solves "jumps not fast enough at high speed."
   const BASE_GRAVITY   = 0.45;
-  const JUMP_VELOCITY  = -11;
+  const JUMP_VELOCITY  = -12.5;
   const INITIAL_SPEED  = 5;
   const MAX_SPEED      = 11;  // cap so the game stays winnable at high scores
   const SPAWN_MIN_GAP  = 80;
@@ -990,12 +990,8 @@
     if (e.code === 'ArrowDown') duck(false);
   });
   // Touch model: pure Chrome-Dino approach — touchstart = jump IMMEDIATELY,
-  // zero delay. Swipe-down also triggers duck while held (the brief jump
-  // that fires first lands the dino back on the ground quickly, like
-  // Subway Surfers' "swipe down to slide" — accept it as a feature, not
-  // a bug). Document-wide so any tap on the page jumps.
-  let touchStartY = 0;
-  let touchMoved = false;
+  // Mobile: tap = jump, NO duck. Chrome's official T-Rex doesn't have
+  // touch-duck either — only desktop keyboard players can duck via ArrowDown.
   function ignoreTarget(target) {
     if (!target) return false;
     return !!target.closest('a, button, .game-header');
@@ -1003,23 +999,8 @@
   document.addEventListener('touchstart', e => {
     if (ignoreTarget(e.target)) return;
     e.preventDefault();
-    touchStartY = e.touches[0].clientY;
-    touchMoved = false;
-    jump();  // instant, like Chrome's official implementation
+    jump();
   }, { passive: false });
-  document.addEventListener('touchmove', e => {
-    if (touchMoved || !e.touches.length) return;
-    const dy = e.touches[0].clientY - touchStartY;
-    if (dy > 12) {
-      touchMoved = true;
-      duck(true);
-      e.preventDefault();
-    }
-  }, { passive: false });
-  document.addEventListener('touchend', e => {
-    if (touchMoved) duck(false);
-    touchMoved = false;
-  });
   // Left click = jump; right click held = duck.
   canvas.addEventListener('mousedown', e => {
     if (e.button === 0) jump();
