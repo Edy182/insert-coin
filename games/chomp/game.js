@@ -1185,7 +1185,7 @@
   // measures from there, not from the original touchstart. Users can
   // chain U-turns and right-angle turns naturally without lifting.
   let touchStartX = 0, touchStartY = 0;
-  const SWIPE_THRESHOLD = 12; // px — clear swipe intent, low false-positive
+  const SWIPE_THRESHOLD = 8;  // px — lower than the classic 12 so even small finger movements register turns, helps players hit narrow alleys
   function startGameFromTouch() {
     if (gameStarted) return;
     gameStarted = true; startMusic();

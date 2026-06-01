@@ -73,10 +73,10 @@
 
   // === Constants ===
   const GROUND_Y       = H - 40;
-  // Snappier jump (was 0.58 / -12.5): faster rise + faster fall so the dino
-  // can clear obstacles even at high game speed. Same peak height (~135 px),
-  // shorter airtime (~35 ticks vs 43).
-  const GRAVITY        = 0.72;
+  // Jump tuned for length: lower gravity + same launch velocity gives the
+  // dino a longer airtime AND slightly higher peak — covers more horizontal
+  // distance per jump, easier to clear back-to-back obstacles at high speed.
+  const GRAVITY        = 0.6;
   const JUMP_VELOCITY  = -14;
   const INITIAL_SPEED  = 5;
   const MAX_SPEED      = 11;  // cap so the game stays winnable at high scores
