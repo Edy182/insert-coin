@@ -73,9 +73,13 @@
 
   // === Constants ===
   const GROUND_Y       = H - 40;
-  const GRAVITY        = 0.58;
-  const JUMP_VELOCITY  = -12.5;
+  // Snappier jump (was 0.58 / -12.5): faster rise + faster fall so the dino
+  // can clear obstacles even at high game speed. Same peak height (~135 px),
+  // shorter airtime (~35 ticks vs 43).
+  const GRAVITY        = 0.72;
+  const JUMP_VELOCITY  = -14;
   const INITIAL_SPEED  = 5;
+  const MAX_SPEED      = 11;  // cap so the game stays winnable at high scores
   const SPAWN_MIN_GAP  = 80;
   const NIGHT_DURATION = 700;
 
@@ -322,9 +326,9 @@
     }
     scoreEl.textContent = String(score).padStart(5, '0');
 
-    // Speed up every 300 pts
-    if (score > 0 && score % 300 === 0 && scoreFrame % 3 === 0) {
-      gameSpeed += 0.3;
+    // Speed up every 300 pts — capped so the game stays winnable.
+    if (score > 0 && score % 300 === 0 && scoreFrame % 3 === 0 && gameSpeed < MAX_SPEED) {
+      gameSpeed = Math.min(MAX_SPEED, gameSpeed + 0.3);
       playSound('milestone');
     }
     // Endless runners need celebration moments. Every 1000 pts = confetti burst.

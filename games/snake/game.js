@@ -378,7 +378,7 @@
       ctx.fillText('READY!', W / 2, H / 2 + 40);
       ctx.fillStyle = '#faf9f5';
       ctx.font = '12px "VT323", monospace';
-      ctx.fillText('Press ARROW to start', W / 2, H / 2 + 64);
+      ctx.fillText('Press SPACE or tap to start', W / 2, H / 2 + 64);
       if (isFirstPlay) {
         ctx.fillStyle = '#faf9f5';
         ctx.font = '12px "VT323", monospace';
@@ -599,6 +599,22 @@
   }
 
   // === Input ===
+  // Start the game with `queued` as initial direction, unless it would be an
+  // instant reverse of the snake's resting orientation (which would cause an
+  // immediate self-collision on tick 1 — the "stack overflow at first touch"
+  // bug). When queued is null or reverse, start with the default `dir`
+  // (right) so any key/tap can launch the game safely.
+  function startGameWith(queued) {
+    if (queued) {
+      const reverse = queued.dc === -dir.dc && queued.dr === -dir.dr;
+      if (!reverse) { dir = queued; nextDir = queued; }
+    }
+    gameStarted = true;
+    startMusic();
+    if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; }
+    if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'snake', dailyMode: dailyMode, dateISO: todayISO });
+  }
+
   document.addEventListener('keydown', e => {
     if (gameOver && (e.code === 'Space' || e.code === 'Enter')) {
       e.preventDefault();
@@ -618,9 +634,15 @@
     else if (e.code === 'ArrowDown'  || e.code === 'KeyS') queued = { dc:  0, dr:  1 };
     else if (e.code === 'ArrowLeft'  || e.code === 'KeyA') queued = { dc: -1, dr:  0 };
     else if (e.code === 'ArrowRight' || e.code === 'KeyD') queued = { dc:  1, dr:  0 };
+    // Space / Enter at the READY screen → start with default direction.
+    if (!gameStarted && !queued && (e.code === 'Space' || e.code === 'Enter')) {
+      e.preventDefault();
+      startGameWith(null);
+      return;
+    }
     if (queued) {
-      nextDir = queued;
-      if (!gameStarted) { gameStarted = true; dir = queued; startMusic(); if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; } if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'snake', dailyMode: dailyMode, dateISO: todayISO }); }
+      if (!gameStarted) startGameWith(queued);
+      else nextDir = queued;
       e.preventDefault();
     }
   });
@@ -637,6 +659,9 @@
       touchStartY = e.touches[0].clientY;
       touchDirLocked = false;
     }
+    // Tap-to-start: if the user just taps without swiping, still launch the
+    // game with the default direction (right). The touchend handler below
+    // catches the no-swipe case.
     e.preventDefault();
   }, { passive: false });
   canvas.addEventListener('touchmove', e => {
@@ -647,17 +672,17 @@
     const queued = Math.abs(dx) > Math.abs(dy)
       ? { dc: dx > 0 ? 1 : -1, dr: 0 }
       : { dc: 0, dr: dy > 0 ? 1 : -1 };
-    nextDir = queued;
-    if (!gameStarted) {
-      gameStarted = true; dir = queued; startMusic();
-      if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; }
-      if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'snake', dailyMode: dailyMode, dateISO: todayISO });
-    }
+    if (!gameStarted) startGameWith(queued);
+    else nextDir = queued;
     if (navigator.vibrate) navigator.vibrate(8);
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
     e.preventDefault();
   }, { passive: false });
+  // Tap (no swipe) on the READY screen → launch with default direction.
+  canvas.addEventListener('touchend', () => {
+    if (!gameStarted && !gameOver) startGameWith(null);
+  });
 
   // Mouse: click starts the game, mousemove continuously steers the snake.
   function mouseDir(e) {
@@ -677,13 +702,8 @@
   canvas.addEventListener('click', e => {
     if (gameOver) { reset(); return; }
     const queued = mouseDir(e);
-    if (!queued) return;
-    nextDir = queued;
-    if (!gameStarted) {
-      gameStarted = true; dir = queued; startMusic();
-      if (isFirstPlay) { localStorage.setItem(ONBOARDED_KEY, '1'); isFirstPlay = false; }
-      if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'snake', dailyMode: dailyMode, dateISO: todayISO });
-    }
+    if (!gameStarted) { startGameWith(queued); return; }
+    if (queued) nextDir = queued;
   });
   canvas.addEventListener('mousemove', e => {
     if (!gameStarted || gameOver) return;
