@@ -428,34 +428,28 @@
   // Body segment — a centred circle ("bolita") that tapers smaller toward
   // the tail. Round segments read as a serpentine snake silhouette closer
   // to the spiral icon on the landing.
-  // Body segment — solid pixel square, classic Nokia/arcade aesthetic.
-  // Tapers from 22 px at the head to 14 px at the tail tip. Matches the
-  // chunky-pixel look of Dino and Munch.
+  // Body segment — pure Nokia style: every segment is a uniform full-tile
+  // block, no tapering, no gap. Adjacent segments touch edge-to-edge so the
+  // snake reads as one continuous worm-line rather than a chain of separate
+  // squares.
   function drawBody(c, r, idx, total) {
     const x = c * TILE;
     const y = r * TILE;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
-    const t = total > 1 ? idx / total : 0;
-    const maxSize = TILE - 2;     // 22 px just behind the head
-    const minSize = 12;            // 12 px tail tip
-    const size = Math.round(maxSize - t * (maxSize - minSize));
-    const off = Math.round((TILE - size) / 2);
+    // Pure Nokia 3310 Snake II: every segment is one solid filled tile,
+    // no inset, no gap. Adjacent segments touch edge-to-edge automatically.
     ctx.fillStyle = O;
-    ctx.fillRect(x + off, y + off, size, size);
+    ctx.fillRect(x, y, TILE, TILE);
   }
 
-  // Snake head — solid pixel square (TILE-2 = 22 px) with two dark eye
-  // pixels positioned on the leading edge per direction. Retro arcade
-  // aesthetic matching Dino's Clawd sprite and Munch's chunky pieces.
+  // Snake head — same full-tile Nokia block as the body, plus eye pixels.
   function drawClawdHead(c, r) {
     const x = c * TILE;
     const y = r * TILE;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
-    const headSize = TILE - 2;
-    const off = (TILE - headSize) / 2;
     ctx.fillStyle = O;
-    ctx.fillRect(x + off, y + off, headSize, headSize);
+    ctx.fillRect(x, y, TILE, TILE);
 
     if (gameOver) {
       drawXEyeMark(x + TILE * 0.35, y + TILE * 0.5, true);
