@@ -2,7 +2,7 @@
 
 A weekend project: three pixel-art arcade classics starring Clawd, the tiny crab on the Claude Code welcome screen. No install, five-minute breaks for devs.
 
-**Live site:** https://insert-coin-sigma-sand.vercel.app
+**Live site:** https://insertcoin.run
 **Terminal launcher:** `npx insert-coin-arcade`
 **Claude Code slash command:** `/play` (copy `claude-commands/play.md` to `~/.claude/commands/`)
 
