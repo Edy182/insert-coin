@@ -1,8 +1,8 @@
 # insert-coin-arcade
 
-Launch the [Insert Coin](https://insert-coin-sigma-sand.vercel.app) browser arcade from your terminal.
+Launch the [Insert Coin](https://insertcoin.run) browser arcade from your terminal.
 
-Three pixel games starring Clawd, a friendly pixel-art crab:
+Three retro pixel games:
 
 - **Dino** — endless runner
 - **Munch** — maze chase
@@ -37,4 +37,4 @@ The games live on the web so the CLI is a launcher, not a runtime. The goal is o
 
 ## Disclaimer
 
-Independent fan project. Not affiliated with or endorsed by Anthropic. Clawd is a friendly pixel-art crab drawn for this project. MIT licensed.
+Independent fan project. Not affiliated with or endorsed by Anthropic. MIT licensed.
