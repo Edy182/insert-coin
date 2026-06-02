@@ -428,34 +428,65 @@
   // Body segment — a centred circle ("bolita") that tapers smaller toward
   // the tail. Round segments read as a serpentine snake silhouette closer
   // to the spiral icon on the landing.
-  // Body segment — pure Nokia style: every segment is a uniform full-tile
-  // block, no tapering, no gap. Adjacent segments touch edge-to-edge so the
-  // snake reads as one continuous worm-line rather than a chain of separate
-  // squares.
+  // Body segment — Google-Snake-style rounded square with a lighter inner
+  // highlight. Rounded corners only show at the snake's outer turns; straight
+  // runs still read as a connected body because adjacent flat edges meet.
+  const SEG_INSET   = 1;
+  const SEG_RADIUS  = 4;
+  const HIGHLIGHT_S = 8;
+  function drawRounded(x, y, w, h, r) {
+    if (typeof ctx.roundRect === 'function') {
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, r);
+      ctx.fill();
+      return;
+    }
+    // Fallback for older browsers
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y,     x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x,     y + h, r);
+    ctx.arcTo(x,     y + h, x,     y,     r);
+    ctx.arcTo(x,     y,     x + w, y,     r);
+    ctx.closePath();
+    ctx.fill();
+  }
+
   function drawBody(c, r, idx, total) {
     const x = c * TILE;
     const y = r * TILE;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
-    // Pure Nokia 3310 Snake II: every segment is one solid filled tile,
-    // no inset, no gap. Adjacent segments touch edge-to-edge automatically.
+    const HL = '#e89478';   // ~12 % lighter than #d97757
+    // Base rounded square, 1 px inset
     ctx.fillStyle = O;
-    ctx.fillRect(x, y, TILE, TILE);
+    drawRounded(x + SEG_INSET, y + SEG_INSET, TILE - SEG_INSET * 2, TILE - SEG_INSET * 2, SEG_RADIUS);
+    // Inner highlight: 8x8 lighter square offset (4, 4)
+    ctx.fillStyle = HL;
+    ctx.fillRect(x + 4, y + 4, HIGHLIGHT_S, HIGHLIGHT_S);
   }
 
-  // Snake head — same full-tile Nokia block as the body, plus eye pixels.
   function drawClawdHead(c, r) {
     const x = c * TILE;
     const y = r * TILE;
     const O = (window.ClawdStats && window.ClawdStats.getActiveSkinColor()) || '#d97757';
     const B = (window.ClawdStats && window.ClawdStats.getActiveEyeColor()) || '#141413';
+    const HL = '#e89478';
+    // Same rounded base as body
     ctx.fillStyle = O;
-    ctx.fillRect(x, y, TILE, TILE);
+    drawRounded(x + SEG_INSET, y + SEG_INSET, TILE - SEG_INSET * 2, TILE - SEG_INSET * 2, SEG_RADIUS);
+    // Brow stripe — 5 px lighter band on the leading edge (head's "forehead")
+    ctx.fillStyle = HL;
+    const browW = 5, browLen = TILE - 8;
+    if (dir.dc > 0)      ctx.fillRect(x + TILE - 4 - browW, y + 4, browW, browLen);
+    else if (dir.dc < 0) ctx.fillRect(x + 4,                y + 4, browW, browLen);
+    else if (dir.dr > 0) ctx.fillRect(x + 4, y + TILE - 4 - browW, browLen, browW);
+    else                 ctx.fillRect(x + 4, y + 4,                browLen, browW);
 
     if (gameOver) {
       drawXEyeMark(x + TILE * 0.35, y + TILE * 0.5, true);
       drawXEyeMark(x + TILE * 0.65, y + TILE * 0.5, false);
     } else {
-      // Eyes: two solid dark pixels (4×4) on the leading edge per direction.
+      // Eyes: two solid dark pixels (4×4) sitting on the brow stripe.
       const cx = x + TILE / 2, cy = y + TILE / 2;
       const lead = TILE * 0.25;
       const spread = TILE * 0.22;
