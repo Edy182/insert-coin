@@ -17,6 +17,7 @@
   const shareBtn    = document.getElementById('share');
   const dailyBtn    = document.getElementById('daily');
   const muteBtn     = document.getElementById('mute');
+  const pauseBtn    = document.getElementById('pause');
 
   // Daily seed (mulberry32, public domain)
   const todayISO = new Date().toISOString().slice(0, 10);
@@ -101,6 +102,7 @@
   let comboFlash = 0;    // frames of cream border pulse on combo trigger
   let leaderboardResult = null; // { rank, list } from Worker after submit
   let nightMode, nightTimer, stars, lastNightScore;
+  let paused = false;
   let frameCount;
   let gameStarted;
   let uap; // rare UAP saucer easter egg (cosmetic background flyby)
@@ -891,6 +893,7 @@
   let _timeAccum = 0;
 
   function loop(now) {
+    if (paused) return; // freeze: last frame stays on canvas until resume
     if (typeof now !== 'number') now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
     if (_lastFrameTime === null) {
       _lastFrameTime = now;
@@ -975,7 +978,15 @@
   }
 
   // === Input ===
+  function togglePause() {
+    if (gameOver || !gameStarted) return;
+    paused = !paused;
+    pauseBtn.textContent = paused ? '▶ RESUME' : '⏸ PAUSE';
+    if (!paused) { _lastFrameTime = null; requestAnimationFrame(loop); }
+  }
   document.addEventListener('keydown', e => {
+    if (e.code === 'KeyP') { e.preventDefault(); togglePause(); return; }
+    if (paused) return;
     if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); jump(); }
     if (e.code === 'ArrowDown') { e.preventDefault(); duck(true); }
     if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
@@ -1013,6 +1024,7 @@
   canvas.addEventListener('contextmenu', e => e.preventDefault());
 
   restartBtn.addEventListener('click', reset);
+  if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
   function renderMuteBtn() { muteBtn.textContent = music.isMuted() ? '🔇 MUSIC' : '🔊 MUSIC'; }
   renderMuteBtn();
   muteBtn.addEventListener('click', () => {

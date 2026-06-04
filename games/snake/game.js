@@ -17,6 +17,7 @@
   const shareBtn    = document.getElementById('share');
   const dailyBtn    = document.getElementById('daily');
   const muteBtn     = document.getElementById('mute');
+  const pauseBtn    = document.getElementById('pause');
 
   // Daily seed → deterministic randomness (mulberry32, public domain)
   const todayISO = new Date().toISOString().slice(0, 10);
@@ -84,6 +85,7 @@
   let nextDir;     // queued direction (applied at next tick)
   let food;        // { c, r }
   let score, gameOver, win;
+  let paused = false;
   let frame, tickFrames;
   let gameStarted; // false until the first arrow key
   let shieldFlash;      // frames of cream flash after activating the shield
@@ -541,6 +543,7 @@
   let _timeAccum = 0;
 
   function loop(now) {
+    if (paused) return;
     if (typeof now !== 'number') now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
     if (_lastFrameTime === null) {
       _lastFrameTime = now;
@@ -640,7 +643,15 @@
     if (window.ClawdStats) window.ClawdStats.trackSessionStart({ gameId: 'snake', dailyMode: dailyMode, dateISO: todayISO });
   }
 
+  function togglePause() {
+    if (gameOver || !gameStarted) return;
+    paused = !paused;
+    if (pauseBtn) pauseBtn.textContent = paused ? '▶ RESUME' : '⏸ PAUSE';
+    if (!paused) { _lastFrameTime = null; requestAnimationFrame(loop); }
+  }
   document.addEventListener('keydown', e => {
+    if (e.code === 'KeyP') { e.preventDefault(); togglePause(); return; }
+    if (paused) return;
     if (gameOver && (e.code === 'Space' || e.code === 'Enter')) {
       e.preventDefault();
       reset();
@@ -737,6 +748,7 @@
   });
 
   restartBtn.addEventListener('click', reset);
+  if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
   function renderMuteBtn() { muteBtn.textContent = music.isMuted() ? '🔇 MUSIC' : '🔊 MUSIC'; }
   renderMuteBtn();
   muteBtn.addEventListener('click', () => {

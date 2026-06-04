@@ -18,6 +18,7 @@
   const shareBtn    = document.getElementById('share');
   const dailyBtn    = document.getElementById('daily');
   const muteBtn     = document.getElementById('mute');
+  const pauseBtn    = document.getElementById('pause');
 
   // Daily share card
   const todayISO = new Date().toISOString().slice(0, 10);
@@ -211,6 +212,7 @@
   let player;
   let ghosts;
   let score, gameOver, win;
+  let paused = false;
   let dotsRemaining;
   let frameCount;
   let gameStarted;
@@ -1058,6 +1060,7 @@
   let _timeAccum = 0;
 
   function loop(now) {
+    if (paused) return;
     if (typeof now !== 'number') now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
     if (_lastFrameTime === null) {
       _lastFrameTime = now;
@@ -1151,8 +1154,17 @@
     }
   }
 
+  function togglePause() {
+    if (gameOver || !gameStarted) return;
+    paused = !paused;
+    if (pauseBtn) pauseBtn.textContent = paused ? '▶ RESUME' : '⏸ PAUSE';
+    if (!paused) { _lastFrameTime = null; requestAnimationFrame(loop); }
+  }
+
   // === Input ===
   document.addEventListener('keydown', e => {
+    if (e.code === 'KeyP') { e.preventDefault(); togglePause(); return; }
+    if (paused) return;
     if (gameOver && (e.code === 'Space' || e.code === 'Enter')) {
       e.preventDefault();
       reset();
@@ -1271,6 +1283,7 @@
   });
 
   restartBtn.addEventListener('click', reset);
+  if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
   // Reflect persisted mute state on load so the button shows the right icon
   // when arriving from another game where music was muted.
   function renderMuteBtn() { muteBtn.textContent = music.isMuted() ? '🔇 MUSIC' : '🔊 MUSIC'; }
