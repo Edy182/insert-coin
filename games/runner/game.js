@@ -666,11 +666,11 @@
     }
     // flat glow halo (kept tight to the disc so nothing reads as "legs" below)
     ctx.globalAlpha = 0.16;
-    ctx.beginPath(); ctx.ellipse(x, y, 17, 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x, y, 28, 6, 0, 0, Math.PI * 2); ctx.fill();
     // saucer: long flat disc + dome
     ctx.globalAlpha = 1;
-    ctx.beginPath(); ctx.ellipse(x, y, 12, 3, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(x, y - 1, 4, Math.PI, Math.PI * 2); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x, y, 20, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y - 2, 7, Math.PI, Math.PI * 2); ctx.closePath(); ctx.fill();
     ctx.restore();
   }
 
