@@ -258,7 +258,7 @@
         uap.y += uap.vy;
       }
       if (uap.x < -40 || uap.x > W + 40 || uap.y < -40 || uap.y > H + 40) uap = null;
-    } else if (rand() < 0.0004) {
+    } else if (rand() < 0.0018) {
       uap = { x: W + 20, y: 18 + rand() * 38, vx: -gameSpeed * 0.45, vy: 0, phase: 'drift', timer: 0,
               color: UAP_COLORS[Math.floor(rand() * UAP_COLORS.length)] };
     }
