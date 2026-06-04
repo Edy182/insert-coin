@@ -442,7 +442,6 @@
     <div class="splash-inner">
       <h2 class="splash-logo">INSERT COIN</h2>
       <p class="splash-tag">retro games</p>
-      <span class="splash-skip">▶ press any key</span>
     </div>
   </div>
 
@@ -643,6 +642,9 @@
           };
           splash.addEventListener('click', close);
           document.addEventListener('keydown', onKey);
+          // Auto-dismiss after 800ms so Twitter-visitors hit the games-grid
+          // without an extra click. Click/keydown still skips early.
+          setTimeout(close, 800);
         }
       }
       if (!window.ClawdStats) return;
